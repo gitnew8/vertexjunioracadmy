@@ -155,7 +155,9 @@ function StudentPage() {
         </div>
       </header>
 
-      {session ? (
+      {!hydrated ? (
+        <main className="mx-auto max-w-md px-5 py-16 text-sm text-muted-foreground">Loading…</main>
+      ) : session ? (
         <StudentReports session={session} />
       ) : (
         <main className="mx-auto max-w-md px-5 py-16">
