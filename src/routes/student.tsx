@@ -15,9 +15,102 @@ const SESSION_KEY = "student_session_v2";
 
 type Session = { name: string; student_class: string; roll_number: string; login_number: string };
 
+type StudentTest = {
+  id: string;
+  title: string;
+  subject: string;
+  chapter: string | null;
+  time_limit_min: number;
+  total_marks: number;
+};
+
 function generateLoginNumber() {
   // 6-digit number, leading zeros allowed
   return Math.floor(Math.random() * 1_000_000).toString().padStart(6, "0");
+}
+
+function MyTests({ session }: { session: Session }) {
+  const [loading, setLoading] = useState(true);
+  const [tests, setTests] = useState<StudentTest[]>([]);
+  const [attemptsById, setAttemptsById] = useState<Record<string, { score: number; total: number }>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data: stu } = await supabase
+        .from("students")
+        .select("id")
+        .eq("login_number", session.login_number)
+        .maybeSingle();
+      if (cancelled) return;
+      const { data: ts } = await supabase
+        .from("tests")
+        .select("id, title, subject, chapter, time_limit_min, total_marks")
+        .eq("student_class", session.student_class)
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      if (cancelled) return;
+      setTests((ts || []) as StudentTest[]);
+      if (stu && ts?.length) {
+        const { data: at } = await supabase
+          .from("test_attempts")
+          .select("test_id, score, total")
+          .eq("student_id", stu.id)
+          .in("test_id", ts.map((t) => t.id));
+        const map: Record<string, { score: number; total: number }> = {};
+        for (const a of at || []) map[a.test_id] = { score: a.score, total: a.total };
+        if (!cancelled) setAttemptsById(map);
+      }
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [session.login_number, session.student_class]);
+
+  return (
+    <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
+      <h2 className="font-display text-lg font-semibold">My Tests</h2>
+      {loading ? (
+        <div className="mt-4 text-sm text-muted-foreground">Loading…</div>
+      ) : tests.length === 0 ? (
+        <div className="mt-4 text-sm text-muted-foreground">No tests available for your class yet.</div>
+      ) : (
+        <ul className="mt-4 space-y-2">
+          {tests.map((t) => {
+            const done = attemptsById[t.id];
+            return (
+              <li key={t.id} className="rounded-xl border border-border bg-background p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-medium truncate">{t.title}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {t.subject}{t.chapter ? ` · ${t.chapter}` : ""} · {t.time_limit_min}m · {t.total_marks} marks
+                  </div>
+                </div>
+                {done ? (
+                  <div className="text-right shrink-0">
+                    <div className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                      {done.score}/{done.total}
+                    </div>
+                    <Link to="/student/test/$id" params={{ id: t.id }} className="text-xs text-primary hover:underline">
+                      View result
+                    </Link>
+                  </div>
+                ) : (
+                  <Link
+                    to="/student/test/$id"
+                    params={{ id: t.id }}
+                    className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm font-medium hover:opacity-90"
+                  >
+                    Start
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
 }
 
 function StudentPage() {
