@@ -114,12 +114,15 @@ function MyTests({ session }: { session: Session }) {
 }
 
 function StudentPage() {
-  const [session, setSession] = useState<Session | null>(() => {
-    if (typeof window === "undefined") return null;
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    return raw ? (JSON.parse(raw) as Session) : null;
-  });
+  const [session, setSession] = useState<Session | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login");
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (raw) setSession(JSON.parse(raw) as Session);
+    setHydrated(true);
+  }, []);
 
   function persist(s: Session | null) {
     if (s) sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
