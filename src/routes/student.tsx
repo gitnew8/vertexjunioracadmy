@@ -119,15 +119,15 @@ function StudentPage() {
   const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login");
 
-  if (location.pathname.startsWith("/student/test/")) {
-    return <Outlet />;
-  }
-
   useEffect(() => {
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (raw) setSession(JSON.parse(raw) as Session);
     setHydrated(true);
   }, []);
+
+  if (location.pathname.startsWith("/student/test/")) {
+    return <Outlet />;
+  }
 
   function persist(s: Session | null) {
     if (s) sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
