@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ReportRow } from "@/lib/types";
@@ -114,6 +114,7 @@ function MyTests({ session }: { session: Session }) {
 }
 
 function StudentPage() {
+  const location = useLocation();
   const [session, setSession] = useState<Session | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -123,6 +124,10 @@ function StudentPage() {
     if (raw) setSession(JSON.parse(raw) as Session);
     setHydrated(true);
   }, []);
+
+  if (location.pathname.startsWith("/student/test/")) {
+    return <Outlet />;
+  }
 
   function persist(s: Session | null) {
     if (s) sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
