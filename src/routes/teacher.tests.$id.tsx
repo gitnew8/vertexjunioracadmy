@@ -384,8 +384,15 @@ type Attempt = {
   answers: Record<string, string>;
 };
 
+type ResultStudent = {
+  id: string;
+  name: string;
+  roll_number: string;
+  student_class: string;
+};
+
 function ResultsTab({ test, questions }: { test: Test; questions: Question[] }) {
-  const { data: attempts = [], isLoading } = useQuery({
+  const { data: attempts = [], isLoading: attemptsLoading } = useQuery({
     queryKey: ["test-attempts", test.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -398,21 +405,25 @@ function ResultsTab({ test, questions }: { test: Test; questions: Question[] }) 
     },
   });
 
-  const studentIds = attempts.map((a) => a.student_id);
-  const { data: studentsMap = {} } = useQuery({
-    queryKey: ["students-by-ids", studentIds.sort().join(",")],
+  const { data: students = [], isLoading: studentsLoading } = useQuery({
+    queryKey: ["students-for-test-class", test.student_class],
     queryFn: async () => {
-      if (!studentIds.length) return {};
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("students")
         .select("id, name, roll_number, student_class")
-        .in("id", studentIds);
-      const m: Record<string, { name: string; roll_number: string; student_class: string }> = {};
-      for (const s of data || []) m[s.id] = s as { name: string; roll_number: string; student_class: string };
-      return m;
+        .eq("student_class", test.student_class)
+        .order("roll_number", { ascending: true });
+      if (error) throw error;
+      return (data || []) as ResultStudent[];
     },
-    enabled: studentIds.length > 0,
   });
+
+  const attemptsByStudent = new Map<string, Attempt>();
+  for (const attempt of attempts) {
+    if (!attemptsByStudent.has(attempt.student_id)) attemptsByStudent.set(attempt.student_id, attempt);
+  }
+  const studentRows = students.map((student) => ({ student, attempt: attemptsByStudent.get(student.id) }));
+  const orphanAttempts = attempts.filter((attempt) => !students.some((student) => student.id === attempt.student_id));
 
   // Per-question correct %
   const qStats = questions.map((q) => {
@@ -425,16 +436,15 @@ function ResultsTab({ test, questions }: { test: Test; questions: Question[] }) 
   });
 
   function exportResults() {
-    const rows = attempts.map((a) => {
-      const s = studentsMap[a.student_id];
+    const rows = studentRows.map(({ student: s, attempt: a }) => {
       return {
-        Student: s?.name || a.student_id,
-        Roll: s?.roll_number || "",
-        Class: s?.student_class || "",
-        Score: `${a.score}/${a.total}`,
-        Percent: a.total ? Math.round((a.score / a.total) * 100) + "%" : "",
-        TimeSec: a.time_taken_sec,
-        Submitted: a.submitted_at ? new Date(a.submitted_at).toLocaleString() : "",
+        Student: s.name,
+        Roll: s.roll_number,
+        Class: s.student_class,
+        Score: a ? `${a.score}/${a.total}` : "Not attempted",
+        Percent: a?.total ? Math.round((a.score / a.total) * 100) + "%" : "",
+        TimeSec: a?.time_taken_sec ?? "",
+        Submitted: a?.submitted_at ? new Date(a.submitted_at).toLocaleString() : "",
       };
     });
     exportToExcel(rows, `${test.title}-results`);
