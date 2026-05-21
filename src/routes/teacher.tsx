@@ -15,15 +15,23 @@ export const Route = createFileRoute("/teacher")({
 function TeacherLayout() {
   const navigate = useNavigate();
   const loc = useLocation();
-  const [authed, setAuthed] = useState(
-    () => typeof window !== "undefined" && sessionStorage.getItem(ADMIN_SESSION_KEY) === "1",
-  );
+  const [authed, setAuthed] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    if (authed && loc.pathname === "/teacher") {
+    setAuthed(sessionStorage.getItem(ADMIN_SESSION_KEY) === "1");
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (hydrated && authed && loc.pathname === "/teacher") {
       navigate({ to: "/teacher/dashboard", replace: true });
     }
-  }, [authed, loc.pathname, navigate]);
+  }, [hydrated, authed, loc.pathname, navigate]);
+
+  if (!hydrated) {
+    return <main className="min-h-screen grid place-items-center text-sm text-muted-foreground">Loading…</main>;
+  }
 
   if (!authed) {
     return (
