@@ -493,9 +493,9 @@ function ResultsTab({ test, questions }: { test: Test; questions: Question[] }) 
         )}
       </div>
 
-      {attempts.length === 0 ? (
+      {students.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          No attempts yet.
+          No students found for Class {test.student_class}.
         </div>
       ) : (
         <>
@@ -512,32 +512,35 @@ function ResultsTab({ test, questions }: { test: Test; questions: Question[] }) 
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {attempts.map((a) => {
-                  const s = studentsMap[a.student_id];
-                  const pct = a.total ? Math.round((a.score / a.total) * 100) : 0;
+                {studentRows.map(({ student: s, attempt: a }) => {
+                  const pct = a?.total ? Math.round((a.score / a.total) * 100) : null;
                   return (
-                    <tr key={a.id}>
-                      <td className="p-3 font-medium">{s?.name || a.student_id.slice(0, 8)}</td>
-                      <td className="p-3">{s?.roll_number}</td>
+                    <tr key={s.id}>
+                      <td className="p-3 font-medium">{s.name}</td>
+                      <td className="p-3">{s.roll_number}</td>
                       <td className="p-3">
-                        {a.score}/{a.total}
+                        {a ? `${a.score}/${a.total}` : <span className="text-muted-foreground">Not attempted</span>}
                       </td>
                       <td className="p-3">
-                        <span
-                          className={
-                            pct >= 60
-                              ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                              : pct >= 35
-                              ? "text-amber-600 dark:text-amber-400"
-                              : "text-destructive"
-                          }
-                        >
-                          {pct}%
-                        </span>
+                        {pct === null ? (
+                          <span className="text-muted-foreground">-</span>
+                        ) : (
+                          <span
+                            className={
+                              pct >= 60
+                                ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                                : pct >= 35
+                                ? "text-amber-600 dark:text-amber-400"
+                                : "text-destructive"
+                            }
+                          >
+                            {pct}%
+                          </span>
+                        )}
                       </td>
-                      <td className="p-3">{Math.floor(a.time_taken_sec / 60)}m {a.time_taken_sec % 60}s</td>
+                      <td className="p-3">{a ? `${Math.floor(a.time_taken_sec / 60)}m ${a.time_taken_sec % 60}s` : "-"}</td>
                       <td className="p-3 text-xs text-muted-foreground">
-                        {a.submitted_at ? new Date(a.submitted_at).toLocaleString() : "-"}
+                        {a?.submitted_at ? new Date(a.submitted_at).toLocaleString() : "-"}
                       </td>
                     </tr>
                   );
