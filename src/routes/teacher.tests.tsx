@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -31,6 +31,7 @@ type Test = {
 
 function TestsPage() {
   const qc = useQueryClient();
+  const location = useLocation();
   const [creating, setCreating] = useState(false);
 
   const { data: tests = [], isLoading } = useQuery({
@@ -59,6 +60,10 @@ function TestsPage() {
     if (error) return toast.error(error.message);
     toast.success(next === "published" ? "Published" : "Unpublished");
     qc.invalidateQueries({ queryKey: ["tests"] });
+  }
+
+  if (location.pathname !== "/teacher/tests" && location.pathname.startsWith("/teacher/tests/")) {
+    return <Outlet />;
   }
 
   return (
