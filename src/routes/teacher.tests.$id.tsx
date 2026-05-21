@@ -454,29 +454,28 @@ function ResultsTab({ test, questions }: { test: Test; questions: Question[] }) 
     exportToPDF(
       `${test.title} — Results`,
       ["Student", "Roll", "Score", "%", "Time (s)"],
-      attempts.map((a) => {
-        const s = studentsMap[a.student_id];
+      studentRows.map(({ student: s, attempt: a }) => {
         return [
-          s?.name || a.student_id,
-          s?.roll_number || "",
-          `${a.score}/${a.total}`,
-          a.total ? Math.round((a.score / a.total) * 100) + "%" : "",
-          a.time_taken_sec,
+          s.name,
+          s.roll_number,
+          a ? `${a.score}/${a.total}` : "Not attempted",
+          a?.total ? Math.round((a.score / a.total) * 100) + "%" : "",
+          a?.time_taken_sec ?? "",
         ];
       }),
       `${test.title}-results`,
     );
   }
 
-  if (isLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (attemptsLoading || studentsLoading) return <div className="text-sm text-muted-foreground">Loading…</div>;
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <p className="text-sm text-muted-foreground">
-          {attempts.length} student{attempts.length === 1 ? "" : "s"} attempted
+          {attempts.length}/{students.length} student{students.length === 1 ? "" : "s"} attempted
         </p>
-        {attempts.length > 0 && (
+        {students.length > 0 && (
           <div className="flex gap-2">
             <button
               onClick={exportResults}
