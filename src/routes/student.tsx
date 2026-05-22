@@ -410,6 +410,13 @@ function StudentReports({ session }: { session: Session }) {
         <span className="font-mono">{session.login_number}</span>
       </p>
 
+      <Link
+        to="/student/ai"
+        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/70 text-primary-foreground px-4 py-2.5 text-sm font-semibold shadow-md hover:opacity-90"
+      >
+        ✨ Open AI Study Helper
+      </Link>
+
       <FeeSummary session={session} />
 
       <MyTests session={session} />
