@@ -125,7 +125,10 @@ function StudentPage() {
     setHydrated(true);
   }, []);
 
-  if (location.pathname.startsWith("/student/test/")) {
+  if (
+    location.pathname.startsWith("/student/test/") ||
+    location.pathname.startsWith("/student/ai")
+  ) {
     return <Outlet />;
   }
 
