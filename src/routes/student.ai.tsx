@@ -346,7 +346,7 @@ function AiHelperPage() {
       session_id: sessId,
       role: "user",
       content: userMsg.content,
-      attachments: (userMsg.attachments || []) as unknown as object,
+      attachments: JSON.parse(JSON.stringify(userMsg.attachments || [])),
     });
 
     // assistant placeholder
