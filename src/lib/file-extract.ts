@@ -50,6 +50,7 @@ export async function extractTextFromFile(file: File): Promise<ExtractResult> {
     file.type ===
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ) {
+    // @ts-expect-error - no types for browser build
     const mammoth = await import("mammoth/mammoth.browser");
     const buf = await file.arrayBuffer();
     const { value } = await mammoth.extractRawText({ arrayBuffer: buf });
