@@ -23,6 +23,7 @@ import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
 import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
+import { Route as ApiPublicAiStudyChatRouteImport } from './routes/api/public/ai-study-chat'
 
 const TeacherRoute = TeacherRouteImport.update({
   id: '/teacher',
@@ -95,6 +96,11 @@ const ApiPublicGenerateQuestionsRoute =
     path: '/api/public/generate-questions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicAiStudyChatRoute = ApiPublicAiStudyChatRouteImport.update({
+  id: '/api/public/ai-study-chat',
+  path: '/api/public/ai-study-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
+  '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
   '/teacher': typeof TeacherIndexRoute
+  '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
+  '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/teacher/students'
     | '/teacher/tests'
     | '/teacher/'
+    | '/api/public/ai-study-chat'
     | '/api/public/generate-questions'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/teacher/students'
     | '/teacher/tests'
     | '/teacher'
+    | '/api/public/ai-study-chat'
     | '/api/public/generate-questions'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/teacher/students'
     | '/teacher/tests'
     | '/teacher/'
+    | '/api/public/ai-study-chat'
     | '/api/public/generate-questions'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -199,6 +211,7 @@ export interface RootRouteChildren {
   StudentRoute: typeof StudentRouteWithChildren
   TeacherRoute: typeof TeacherRouteWithChildren
   ReportCodeRoute: typeof ReportCodeRoute
+  ApiPublicAiStudyChatRoute: typeof ApiPublicAiStudyChatRoute
   ApiPublicGenerateQuestionsRoute: typeof ApiPublicGenerateQuestionsRoute
 }
 
@@ -302,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGenerateQuestionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ai-study-chat': {
+      id: '/api/public/ai-study-chat'
+      path: '/api/public/ai-study-chat'
+      fullPath: '/api/public/ai-study-chat'
+      preLoaderRoute: typeof ApiPublicAiStudyChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -356,8 +376,19 @@ const rootRouteChildren: RootRouteChildren = {
   StudentRoute: StudentRouteWithChildren,
   TeacherRoute: TeacherRouteWithChildren,
   ReportCodeRoute: ReportCodeRoute,
+  ApiPublicAiStudyChatRoute: ApiPublicAiStudyChatRoute,
   ApiPublicGenerateQuestionsRoute: ApiPublicGenerateQuestionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
