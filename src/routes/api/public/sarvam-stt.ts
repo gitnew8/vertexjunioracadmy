@@ -20,14 +20,15 @@ export const Route = createFileRoute("/api/public/sarvam-stt")({
         }
 
         const inForm = await request.formData();
-        const audio = inForm.get("audio");
+        const audio = inForm.get("audio") as unknown;
         const language = (inForm.get("language") as string) || "hinglish";
-        if (!(audio instanceof File) && !(audio instanceof Blob)) {
+        if (!(audio instanceof Blob)) {
           return new Response(JSON.stringify({ error: "Missing audio" }), {
             status: 400,
             headers: { "Content-Type": "application/json" },
           });
         }
+
 
         const fd = new FormData();
         const file =
