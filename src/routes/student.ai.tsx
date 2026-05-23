@@ -104,7 +104,12 @@ function AiHelperPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const recognitionRef = useRef<any>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const recChunksRef = useRef<Blob[]>([]);
+  const recStreamRef = useRef<MediaStream | null>(null);
+  const audioElRef = useRef<HTMLAudioElement | null>(null);
+  const [transcribing, setTranscribing] = useState(false);
+
 
   // Hydrate session
   useEffect(() => {
@@ -267,49 +272,112 @@ function AiHelperPage() {
     setPendingAtts((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  // ---- Voice (Web Speech API) ----
-  function toggleListening() {
-    const Win = window as unknown as {
-      SpeechRecognition?: any;
-      webkitSpeechRecognition?: any;
-    };
-    const Rec = Win.SpeechRecognition || Win.webkitSpeechRecognition;
-    if (!Rec) {
-      toast.error("Voice input not supported in this browser. Try Chrome.");
-      return;
-    }
+  // ---- Voice (Sarvam STT via MediaRecorder) ----
+  async function toggleListening() {
     if (listening) {
-      recognitionRef.current?.stop();
+      try {
+        recorderRef.current?.stop();
+      } catch {
+        /* noop */
+      }
       return;
     }
-    const rec = new Rec();
-    rec.lang = language === "hi" ? "hi-IN" : language === "en" ? "en-IN" : "hi-IN";
-    rec.continuous = false;
-    rec.interimResults = true;
-    rec.onresult = (ev: any) => {
-      let text = "";
-      for (let i = 0; i < ev.results.length; i++) text += ev.results[i][0].transcript;
-      setInput(text);
-    };
-    rec.onerror = () => setListening(false);
-    rec.onend = () => setListening(false);
-    recognitionRef.current = rec;
-    rec.start();
-    setListening(true);
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error("Microphone not supported in this browser.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recStreamRef.current = stream;
+      const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm")
+        ? "audio/webm"
+        : "";
+      const rec = mime
+        ? new MediaRecorder(stream, { mimeType: mime })
+        : new MediaRecorder(stream);
+      recChunksRef.current = [];
+      rec.ondataavailable = (e) => {
+        if (e.data.size > 0) recChunksRef.current.push(e.data);
+      };
+      rec.onstop = async () => {
+        setListening(false);
+        recStreamRef.current?.getTracks().forEach((t) => t.stop());
+        recStreamRef.current = null;
+        const blob = new Blob(recChunksRef.current, {
+          type: rec.mimeType || "audio/webm",
+        });
+        if (blob.size < 800) return;
+        setTranscribing(true);
+        try {
+          const fd = new FormData();
+          fd.append("audio", blob, "speech.webm");
+          fd.append("language", language);
+          const resp = await fetch("/api/public/sarvam-stt", {
+            method: "POST",
+            body: fd,
+          });
+          const data = (await resp.json()) as {
+            transcript?: string;
+            error?: string;
+          };
+          if (!resp.ok) {
+            toast.error(data.error || "Voice failed");
+            return;
+          }
+          if (data.transcript) {
+            setInput((prev) => (prev ? prev + " " : "") + data.transcript);
+          } else {
+            toast.message("Couldn't hear anything, try again.");
+          }
+        } catch (err) {
+          toast.error((err as Error).message);
+        } finally {
+          setTranscribing(false);
+        }
+      };
+      recorderRef.current = rec;
+      rec.start();
+      setListening(true);
+    } catch (err) {
+      toast.error("Mic permission denied: " + (err as Error).message);
+    }
   }
 
-  function speak(text: string) {
+  async function speak(text: string) {
     if (!ttsOn) return;
     try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text.replace(/\*\*|`|#/g, ""));
-      u.lang = language === "hi" ? "hi-IN" : "en-IN";
-      u.rate = 0.95;
-      window.speechSynthesis.speak(u);
+      const resp = await fetch("/api/public/sarvam-tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, language }),
+      });
+      const data = (await resp.json()) as { audios?: string[]; error?: string };
+      if (!resp.ok || !data.audios?.length) {
+        if (data.error) console.warn("TTS:", data.error);
+        return;
+      }
+      if (audioElRef.current) {
+        audioElRef.current.pause();
+      }
+      // play chunks sequentially
+      const playOne = (b64: string) =>
+        new Promise<void>((resolve) => {
+          const audio = new Audio(`data:audio/wav;base64,${b64}`);
+          audioElRef.current = audio;
+          audio.onended = () => resolve();
+          audio.onerror = () => resolve();
+          audio.play().catch(() => resolve());
+        });
+      for (const a of data.audios) {
+        await playOne(a);
+      }
     } catch {
       /* noop */
     }
   }
+
 
   // ---- Send message + stream ----
   async function send() {
@@ -712,14 +780,21 @@ function AiHelperPage() {
               </button>
               <button
                 onClick={toggleListening}
+                disabled={transcribing}
                 className={`p-2.5 rounded-xl border ${
                   listening
                     ? "bg-destructive text-destructive-foreground border-destructive animate-pulse"
                     : "border-border bg-background hover:bg-secondary"
-                }`}
-                title="Voice input"
+                } disabled:opacity-50`}
+                title={transcribing ? "Transcribing…" : "Voice input (Sarvam AI)"}
               >
-                {listening ? <MicOff className="size-4" /> : <Mic className="size-4" />}
+                {transcribing ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : listening ? (
+                  <MicOff className="size-4" />
+                ) : (
+                  <Mic className="size-4" />
+                )}
               </button>
 
               <textarea
@@ -729,12 +804,15 @@ function AiHelperPage() {
                 rows={1}
                 placeholder={
                   listening
-                    ? "Listening…"
+                    ? "Listening… (tap mic to stop)"
+                    : transcribing
+                    ? "Transcribing your voice…"
                     : mode === "image"
                     ? "Ask about the photo…"
                     : mode === "file"
                     ? "Ask from the file…"
                     : "Type your question (Hindi / English)…"
+
                 }
                 className="flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 max-h-40"
               />

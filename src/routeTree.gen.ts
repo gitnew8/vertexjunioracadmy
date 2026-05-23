@@ -23,6 +23,8 @@ import { Route as StudentAiRouteImport } from './routes/student.ai'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
+import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
+import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
 import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
 import { Route as ApiPublicAiStudyChatRouteImport } from './routes/api/public/ai-study-chat'
 
@@ -96,6 +98,16 @@ const StudentTestIdRoute = StudentTestIdRouteImport.update({
   path: '/test/$id',
   getParentRoute: () => StudentRoute,
 } as any)
+const ApiPublicSarvamTtsRoute = ApiPublicSarvamTtsRouteImport.update({
+  id: '/api/public/sarvam-tts',
+  path: '/api/public/sarvam-tts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSarvamSttRoute = ApiPublicSarvamSttRouteImport.update({
+  id: '/api/public/sarvam-stt',
+  path: '/api/public/sarvam-stt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGenerateQuestionsRoute =
   ApiPublicGenerateQuestionsRouteImport.update({
     id: '/api/public/generate-questions',
@@ -123,6 +135,8 @@ export interface FileRoutesByFullPath {
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
+  '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
+  '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -140,6 +154,8 @@ export interface FileRoutesByTo {
   '/teacher': typeof TeacherIndexRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
+  '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
+  '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -159,6 +175,8 @@ export interface FileRoutesById {
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
+  '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
+  '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -179,6 +197,8 @@ export interface FileRouteTypes {
     | '/teacher/'
     | '/api/public/ai-study-chat'
     | '/api/public/generate-questions'
+    | '/api/public/sarvam-stt'
+    | '/api/public/sarvam-tts'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -196,6 +216,8 @@ export interface FileRouteTypes {
     | '/teacher'
     | '/api/public/ai-study-chat'
     | '/api/public/generate-questions'
+    | '/api/public/sarvam-stt'
+    | '/api/public/sarvam-tts'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   id:
@@ -214,6 +236,8 @@ export interface FileRouteTypes {
     | '/teacher/'
     | '/api/public/ai-study-chat'
     | '/api/public/generate-questions'
+    | '/api/public/sarvam-stt'
+    | '/api/public/sarvam-tts'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   fileRoutesById: FileRoutesById
@@ -225,6 +249,8 @@ export interface RootRouteChildren {
   ReportCodeRoute: typeof ReportCodeRoute
   ApiPublicAiStudyChatRoute: typeof ApiPublicAiStudyChatRoute
   ApiPublicGenerateQuestionsRoute: typeof ApiPublicGenerateQuestionsRoute
+  ApiPublicSarvamSttRoute: typeof ApiPublicSarvamSttRoute
+  ApiPublicSarvamTtsRoute: typeof ApiPublicSarvamTtsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -327,6 +353,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentTestIdRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/api/public/sarvam-tts': {
+      id: '/api/public/sarvam-tts'
+      path: '/api/public/sarvam-tts'
+      fullPath: '/api/public/sarvam-tts'
+      preLoaderRoute: typeof ApiPublicSarvamTtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sarvam-stt': {
+      id: '/api/public/sarvam-stt'
+      path: '/api/public/sarvam-stt'
+      fullPath: '/api/public/sarvam-stt'
+      preLoaderRoute: typeof ApiPublicSarvamSttRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/generate-questions': {
       id: '/api/public/generate-questions'
       path: '/api/public/generate-questions'
@@ -399,17 +439,9 @@ const rootRouteChildren: RootRouteChildren = {
   ReportCodeRoute: ReportCodeRoute,
   ApiPublicAiStudyChatRoute: ApiPublicAiStudyChatRoute,
   ApiPublicGenerateQuestionsRoute: ApiPublicGenerateQuestionsRoute,
+  ApiPublicSarvamSttRoute: ApiPublicSarvamSttRoute,
+  ApiPublicSarvamTtsRoute: ApiPublicSarvamTtsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
