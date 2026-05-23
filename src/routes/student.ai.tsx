@@ -780,14 +780,21 @@ function AiHelperPage() {
               </button>
               <button
                 onClick={toggleListening}
+                disabled={transcribing}
                 className={`p-2.5 rounded-xl border ${
                   listening
                     ? "bg-destructive text-destructive-foreground border-destructive animate-pulse"
                     : "border-border bg-background hover:bg-secondary"
-                }`}
-                title="Voice input"
+                } disabled:opacity-50`}
+                title={transcribing ? "Transcribing…" : "Voice input (Sarvam AI)"}
               >
-                {listening ? <MicOff className="size-4" /> : <Mic className="size-4" />}
+                {transcribing ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : listening ? (
+                  <MicOff className="size-4" />
+                ) : (
+                  <Mic className="size-4" />
+                )}
               </button>
 
               <textarea
@@ -797,12 +804,15 @@ function AiHelperPage() {
                 rows={1}
                 placeholder={
                   listening
-                    ? "Listening…"
+                    ? "Listening… (tap mic to stop)"
+                    : transcribing
+                    ? "Transcribing your voice…"
                     : mode === "image"
                     ? "Ask about the photo…"
                     : mode === "file"
                     ? "Ask from the file…"
                     : "Type your question (Hindi / English)…"
+
                 }
                 className="flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 max-h-40"
               />
