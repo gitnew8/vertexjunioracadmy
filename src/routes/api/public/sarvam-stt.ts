@@ -31,11 +31,11 @@ export const Route = createFileRoute("/api/public/sarvam-stt")({
 
 
         const fd = new FormData();
-        const file =
-          audio instanceof File
-            ? audio
-            : new File([audio], "audio.webm", { type: "audio/webm" });
+        const file = new File([audio], "audio.webm", {
+          type: (audio as Blob).type || "audio/webm",
+        });
         fd.append("file", file);
+
         fd.append("model", "saarika:v2");
         fd.append("language_code", LANG_MAP[language] || "unknown");
 
