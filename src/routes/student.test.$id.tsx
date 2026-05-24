@@ -29,6 +29,8 @@ type Question = {
   marks: number;
 };
 
+type QEval = { verdict: "Correct" | "Partial" | "Wrong"; marks: number; feedback: string };
+
 type Attempt = {
   id: string;
   score: number;
@@ -36,6 +38,7 @@ type Attempt = {
   time_taken_sec: number;
   submitted_at: string | null;
   answers: Record<string, string>;
+  evaluations?: Record<string, QEval>;
 };
 
 export const Route = createFileRoute("/student/test/$id")({
