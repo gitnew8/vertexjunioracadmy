@@ -117,7 +117,7 @@ function TakeTestPage() {
       ]);
       if (cancelled) return;
       setQuestions((qs || []) as Question[]);
-      if (at) setExisting(at as Attempt);
+      if (at) setExisting(at as unknown as Attempt);
       setLoading(false);
     })();
     return () => {
