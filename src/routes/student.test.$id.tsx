@@ -29,6 +29,8 @@ type Question = {
   marks: number;
 };
 
+type QEval = { verdict: "Correct" | "Partial" | "Wrong"; marks: number; feedback: string };
+
 type Attempt = {
   id: string;
   score: number;
@@ -36,6 +38,7 @@ type Attempt = {
   time_taken_sec: number;
   submitted_at: string | null;
   answers: Record<string, string>;
+  evaluations?: Record<string, QEval>;
 };
 
 export const Route = createFileRoute("/student/test/$id")({
@@ -114,7 +117,7 @@ function TakeTestPage() {
       ]);
       if (cancelled) return;
       setQuestions((qs || []) as Question[]);
-      if (at) setExisting(at as Attempt);
+      if (at) setExisting(at as unknown as Attempt);
       setLoading(false);
     })();
     return () => {
@@ -142,13 +145,86 @@ function TakeTestPage() {
 
     let score = 0;
     let total = 0;
+    const evaluations: Record<string, QEval> = {};
+    const subjective: Question[] = [];
+
     for (const q of questions) {
       total += q.marks;
-      const a = answers[q.id];
-      if (a && a.trim().toLowerCase() === q.correct_answer.trim().toLowerCase()) {
-        score += q.marks;
+      const a = (answers[q.id] || "").trim();
+      if (q.section === "MCQ" || q.section === "TrueFalse") {
+        const ok = a && a.toLowerCase() === q.correct_answer.trim().toLowerCase();
+        const marks = ok ? q.marks : 0;
+        if (ok) score += q.marks;
+        evaluations[q.id] = {
+          verdict: ok ? "Correct" : a ? "Wrong" : "Wrong",
+          marks,
+          feedback: ok
+            ? "Correct answer. Well done!"
+            : `Correct answer: ${q.correct_answer}.`,
+        };
+      } else {
+        subjective.push(q);
       }
     }
+
+    // AI examiner for subjective answers (Short / Long / anything else)
+    if (subjective.length) {
+      try {
+        const res = await fetch("/api/public/ai-evaluate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: test.subject,
+            student_class: test.student_class,
+            items: subjective.map((q) => ({
+              q_no: q.q_no,
+              question: q.question,
+              section: q.section,
+              marks: q.marks,
+              student_answer: answers[q.id] || "",
+            })),
+          }),
+        });
+        if (res.ok) {
+          const json = (await res.json()) as {
+            evaluations: { q_no: number; verdict: QEval["verdict"]; marks: number; feedback: string }[];
+          };
+          const byNo = new Map(json.evaluations.map((e) => [e.q_no, e]));
+          for (const q of subjective) {
+            const e = byNo.get(q.q_no);
+            if (e) {
+              const m = Math.max(0, Math.min(q.marks, Number(e.marks) || 0));
+              score += m;
+              evaluations[q.id] = { verdict: e.verdict, marks: m, feedback: e.feedback };
+            } else {
+              evaluations[q.id] = {
+                verdict: "Wrong",
+                marks: 0,
+                feedback: "Could not evaluate automatically.",
+              };
+            }
+          }
+        } else {
+          toast.error("AI examiner busy — saved without AI grading for written answers.");
+          for (const q of subjective) {
+            evaluations[q.id] = {
+              verdict: "Wrong",
+              marks: 0,
+              feedback: "Pending teacher review.",
+            };
+          }
+        }
+      } catch {
+        for (const q of subjective) {
+          evaluations[q.id] = {
+            verdict: "Wrong",
+            marks: 0,
+            feedback: "Pending teacher review.",
+          };
+        }
+      }
+    }
+
     const time_taken_sec = Math.floor((Date.now() - startedAt) / 1000);
 
     const { data, error } = await supabase
@@ -160,6 +236,7 @@ function TakeTestPage() {
         total,
         time_taken_sec,
         answers,
+        evaluations,
         submitted_at: new Date().toISOString(),
       })
       .select("*")
@@ -170,7 +247,7 @@ function TakeTestPage() {
       submittedRef.current = false;
       return toast.error(error.message);
     }
-    setExisting(data as Attempt);
+    setExisting(data as unknown as Attempt);
   }
 
   if (loading || !session || !test) {
@@ -316,37 +393,50 @@ function ResultView({ test, questions, attempt }: { test: Test; questions: Quest
           <Stat label="Time taken" value={`${mm}m ${ss}s`} />
         </div>
 
-        <h2 className="font-display text-lg font-semibold mt-8 mb-3">Answers</h2>
+        <h2 className="font-display text-lg font-semibold mt-8 mb-3">Answers & teacher feedback</h2>
         <div className="space-y-3">
           {questions.map((q) => {
             const a = attempt.answers?.[q.id] || "";
-            const ok = a.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+            const ev = attempt.evaluations?.[q.id];
+            const verdict = ev?.verdict ?? (a.trim().toLowerCase() === q.correct_answer.trim().toLowerCase() ? "Correct" : "Wrong");
+            const awarded = ev?.marks ?? (verdict === "Correct" ? q.marks : 0);
+            const tone =
+              verdict === "Correct"
+                ? "border-emerald-500/30 bg-emerald-500/5"
+                : verdict === "Partial"
+                ? "border-amber-500/30 bg-amber-500/5"
+                : "border-red-500/30 bg-red-500/5";
+            const Icon = verdict === "Wrong" ? XCircle : CheckCircle2;
+            const iconCls =
+              verdict === "Correct"
+                ? "text-emerald-600 dark:text-emerald-400"
+                : verdict === "Partial"
+                ? "text-amber-600 dark:text-amber-400"
+                : "text-destructive";
             return (
-              <div
-                key={q.id}
-                className={`rounded-xl border p-4 ${
-                  ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-red-500/30 bg-red-500/5"
-                }`}
-              >
+              <div key={q.id} className={`rounded-xl border p-4 ${tone}`}>
                 <div className="flex items-start gap-2">
-                  {ok ? (
-                    <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                  ) : (
-                    <XCircle className="size-5 text-destructive shrink-0 mt-0.5" />
-                  )}
+                  <Icon className={`size-5 shrink-0 mt-0.5 ${iconCls}`} />
                   <div className="min-w-0 flex-1">
-                    <div className="text-xs text-muted-foreground">
-                      Q{q.q_no} · {q.section} · {q.marks} mark{q.marks > 1 ? "s" : ""}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs text-muted-foreground">
+                        Q{q.q_no} · {q.section} · {awarded}/{q.marks} mark{q.marks > 1 ? "s" : ""}
+                      </div>
+                      <span className={`text-xs font-semibold ${iconCls}`}>{verdict}</span>
                     </div>
                     <div className="font-medium">{q.question}</div>
-                    <div className="mt-2 text-sm">
+                    <div className="mt-2 text-sm space-y-1">
                       <div>
                         <span className="text-muted-foreground">Your answer: </span>
-                        <span className={ok ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-destructive font-medium"}>
-                          {a || "— not answered —"}
-                        </span>
+                        <span className="font-medium whitespace-pre-wrap">{a || "— not answered —"}</span>
                       </div>
-                      {!ok && (
+                      {ev?.feedback && (
+                        <div className="mt-2 rounded-lg bg-background/60 border border-border p-2.5 text-sm">
+                          <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">Teacher feedback</div>
+                          {ev.feedback}
+                        </div>
+                      )}
+                      {!ev && verdict === "Wrong" && (q.section === "MCQ" || q.section === "TrueFalse") && (
                         <div>
                           <span className="text-muted-foreground">Correct answer: </span>
                           <span className="font-medium text-emerald-700 dark:text-emerald-400">
