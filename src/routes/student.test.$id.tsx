@@ -145,13 +145,86 @@ function TakeTestPage() {
 
     let score = 0;
     let total = 0;
+    const evaluations: Record<string, QEval> = {};
+    const subjective: Question[] = [];
+
     for (const q of questions) {
       total += q.marks;
-      const a = answers[q.id];
-      if (a && a.trim().toLowerCase() === q.correct_answer.trim().toLowerCase()) {
-        score += q.marks;
+      const a = (answers[q.id] || "").trim();
+      if (q.section === "MCQ" || q.section === "TrueFalse") {
+        const ok = a && a.toLowerCase() === q.correct_answer.trim().toLowerCase();
+        const marks = ok ? q.marks : 0;
+        if (ok) score += q.marks;
+        evaluations[q.id] = {
+          verdict: ok ? "Correct" : a ? "Wrong" : "Wrong",
+          marks,
+          feedback: ok
+            ? "Correct answer. Well done!"
+            : `Correct answer: ${q.correct_answer}.`,
+        };
+      } else {
+        subjective.push(q);
       }
     }
+
+    // AI examiner for subjective answers (Short / Long / anything else)
+    if (subjective.length) {
+      try {
+        const res = await fetch("/api/public/ai-evaluate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: test.subject,
+            student_class: test.student_class,
+            items: subjective.map((q) => ({
+              q_no: q.q_no,
+              question: q.question,
+              section: q.section,
+              marks: q.marks,
+              student_answer: answers[q.id] || "",
+            })),
+          }),
+        });
+        if (res.ok) {
+          const json = (await res.json()) as {
+            evaluations: { q_no: number; verdict: QEval["verdict"]; marks: number; feedback: string }[];
+          };
+          const byNo = new Map(json.evaluations.map((e) => [e.q_no, e]));
+          for (const q of subjective) {
+            const e = byNo.get(q.q_no);
+            if (e) {
+              const m = Math.max(0, Math.min(q.marks, Number(e.marks) || 0));
+              score += m;
+              evaluations[q.id] = { verdict: e.verdict, marks: m, feedback: e.feedback };
+            } else {
+              evaluations[q.id] = {
+                verdict: "Wrong",
+                marks: 0,
+                feedback: "Could not evaluate automatically.",
+              };
+            }
+          }
+        } else {
+          toast.error("AI examiner busy — saved without AI grading for written answers.");
+          for (const q of subjective) {
+            evaluations[q.id] = {
+              verdict: "Wrong",
+              marks: 0,
+              feedback: "Pending teacher review.",
+            };
+          }
+        }
+      } catch {
+        for (const q of subjective) {
+          evaluations[q.id] = {
+            verdict: "Wrong",
+            marks: 0,
+            feedback: "Pending teacher review.",
+          };
+        }
+      }
+    }
+
     const time_taken_sec = Math.floor((Date.now() - startedAt) / 1000);
 
     const { data, error } = await supabase
@@ -163,6 +236,7 @@ function TakeTestPage() {
         total,
         time_taken_sec,
         answers,
+        evaluations,
         submitted_at: new Date().toISOString(),
       })
       .select("*")
@@ -173,7 +247,7 @@ function TakeTestPage() {
       submittedRef.current = false;
       return toast.error(error.message);
     }
-    setExisting(data as Attempt);
+    setExisting(data as unknown as Attempt);
   }
 
   if (loading || !session || !test) {
