@@ -266,6 +266,7 @@ export type Database = {
         Row: {
           answers: Json
           created_at: string
+          evaluations: Json
           id: string
           score: number
           started_at: string
@@ -278,6 +279,7 @@ export type Database = {
         Insert: {
           answers?: Json
           created_at?: string
+          evaluations?: Json
           id?: string
           score?: number
           started_at?: string
@@ -290,6 +292,7 @@ export type Database = {
         Update: {
           answers?: Json
           created_at?: string
+          evaluations?: Json
           id?: string
           score?: number
           started_at?: string
