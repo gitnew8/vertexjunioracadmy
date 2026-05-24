@@ -393,37 +393,50 @@ function ResultView({ test, questions, attempt }: { test: Test; questions: Quest
           <Stat label="Time taken" value={`${mm}m ${ss}s`} />
         </div>
 
-        <h2 className="font-display text-lg font-semibold mt-8 mb-3">Answers</h2>
+        <h2 className="font-display text-lg font-semibold mt-8 mb-3">Answers & teacher feedback</h2>
         <div className="space-y-3">
           {questions.map((q) => {
             const a = attempt.answers?.[q.id] || "";
-            const ok = a.trim().toLowerCase() === q.correct_answer.trim().toLowerCase();
+            const ev = attempt.evaluations?.[q.id];
+            const verdict = ev?.verdict ?? (a.trim().toLowerCase() === q.correct_answer.trim().toLowerCase() ? "Correct" : "Wrong");
+            const awarded = ev?.marks ?? (verdict === "Correct" ? q.marks : 0);
+            const tone =
+              verdict === "Correct"
+                ? "border-emerald-500/30 bg-emerald-500/5"
+                : verdict === "Partial"
+                ? "border-amber-500/30 bg-amber-500/5"
+                : "border-red-500/30 bg-red-500/5";
+            const Icon = verdict === "Wrong" ? XCircle : CheckCircle2;
+            const iconCls =
+              verdict === "Correct"
+                ? "text-emerald-600 dark:text-emerald-400"
+                : verdict === "Partial"
+                ? "text-amber-600 dark:text-amber-400"
+                : "text-destructive";
             return (
-              <div
-                key={q.id}
-                className={`rounded-xl border p-4 ${
-                  ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-red-500/30 bg-red-500/5"
-                }`}
-              >
+              <div key={q.id} className={`rounded-xl border p-4 ${tone}`}>
                 <div className="flex items-start gap-2">
-                  {ok ? (
-                    <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                  ) : (
-                    <XCircle className="size-5 text-destructive shrink-0 mt-0.5" />
-                  )}
+                  <Icon className={`size-5 shrink-0 mt-0.5 ${iconCls}`} />
                   <div className="min-w-0 flex-1">
-                    <div className="text-xs text-muted-foreground">
-                      Q{q.q_no} · {q.section} · {q.marks} mark{q.marks > 1 ? "s" : ""}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs text-muted-foreground">
+                        Q{q.q_no} · {q.section} · {awarded}/{q.marks} mark{q.marks > 1 ? "s" : ""}
+                      </div>
+                      <span className={`text-xs font-semibold ${iconCls}`}>{verdict}</span>
                     </div>
                     <div className="font-medium">{q.question}</div>
-                    <div className="mt-2 text-sm">
+                    <div className="mt-2 text-sm space-y-1">
                       <div>
                         <span className="text-muted-foreground">Your answer: </span>
-                        <span className={ok ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-destructive font-medium"}>
-                          {a || "— not answered —"}
-                        </span>
+                        <span className="font-medium whitespace-pre-wrap">{a || "— not answered —"}</span>
                       </div>
-                      {!ok && (
+                      {ev?.feedback && (
+                        <div className="mt-2 rounded-lg bg-background/60 border border-border p-2.5 text-sm">
+                          <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">Teacher feedback</div>
+                          {ev.feedback}
+                        </div>
+                      )}
+                      {!ev && verdict === "Wrong" && (q.section === "MCQ" || q.section === "TrueFalse") && (
                         <div>
                           <span className="text-muted-foreground">Correct answer: </span>
                           <span className="font-medium text-emerald-700 dark:text-emerald-400">
