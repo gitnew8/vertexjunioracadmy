@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { GraduationCap, FileText, Share2, ShieldCheck } from "lucide-react";
+import vertexLogo from "@/assets/vertex-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -21,10 +22,8 @@ function Landing() {
       <header className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-10">
         <div className="mx-auto max-w-6xl px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center">
-              <GraduationCap className="size-5" />
-            </div>
-            <span className="font-display text-lg font-semibold">WeeklyReport</span>
+            <img src={vertexLogo.url} alt="Vertex Junior Academy" className="size-9 rounded-full object-cover" />
+            <span className="font-display text-lg font-semibold">Vertex Junior Academy</span>
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -45,12 +44,17 @@ function Landing() {
 
       <main className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <section className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <img
+              src={vertexLogo.url}
+              alt="Vertex Junior Academy logo"
+              className="size-32 md:size-40 mb-6 drop-shadow-md"
+            />
             <span className="inline-flex items-center gap-2 rounded-full bg-accent/40 text-accent-foreground px-3 py-1 text-xs font-medium">
               <ShieldCheck className="size-3.5" />
               No login. No sign-up. Just share.
             </span>
-            <h1 className="mt-4 font-display text-5xl md:text-6xl font-bold leading-[1.05] text-center">
+            <h1 className="mt-4 font-display text-5xl md:text-6xl font-bold leading-[1.05] text-center md:text-left">
               Vertex Junior Academy
             </h1>
             <p className="mt-5 text-lg text-muted-foreground max-w-lg">
