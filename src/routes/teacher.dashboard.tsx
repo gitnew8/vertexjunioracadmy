@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, UserCheck, Sparkles, Wallet } from "lucide-react";
+import { Users, UserCheck, Sparkles, Wallet, Activity } from "lucide-react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -25,17 +25,21 @@ function DashboardPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-dashboard"],
     queryFn: async () => {
-      const [studentsRes, reportsRes, feesRes] = await Promise.all([
+      const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      const [studentsRes, reportsRes, feesRes, liveRes] = await Promise.all([
         supabase.from("students").select("id, name, created_at, roll_number, student_class").order("created_at", { ascending: false }),
         supabase.from("reports").select("roll_number, created_at").gte("created_at", subMonths(new Date(), 6).toISOString()),
         supabase.from("fees").select("total_fee, paid_amount, due_amount"),
+        supabase.from("test_attempts").select("*", { count: "exact", head: true }).is("submitted_at", null).gte("started_at", fifteenMinAgo),
       ]);
       return {
         students: studentsRes.data || [],
         reports: reportsRes.data || [],
         fees: feesRes.data || [],
+        liveCount: liveRes.count || 0,
       };
     },
+    refetchInterval: 10000,
   });
 
   if (isLoading || !data) {
@@ -81,9 +85,10 @@ function DashboardPage() {
         <p className="text-sm text-muted-foreground">Overview of students and fees</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
         <StatCard icon={Users} label="Total Students" value={total} accent="primary" />
         <StatCard icon={UserCheck} label="Active (30d)" value={active} accent="success" />
+        <StatCard icon={Activity} label="Live Now" value={data.liveCount} accent="success" />
         <StatCard icon={Sparkles} label="New This Month" value={newThisMonth} accent="accent" />
         <StatCard icon={Wallet} label="Total Due" value={`₹${totalDue.toLocaleString()}`} accent="danger" />
       </div>
