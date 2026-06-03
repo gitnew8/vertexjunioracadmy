@@ -297,6 +297,38 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
         </DialogHeader>
 
         <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+          <div className="inline-flex rounded-lg border border-border p-1 bg-secondary/40 text-xs">
+            <button
+              type="button"
+              onClick={() => setMode("form")}
+              className={`px-3 py-1.5 rounded-md font-medium transition ${mode === "form" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+            >
+              Quick form
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("prompt")}
+              className={`px-3 py-1.5 rounded-md font-medium transition inline-flex items-center gap-1 ${mode === "prompt" ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+            >
+              <Sparkles className="size-3" /> AI Prompt
+            </button>
+          </div>
+
+          {mode === "prompt" && (
+            <Field label="Your prompt to AI">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                rows={5}
+                placeholder={`Example:\n"Class 8 Maths ke Linear Equations chapter ka unit test banao — 5 MCQ + 3 short answer + 2 word problems. Medium difficulty, Hinglish me. Real-life examples use karo."`}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono leading-relaxed"
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                AI will follow your instructions exactly. Form fields below still set defaults (count, language, types).
+              </p>
+            </Field>
+          )}
+
           <Field label="Test title">
             <input
               value={title}
