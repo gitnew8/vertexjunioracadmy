@@ -22,10 +22,8 @@ function Landing() {
       <header className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-10">
         <div className="mx-auto max-w-6xl px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center">
-              <GraduationCap className="size-5" />
-            </div>
-            <span className="font-display text-lg font-semibold">WeeklyReport</span>
+            <img src={vertexLogo.url} alt="Vertex Junior Academy" className="size-9 rounded-full object-cover" />
+            <span className="font-display text-lg font-semibold">Vertex Junior Academy</span>
           </div>
           <div className="flex items-center gap-2">
             <Link
