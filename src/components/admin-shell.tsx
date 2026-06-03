@@ -123,6 +123,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 p-2 space-y-0.5">
           {NAV.map((item) => {
             const active = loc.pathname === item.to || loc.pathname.startsWith(item.to + "/");
+            const isLive = item.to === "/teacher/live";
             return (
               <Link
                 key={item.to}
@@ -135,7 +136,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 }`}
               >
                 <item.icon className="size-4" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {isLive && <LiveBadge />}
               </Link>
             );
           })}
@@ -152,6 +154,31 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       </>
     );
   }
+}
+
+function LiveBadge() {
+  const { data: count = 0 } = useQuery({
+    queryKey: ["live-count"],
+    queryFn: async () => {
+      const fifteenMinAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      const { count, error } = await supabase
+        .from("test_attempts")
+        .select("*", { count: "exact", head: true })
+        .is("submitted_at", null)
+        .gte("started_at", fifteenMinAgo);
+      if (error) throw error;
+      return count || 0;
+    },
+    refetchInterval: 10000,
+  });
+
+  if (count === 0) return null;
+
+  return (
+    <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-emerald-500 text-white text-[10px] font-bold">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
 }
 
 function ThemeToggle() {
