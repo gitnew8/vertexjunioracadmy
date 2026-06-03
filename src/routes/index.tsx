@@ -46,12 +46,17 @@ function Landing() {
 
       <main className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <section className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <img
+              src={vertexLogo.url}
+              alt="Vertex Junior Academy logo"
+              className="size-32 md:size-40 mb-6 drop-shadow-md"
+            />
             <span className="inline-flex items-center gap-2 rounded-full bg-accent/40 text-accent-foreground px-3 py-1 text-xs font-medium">
               <ShieldCheck className="size-3.5" />
               No login. No sign-up. Just share.
             </span>
-            <h1 className="mt-4 font-display text-5xl md:text-6xl font-bold leading-[1.05] text-center">
+            <h1 className="mt-4 font-display text-5xl md:text-6xl font-bold leading-[1.05] text-center md:text-left">
               Vertex Junior Academy
             </h1>
             <p className="mt-5 text-lg text-muted-foreground max-w-lg">
