@@ -85,9 +85,10 @@ function DashboardPage() {
         <p className="text-sm text-muted-foreground">Overview of students and fees</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
         <StatCard icon={Users} label="Total Students" value={total} accent="primary" />
         <StatCard icon={UserCheck} label="Active (30d)" value={active} accent="success" />
+        <StatCard icon={Activity} label="Live Now" value={data.liveCount} accent="success" />
         <StatCard icon={Sparkles} label="New This Month" value={newThisMonth} accent="accent" />
         <StatCard icon={Wallet} label="Total Due" value={`₹${totalDue.toLocaleString()}`} accent="danger" />
       </div>
