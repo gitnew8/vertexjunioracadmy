@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, UserCheck, Sparkles, Wallet } from "lucide-react";
+import { Users, UserCheck, Sparkles, Wallet, Activity } from "lucide-react";
 import {
   ResponsiveContainer,
   BarChart,
