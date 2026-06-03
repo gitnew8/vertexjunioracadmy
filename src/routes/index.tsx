@@ -50,8 +50,8 @@ function Landing() {
               <ShieldCheck className="size-3.5" />
               No login. No sign-up. Just share.
             </span>
-            <h1 className="mt-4 font-display text-5xl md:text-6xl font-semibold leading-[1.05]">
-              Weekly student progress, beautifully shared.
+            <h1 className="mt-4 font-display text-5xl md:text-6xl font-bold leading-[1.05] text-center">
+              Vertex Junior Academy
             </h1>
             <p className="mt-5 text-lg text-muted-foreground max-w-lg">
               Teachers write subject-wise weekly reports. Parents open a private link to view
