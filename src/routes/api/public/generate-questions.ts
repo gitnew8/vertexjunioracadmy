@@ -11,6 +11,7 @@ type GenInput = {
   types: QType[];
   difficulty: "easy" | "medium" | "hard";
   language: "en" | "hi" | "bilingual";
+  prompt?: string;
 };
 
 const LANG_LABEL: Record<string, string> = {
@@ -33,13 +34,17 @@ export const Route = createFileRoute("/api/public/generate-questions")({
 
         const sys = `You are an experienced Indian school exam paper setter. Generate high-quality, syllabus-aligned, non-repeating exam questions following CBSE/State board pattern. Respond ONLY with valid JSON.`;
 
+        const promptBlock = body.prompt?.trim()
+          ? `\n\nTEACHER'S CUSTOM INSTRUCTIONS (highest priority — follow these exactly):\n"""\n${body.prompt.trim()}\n"""\n`
+          : "";
+
         const user = `Create ${body.count} exam questions for:
 - Class: ${body.student_class}
 - Subject: ${body.subject}
 - Chapter/Topic: ${body.chapter || "General"}
 - Question types allowed: ${body.types.join(", ")}
 - Difficulty: ${body.difficulty}
-- Language: ${LANG_LABEL[body.language]}
+- Language: ${LANG_LABEL[body.language]}${promptBlock}
 
 Distribute questions across the allowed types. For MCQ, provide exactly 4 options A/B/C/D and put the correct option letter (A/B/C/D) as correct_answer. For TrueFalse, correct_answer must be "True" or "False". For OneWord and Short, give the model answer as correct_answer.
 
