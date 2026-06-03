@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { GraduationCap, FileText, Share2, ShieldCheck } from "lucide-react";
+import vertexLogo from "@/assets/vertex-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Landing,
