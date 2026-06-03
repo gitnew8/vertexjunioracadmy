@@ -209,6 +209,9 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
     }
     if (types.length === 0) return toast.error("Pick at least one question type");
     if (count < 1 || count > 50) return toast.error("Count must be 1-50");
+    if (mode === "prompt" && !prompt.trim()) {
+      return toast.error("Please write a prompt for the AI");
+    }
 
     setLoading(true);
     try {
@@ -223,6 +226,7 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
           types,
           difficulty,
           language,
+          prompt: mode === "prompt" ? prompt : undefined,
         }),
       });
       if (!res.ok) {
