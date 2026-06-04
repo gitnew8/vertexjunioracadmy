@@ -18,7 +18,6 @@ import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
 import { Route as TeacherReportsRouteImport } from './routes/teacher.reports'
 import { Route as TeacherNewRouteImport } from './routes/teacher.new'
 import { Route as TeacherMaterialsRouteImport } from './routes/teacher.materials'
-import { Route as TeacherMaterialsRouteImport } from './routes/teacher.materials'
 import { Route as TeacherLiveRouteImport } from './routes/teacher.live'
 import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
@@ -70,11 +69,6 @@ const TeacherReportsRoute = TeacherReportsRouteImport.update({
 const TeacherNewRoute = TeacherNewRouteImport.update({
   id: '/new',
   path: '/new',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherMaterialsRoute = TeacherMaterialsRouteImport.update({
-  id: '/materials',
-  path: '/materials',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherMaterialsRoute = TeacherMaterialsRouteImport.update({
@@ -155,7 +149,6 @@ export interface FileRoutesByFullPath {
   '/teacher/live': typeof TeacherLiveRoute
   '/teacher/materials': typeof TeacherMaterialsRoute
   '/teacher/new': typeof TeacherNewRoute
-  '/teacher/materials': typeof TeacherMaterialsRoute
   '/teacher/reports': typeof TeacherReportsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
@@ -178,7 +171,6 @@ export interface FileRoutesByTo {
   '/teacher/live': typeof TeacherLiveRoute
   '/teacher/materials': typeof TeacherMaterialsRoute
   '/teacher/new': typeof TeacherNewRoute
-  '/teacher/materials': typeof TeacherMaterialsRoute
   '/teacher/reports': typeof TeacherReportsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
@@ -203,7 +195,6 @@ export interface FileRoutesById {
   '/teacher/live': typeof TeacherLiveRoute
   '/teacher/materials': typeof TeacherMaterialsRoute
   '/teacher/new': typeof TeacherNewRoute
-  '/teacher/materials': typeof TeacherMaterialsRoute
   '/teacher/reports': typeof TeacherReportsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
@@ -229,7 +220,6 @@ export interface FileRouteTypes {
     | '/teacher/live'
     | '/teacher/materials'
     | '/teacher/new'
-    | '/teacher/materials'
     | '/teacher/reports'
     | '/teacher/students'
     | '/teacher/tests'
@@ -252,7 +242,6 @@ export interface FileRouteTypes {
     | '/teacher/live'
     | '/teacher/materials'
     | '/teacher/new'
-    | '/teacher/materials'
     | '/teacher/reports'
     | '/teacher/students'
     | '/teacher/tests'
@@ -357,13 +346,6 @@ declare module '@tanstack/react-router' {
       path: '/new'
       fullPath: '/teacher/new'
       preLoaderRoute: typeof TeacherNewRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/materials': {
-      id: '/teacher/materials'
-      path: '/materials'
-      fullPath: '/teacher/materials'
-      preLoaderRoute: typeof TeacherMaterialsRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/materials': {
