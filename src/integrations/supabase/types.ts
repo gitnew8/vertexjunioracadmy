@@ -262,6 +262,57 @@ export type Database = {
         }
         Relationships: []
       }
+      study_materials: {
+        Row: {
+          chapter: string
+          created_at: string
+          description: string | null
+          file_path: string | null
+          file_size_bytes: number | null
+          file_type: string
+          file_url: string
+          id: string
+          source: string
+          student_class: string
+          subject: string
+          teacher_name: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          chapter: string
+          created_at?: string
+          description?: string | null
+          file_path?: string | null
+          file_size_bytes?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          source?: string
+          student_class: string
+          subject: string
+          teacher_name?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          chapter?: string
+          created_at?: string
+          description?: string | null
+          file_path?: string | null
+          file_size_bytes?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          source?: string
+          student_class?: string
+          subject?: string
+          teacher_name?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       test_attempts: {
         Row: {
           answers: Json

@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-rout
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ReportRow } from "@/lib/types";
-import { GraduationCap, LogOut, Calendar, ExternalLink, Lock, UserPlus, Copy, CheckCircle2, Download, Receipt } from "lucide-react";
+import { GraduationCap, LogOut, Calendar, ExternalLink, Lock, UserPlus, Copy, CheckCircle2, Download, Receipt, BookOpen, Eye, FileText, Image as ImageIcon, File as FileIcon } from "lucide-react";
 import { generateReceiptPdf } from "@/lib/receipt";
 import { toast, Toaster } from "sonner";
 
@@ -108,6 +108,140 @@ function MyTests({ session }: { session: Session }) {
             );
           })}
         </ul>
+      )}
+    </section>
+  );
+}
+
+type Material = {
+  id: string;
+  subject: string;
+  chapter: string;
+  title: string;
+  description: string | null;
+  teacher_name: string | null;
+  file_path: string | null;
+  file_type: string;
+  created_at: string;
+};
+
+function matIcon(t: string) {
+  const x = t.toLowerCase();
+  if (x.includes("pdf")) return <FileText className="size-4" />;
+  if (x.includes("image") || ["png", "jpg", "jpeg", "webp", "gif"].includes(x))
+    return <ImageIcon className="size-4" />;
+  return <FileIcon className="size-4" />;
+}
+
+async function openMaterial(path: string, download = false) {
+  const { data, error } = await supabase.storage
+    .from("study-materials")
+    .createSignedUrl(path, 60 * 60, download ? { download: true } : undefined);
+  if (error || !data?.signedUrl) {
+    toast.error(error?.message || "Could not open file");
+    return;
+  }
+  window.open(data.signedUrl, "_blank");
+}
+
+function MyMaterials({ session }: { session: Session }) {
+  const [loading, setLoading] = useState(true);
+  const [mats, setMats] = useState<Material[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("study_materials")
+        .select("id, subject, chapter, title, description, teacher_name, file_path, file_type, created_at")
+        .eq("student_class", session.student_class)
+        .order("created_at", { ascending: false });
+      if (!cancelled) {
+        setMats((data || []) as Material[]);
+        setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [session.student_class]);
+
+  const grouped = mats.reduce<Record<string, Record<string, Material[]>>>((g, m) => {
+    g[m.subject] ??= {};
+    g[m.subject][m.chapter] ??= [];
+    g[m.subject][m.chapter].push(m);
+    return g;
+  }, {});
+
+  return (
+    <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
+      <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+        <BookOpen className="size-5" /> Study Materials
+      </h2>
+      {loading ? (
+        <div className="mt-4 text-sm text-muted-foreground">Loading…</div>
+      ) : mats.length === 0 ? (
+        <div className="mt-4 text-sm text-muted-foreground">
+          No materials uploaded for your class yet.
+        </div>
+      ) : (
+        <div className="mt-4 space-y-4">
+          {Object.entries(grouped).map(([sub, chapters]) => (
+            <div key={sub}>
+              <div className="text-sm font-semibold text-primary">{sub}</div>
+              <div className="mt-2 space-y-3">
+                {Object.entries(chapters).map(([chap, items]) => (
+                  <div key={chap}>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {chap}
+                    </div>
+                    <ul className="mt-1.5 space-y-1.5">
+                      {items.map((m) => (
+                        <li
+                          key={m.id}
+                          className="rounded-lg border border-border bg-background p-3 flex items-center gap-3"
+                        >
+                          <div className="size-9 rounded-md bg-secondary grid place-items-center text-secondary-foreground">
+                            {matIcon(m.file_type)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="font-medium truncate">{m.title}</div>
+                            {m.description && (
+                              <div className="text-xs text-muted-foreground truncate">
+                                {m.description}
+                              </div>
+                            )}
+                            <div className="text-[11px] text-muted-foreground mt-0.5">
+                              {m.teacher_name ? `${m.teacher_name} · ` : ""}
+                              {new Date(m.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              title="View"
+                              onClick={() => m.file_path && openMaterial(m.file_path)}
+                              className="p-1.5 rounded-md hover:bg-secondary"
+                            >
+                              <Eye className="size-4" />
+                            </button>
+                            <button
+                              title="Download"
+                              onClick={() => m.file_path && openMaterial(m.file_path, true)}
+                              className="p-1.5 rounded-md hover:bg-secondary"
+                            >
+                              <Download className="size-4" />
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </section>
   );
@@ -420,6 +554,8 @@ function StudentReports({ session }: { session: Session }) {
       <FeeSummary session={session} />
 
       <MyTests session={session} />
+
+      <MyMaterials session={session} />
 
       <PaymentHistory session={session} />
 
