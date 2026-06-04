@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-rout
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ReportRow } from "@/lib/types";
-import { GraduationCap, LogOut, Calendar, ExternalLink, Lock, UserPlus, Copy, CheckCircle2, Download, Receipt } from "lucide-react";
+import { GraduationCap, LogOut, Calendar, ExternalLink, Lock, UserPlus, Copy, CheckCircle2, Download, Receipt, BookOpen, Eye, FileText, Image as ImageIcon, File as FileIcon } from "lucide-react";
 import { generateReceiptPdf } from "@/lib/receipt";
 import { toast, Toaster } from "sonner";
 
@@ -420,6 +420,8 @@ function StudentReports({ session }: { session: Session }) {
       <FeeSummary session={session} />
 
       <MyTests session={session} />
+
+      <MyMaterials session={session} />
 
       <PaymentHistory session={session} />
 
