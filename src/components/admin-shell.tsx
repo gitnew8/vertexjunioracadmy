@@ -13,6 +13,7 @@ import {
   Bell,
   ClipboardList,
   Activity,
+  BookOpen,
 } from "lucide-react";
 import { useState } from "react";
 import { ThemeProvider, useTheme } from "@/components/theme-provider";
@@ -31,6 +32,7 @@ const NAV = [
   { to: "/teacher/students", label: "Students", icon: Users },
   { to: "/teacher/fees", label: "Fees", icon: Wallet },
   { to: "/teacher/tests", label: "Exams", icon: ClipboardList },
+  { to: "/teacher/materials", label: "Materials", icon: BookOpen },
   { to: "/teacher/live", label: "Live Now", icon: Activity },
   { to: "/teacher/reports", label: "Reports", icon: FileText },
 ] as const;
