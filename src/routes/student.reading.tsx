@@ -140,7 +140,7 @@ function ReadingPage() {
         audio_path: path,
         duration_sec: durationSec,
         transcript: data.transcript,
-        ai_analysis: data.analysis as unknown as Record<string, unknown>,
+        ai_analysis: data.analysis as never,
       });
 
       // 4) Signed URL for playback
