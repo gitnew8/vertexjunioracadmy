@@ -261,7 +261,8 @@ function StudentPage() {
 
   if (
     location.pathname.startsWith("/student/test/") ||
-    location.pathname.startsWith("/student/ai")
+    location.pathname.startsWith("/student/ai") ||
+    location.pathname.startsWith("/student/reading")
   ) {
     return <Outlet />;
   }
@@ -544,12 +545,20 @@ function StudentReports({ session }: { session: Session }) {
         <span className="font-mono">{session.login_number}</span>
       </p>
 
-      <Link
-        to="/student/ai"
-        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/70 text-primary-foreground px-4 py-2.5 text-sm font-semibold shadow-md hover:opacity-90"
-      >
-        ✨ Open AI Study Helper
-      </Link>
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Link
+          to="/student/ai"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/70 text-primary-foreground px-4 py-2.5 text-sm font-semibold shadow-md hover:opacity-90"
+        >
+          ✨ AI Study Helper
+        </Link>
+        <Link
+          to="/student/reading"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2.5 text-sm font-semibold shadow-md hover:opacity-90"
+        >
+          🎤 Reading Practice
+        </Link>
+      </div>
 
       <FeeSummary session={session} />
 
