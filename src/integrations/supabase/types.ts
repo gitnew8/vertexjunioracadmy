@@ -181,6 +181,57 @@ export type Database = {
         }
         Relationships: []
       }
+      reading_sessions: {
+        Row: {
+          ai_analysis: Json
+          approved: boolean
+          audio_path: string
+          book_name: string
+          created_at: string
+          duration_sec: number
+          id: string
+          language: string
+          student_class: string
+          student_id: string | null
+          student_name: string
+          teacher_feedback: string | null
+          transcript: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_analysis?: Json
+          approved?: boolean
+          audio_path: string
+          book_name: string
+          created_at?: string
+          duration_sec?: number
+          id?: string
+          language?: string
+          student_class: string
+          student_id?: string | null
+          student_name: string
+          teacher_feedback?: string | null
+          transcript?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_analysis?: Json
+          approved?: boolean
+          audio_path?: string
+          book_name?: string
+          created_at?: string
+          duration_sec?: number
+          id?: string
+          language?: string
+          student_class?: string
+          student_id?: string | null
+          student_name?: string
+          teacher_feedback?: string | null
+          transcript?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           coaching_name: string
