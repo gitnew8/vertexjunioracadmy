@@ -152,10 +152,15 @@ function MyMaterials({ session }: { session: Session }) {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      const raw = String(session.student_class || "").trim();
+      const num = raw.match(/\d+/)?.[0] ?? raw;
+      const variants = Array.from(
+        new Set([raw, num, `Class ${num}`, `class ${num}`, `CLASS ${num}`]),
+      );
       const { data } = await supabase
         .from("study_materials")
         .select("id, subject, chapter, title, description, teacher_name, file_path, file_type, created_at")
-        .eq("student_class", session.student_class)
+        .in("student_class", variants)
         .order("created_at", { ascending: false });
       if (!cancelled) {
         setMats((data || []) as Material[]);
