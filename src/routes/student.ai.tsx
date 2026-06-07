@@ -321,9 +321,14 @@ function AiHelperPage() {
           const data = (await resp.json()) as {
             transcript?: string;
             error?: string;
+            fix?: string;
           };
           if (!resp.ok) {
-            toast.error(data.error || "Voice failed");
+            if (data.fix) {
+              toast.error(data.error || "Voice failed", { description: data.fix });
+            } else {
+              toast.error(data.error || "Voice failed");
+            }
             return;
           }
           if (data.transcript) {

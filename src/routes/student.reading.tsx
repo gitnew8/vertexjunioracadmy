@@ -115,8 +115,17 @@ function ReadingPage() {
 
       const res = await fetch("/api/public/analyze-reading", { method: "POST", body: fd });
       if (!res.ok) {
-        const e = await res.text();
-        throw new Error(e || "Analysis failed");
+        const eText = await res.text();
+        let errData: any = {};
+        try { errData = JSON.parse(eText); } catch {}
+        const msg = errData.error || eText || "Analysis failed";
+        if (errData.fix) {
+          toast.error(msg, { description: errData.fix });
+        } else {
+          toast.error(msg);
+        }
+        setBusy(false);
+        return;
       }
       const data = (await res.json()) as { transcript: string; analysis: Analysis };
 
