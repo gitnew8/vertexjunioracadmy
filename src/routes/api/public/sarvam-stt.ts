@@ -47,6 +47,16 @@ export const Route = createFileRoute("/api/public/sarvam-stt")({
 
         if (!resp.ok) {
           const t = await resp.text();
+          const isDeprecation = /deprecated|has been deprecated|please use|no longer supported/i.test(t);
+          if (isDeprecation) {
+            return new Response(
+              JSON.stringify({
+                error: "Speech-to-text model is no longer supported by the provider.",
+                fix: "Ask your teacher or admin to update the STT model version in the backend code (e.g., switch to the latest model like saarika:v2.5).",
+              }),
+              { status: 502, headers: { "Content-Type": "application/json" } }
+            );
+          }
           return new Response(
             JSON.stringify({ error: `Sarvam STT ${resp.status}: ${t}` }),
             { status: resp.status, headers: { "Content-Type": "application/json" } }
