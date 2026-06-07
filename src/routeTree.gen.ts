@@ -27,6 +27,7 @@ import { Route as StudentAiRouteImport } from './routes/student.ai'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
+import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/public/watermark-material'
 import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
 import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
 import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
@@ -124,6 +125,12 @@ const StudentTestIdRoute = StudentTestIdRouteImport.update({
   path: '/test/$id',
   getParentRoute: () => StudentRoute,
 } as any)
+const ApiPublicWatermarkMaterialRoute =
+  ApiPublicWatermarkMaterialRouteImport.update({
+    id: '/api/public/watermark-material',
+    path: '/api/public/watermark-material',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicSarvamTtsRoute = ApiPublicSarvamTtsRouteImport.update({
   id: '/api/public/sarvam-tts',
   path: '/api/public/sarvam-tts',
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
+  '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -204,6 +212,7 @@ export interface FileRoutesByTo {
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
+  '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -231,6 +240,7 @@ export interface FileRoutesById {
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
+  '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
+    | '/api/public/watermark-material'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
+    | '/api/public/watermark-material'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   id:
@@ -310,6 +322,7 @@ export interface FileRouteTypes {
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
+    | '/api/public/watermark-material'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   fileRoutesById: FileRoutesById
@@ -325,6 +338,7 @@ export interface RootRouteChildren {
   ApiPublicGenerateQuestionsRoute: typeof ApiPublicGenerateQuestionsRoute
   ApiPublicSarvamSttRoute: typeof ApiPublicSarvamSttRoute
   ApiPublicSarvamTtsRoute: typeof ApiPublicSarvamTtsRoute
+  ApiPublicWatermarkMaterialRoute: typeof ApiPublicWatermarkMaterialRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -455,6 +469,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentTestIdRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/api/public/watermark-material': {
+      id: '/api/public/watermark-material'
+      path: '/api/public/watermark-material'
+      fullPath: '/api/public/watermark-material'
+      preLoaderRoute: typeof ApiPublicWatermarkMaterialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/sarvam-tts': {
       id: '/api/public/sarvam-tts'
       path: '/api/public/sarvam-tts'
@@ -567,17 +588,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGenerateQuestionsRoute: ApiPublicGenerateQuestionsRoute,
   ApiPublicSarvamSttRoute: ApiPublicSarvamSttRoute,
   ApiPublicSarvamTtsRoute: ApiPublicSarvamTtsRoute,
+  ApiPublicWatermarkMaterialRoute: ApiPublicWatermarkMaterialRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

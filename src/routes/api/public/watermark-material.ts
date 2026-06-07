@@ -137,7 +137,7 @@ export const Route = createFileRoute("/api/public/watermark-material")({
 
           const out = await pdfDoc.save();
           const outName = baseName(path).replace(/\.[^.]+$/, "") + "-watermarked.pdf";
-          return new Response(out, {
+          return new Response(out as unknown as BodyInit, {
             status: 200,
             headers: {
               "Content-Type": "application/pdf",
