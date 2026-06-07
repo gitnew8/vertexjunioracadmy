@@ -267,14 +267,14 @@ function MyMaterials({ session }: { session: Session }) {
                           <div className="flex items-center gap-1 shrink-0">
                             <button
                               title="View"
-                              onClick={() => m.file_path && openMaterial(m.file_path)}
+                              onClick={() => m.file_path && openMaterial(m.file_path, session)}
                               className="p-1.5 rounded-md hover:bg-secondary"
                             >
                               <Eye className="size-4" />
                             </button>
                             <button
                               title="Download"
-                              onClick={() => m.file_path && openMaterial(m.file_path, true)}
+                              onClick={() => m.file_path && openMaterial(m.file_path, session, true)}
                               className="p-1.5 rounded-md hover:bg-secondary"
                             >
                               <Download className="size-4" />
