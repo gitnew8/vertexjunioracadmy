@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/public/sarvam-stt")({
         });
         fd.append("file", file);
 
-        fd.append("model", "saarika:v2");
+        fd.append("model", "saarika:v2.5");
         fd.append("language_code", LANG_MAP[language] || "unknown");
 
         const resp = await fetch("https://api.sarvam.ai/speech-to-text", {
