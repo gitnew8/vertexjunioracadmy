@@ -39,7 +39,7 @@ export const Route = createFileRoute("/api/public/watermark-material")({
           const isImg = /\.(png|jpe?g|webp)$/i.test(lower);
           if (!isPdf && !isImg) {
             // unsupported for server watermark — return original
-            return new Response(srcBytes, {
+            return new Response(srcBytes as unknown as BodyInit, {
               status: 200,
               headers: {
                 "Content-Type": dl.data.type || "application/octet-stream",
