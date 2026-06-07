@@ -133,15 +133,57 @@ function matIcon(t: string) {
   return <FileIcon className="size-4" />;
 }
 
-async function openMaterial(path: string, download = false) {
-  const { data, error } = await supabase.storage
-    .from("study-materials")
-    .createSignedUrl(path, 60 * 60, download ? { download: true } : undefined);
-  if (error || !data?.signedUrl) {
-    toast.error(error?.message || "Could not open file");
+async function openMaterial(
+  path: string,
+  session: Session,
+  download = false,
+) {
+  const lower = path.toLowerCase();
+  const supportsWm = /\.(pdf|png|jpe?g)$/i.test(lower);
+  if (!supportsWm) {
+    const { data, error } = await supabase.storage
+      .from("study-materials")
+      .createSignedUrl(path, 60 * 60, download ? { download: true } : undefined);
+    if (error || !data?.signedUrl) {
+      toast.error(error?.message || "Could not open file");
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
     return;
   }
-  window.open(data.signedUrl, "_blank");
+  try {
+    const resp = await fetch("/api/public/watermark-material", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path,
+        studentName: session.name,
+        studentClass: session.student_class,
+        rollNumber: (session as any).roll_number || "",
+        download,
+      }),
+    });
+    if (!resp.ok) {
+      const t = await resp.text();
+      throw new Error(t || `HTTP ${resp.status}`);
+    }
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    if (download) {
+      const a = document.createElement("a");
+      a.href = url;
+      const base = (path.split("/").pop() || "file").replace(/\.[^.]+$/, "");
+      a.download = `${base}-watermarked.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } else {
+      window.open(url, "_blank");
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (e: any) {
+    toast.error(e?.message || "Could not open file");
+  }
 }
 
 function MyMaterials({ session }: { session: Session }) {
