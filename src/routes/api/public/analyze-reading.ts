@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/public/analyze-reading")({
           "file",
           new File([audio], "reading.webm", { type: audio.type || "audio/webm" })
         );
-        sttFd.append("model", "saarika:v2");
+        sttFd.append("model", "saarika:v2.5");
         sttFd.append("language_code", LANG_MAP[language] || "unknown");
 
         const sttResp = await fetch("https://api.sarvam.ai/speech-to-text", {
