@@ -86,11 +86,13 @@ function ReadingPage() {
   }
 
   async function stopAndSubmit() {
-    if (!mediaRef.current) return;
+    if (!mediaRef.current || busy) return;
+    if (mediaRef.current.state === "inactive") return;
     setBusy(true);
     setRecording(false);
-    if (tickRef.current) clearInterval(tickRef.current);
+    if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
     const durationSec = Math.max(1, Math.floor((Date.now() - startRef.current) / 1000));
+
 
     const blob: Blob = await new Promise((resolve) => {
       mediaRef.current!.onstop = () => {
