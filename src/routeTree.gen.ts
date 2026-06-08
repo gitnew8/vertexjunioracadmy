@@ -31,6 +31,7 @@ import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/pub
 import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
 import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
 import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
+import { Route as ApiPublicGenerateImageRouteImport } from './routes/api/public/generate-image'
 import { Route as ApiPublicAnalyzeReadingRouteImport } from './routes/api/public/analyze-reading'
 import { Route as ApiPublicAiStudyChatRouteImport } from './routes/api/public/ai-study-chat'
 import { Route as ApiPublicAiEvaluateRouteImport } from './routes/api/public/ai-evaluate'
@@ -147,6 +148,11 @@ const ApiPublicGenerateQuestionsRoute =
     path: '/api/public/generate-questions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicGenerateImageRoute = ApiPublicGenerateImageRouteImport.update({
+  id: '/api/public/generate-image',
+  path: '/api/public/generate-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAnalyzeReadingRoute = ApiPublicAnalyzeReadingRouteImport.update({
   id: '/api/public/analyze-reading',
   path: '/api/public/analyze-reading',
@@ -183,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/analyze-reading': typeof ApiPublicAnalyzeReadingRoute
+  '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByTo {
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/analyze-reading': typeof ApiPublicAnalyzeReadingRoute
+  '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/analyze-reading': typeof ApiPublicAnalyzeReadingRoute
+  '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
@@ -266,6 +275,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
     | '/api/public/analyze-reading'
+    | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
@@ -292,6 +302,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
     | '/api/public/analyze-reading'
+    | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
     | '/api/public/analyze-reading'
+    | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
@@ -335,6 +347,7 @@ export interface RootRouteChildren {
   ApiPublicAiEvaluateRoute: typeof ApiPublicAiEvaluateRoute
   ApiPublicAiStudyChatRoute: typeof ApiPublicAiStudyChatRoute
   ApiPublicAnalyzeReadingRoute: typeof ApiPublicAnalyzeReadingRoute
+  ApiPublicGenerateImageRoute: typeof ApiPublicGenerateImageRoute
   ApiPublicGenerateQuestionsRoute: typeof ApiPublicGenerateQuestionsRoute
   ApiPublicSarvamSttRoute: typeof ApiPublicSarvamSttRoute
   ApiPublicSarvamTtsRoute: typeof ApiPublicSarvamTtsRoute
@@ -497,6 +510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGenerateQuestionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/generate-image': {
+      id: '/api/public/generate-image'
+      path: '/api/public/generate-image'
+      fullPath: '/api/public/generate-image'
+      preLoaderRoute: typeof ApiPublicGenerateImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/analyze-reading': {
       id: '/api/public/analyze-reading'
       path: '/api/public/analyze-reading'
@@ -585,6 +605,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAiEvaluateRoute: ApiPublicAiEvaluateRoute,
   ApiPublicAiStudyChatRoute: ApiPublicAiStudyChatRoute,
   ApiPublicAnalyzeReadingRoute: ApiPublicAnalyzeReadingRoute,
+  ApiPublicGenerateImageRoute: ApiPublicGenerateImageRoute,
   ApiPublicGenerateQuestionsRoute: ApiPublicGenerateQuestionsRoute,
   ApiPublicSarvamSttRoute: ApiPublicSarvamSttRoute,
   ApiPublicSarvamTtsRoute: ApiPublicSarvamTtsRoute,
@@ -593,3 +614,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
