@@ -23,6 +23,7 @@ import { Route as TeacherLiveRouteImport } from './routes/teacher.live'
 import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
 import { Route as StudentReadingRouteImport } from './routes/student.reading'
+import { Route as StudentImagineRouteImport } from './routes/student.imagine'
 import { Route as StudentAiRouteImport } from './routes/student.ai'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
@@ -31,6 +32,7 @@ import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/pub
 import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
 import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
 import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
+import { Route as ApiPublicGenerateImageRouteImport } from './routes/api/public/generate-image'
 import { Route as ApiPublicAnalyzeReadingRouteImport } from './routes/api/public/analyze-reading'
 import { Route as ApiPublicAiStudyChatRouteImport } from './routes/api/public/ai-study-chat'
 import { Route as ApiPublicAiEvaluateRouteImport } from './routes/api/public/ai-evaluate'
@@ -105,6 +107,11 @@ const StudentReadingRoute = StudentReadingRouteImport.update({
   path: '/reading',
   getParentRoute: () => StudentRoute,
 } as any)
+const StudentImagineRoute = StudentImagineRouteImport.update({
+  id: '/imagine',
+  path: '/imagine',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentAiRoute = StudentAiRouteImport.update({
   id: '/ai',
   path: '/ai',
@@ -147,6 +154,11 @@ const ApiPublicGenerateQuestionsRoute =
     path: '/api/public/generate-questions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicGenerateImageRoute = ApiPublicGenerateImageRouteImport.update({
+  id: '/api/public/generate-image',
+  path: '/api/public/generate-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAnalyzeReadingRoute = ApiPublicAnalyzeReadingRouteImport.update({
   id: '/api/public/analyze-reading',
   path: '/api/public/analyze-reading',
@@ -169,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/teacher': typeof TeacherRouteWithChildren
   '/report/$code': typeof ReportCodeRoute
   '/student/ai': typeof StudentAiRoute
+  '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/fees': typeof TeacherFeesRoute
@@ -183,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/analyze-reading': typeof ApiPublicAnalyzeReadingRoute
+  '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
@@ -195,6 +209,7 @@ export interface FileRoutesByTo {
   '/student': typeof StudentRouteWithChildren
   '/report/$code': typeof ReportCodeRoute
   '/student/ai': typeof StudentAiRoute
+  '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/fees': typeof TeacherFeesRoute
@@ -209,6 +224,7 @@ export interface FileRoutesByTo {
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/analyze-reading': typeof ApiPublicAnalyzeReadingRoute
+  '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
@@ -223,6 +239,7 @@ export interface FileRoutesById {
   '/teacher': typeof TeacherRouteWithChildren
   '/report/$code': typeof ReportCodeRoute
   '/student/ai': typeof StudentAiRoute
+  '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/fees': typeof TeacherFeesRoute
@@ -237,6 +254,7 @@ export interface FileRoutesById {
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
   '/api/public/analyze-reading': typeof ApiPublicAnalyzeReadingRoute
+  '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
@@ -252,6 +270,7 @@ export interface FileRouteTypes {
     | '/teacher'
     | '/report/$code'
     | '/student/ai'
+    | '/student/imagine'
     | '/student/reading'
     | '/teacher/dashboard'
     | '/teacher/fees'
@@ -266,6 +285,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
     | '/api/public/analyze-reading'
+    | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
@@ -278,6 +298,7 @@ export interface FileRouteTypes {
     | '/student'
     | '/report/$code'
     | '/student/ai'
+    | '/student/imagine'
     | '/student/reading'
     | '/teacher/dashboard'
     | '/teacher/fees'
@@ -292,6 +313,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
     | '/api/public/analyze-reading'
+    | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
@@ -305,6 +327,7 @@ export interface FileRouteTypes {
     | '/teacher'
     | '/report/$code'
     | '/student/ai'
+    | '/student/imagine'
     | '/student/reading'
     | '/teacher/dashboard'
     | '/teacher/fees'
@@ -319,6 +342,7 @@ export interface FileRouteTypes {
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
     | '/api/public/analyze-reading'
+    | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
@@ -335,6 +359,7 @@ export interface RootRouteChildren {
   ApiPublicAiEvaluateRoute: typeof ApiPublicAiEvaluateRoute
   ApiPublicAiStudyChatRoute: typeof ApiPublicAiStudyChatRoute
   ApiPublicAnalyzeReadingRoute: typeof ApiPublicAnalyzeReadingRoute
+  ApiPublicGenerateImageRoute: typeof ApiPublicGenerateImageRoute
   ApiPublicGenerateQuestionsRoute: typeof ApiPublicGenerateQuestionsRoute
   ApiPublicSarvamSttRoute: typeof ApiPublicSarvamSttRoute
   ApiPublicSarvamTtsRoute: typeof ApiPublicSarvamTtsRoute
@@ -441,6 +466,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentReadingRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/student/imagine': {
+      id: '/student/imagine'
+      path: '/imagine'
+      fullPath: '/student/imagine'
+      preLoaderRoute: typeof StudentImagineRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/ai': {
       id: '/student/ai'
       path: '/ai'
@@ -497,6 +529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGenerateQuestionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/generate-image': {
+      id: '/api/public/generate-image'
+      path: '/api/public/generate-image'
+      fullPath: '/api/public/generate-image'
+      preLoaderRoute: typeof ApiPublicGenerateImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/analyze-reading': {
       id: '/api/public/analyze-reading'
       path: '/api/public/analyze-reading'
@@ -523,12 +562,14 @@ declare module '@tanstack/react-router' {
 
 interface StudentRouteChildren {
   StudentAiRoute: typeof StudentAiRoute
+  StudentImagineRoute: typeof StudentImagineRoute
   StudentReadingRoute: typeof StudentReadingRoute
   StudentTestIdRoute: typeof StudentTestIdRoute
 }
 
 const StudentRouteChildren: StudentRouteChildren = {
   StudentAiRoute: StudentAiRoute,
+  StudentImagineRoute: StudentImagineRoute,
   StudentReadingRoute: StudentReadingRoute,
   StudentTestIdRoute: StudentTestIdRoute,
 }
@@ -585,6 +626,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicAiEvaluateRoute: ApiPublicAiEvaluateRoute,
   ApiPublicAiStudyChatRoute: ApiPublicAiStudyChatRoute,
   ApiPublicAnalyzeReadingRoute: ApiPublicAnalyzeReadingRoute,
+  ApiPublicGenerateImageRoute: ApiPublicGenerateImageRoute,
   ApiPublicGenerateQuestionsRoute: ApiPublicGenerateQuestionsRoute,
   ApiPublicSarvamSttRoute: ApiPublicSarvamSttRoute,
   ApiPublicSarvamTtsRoute: ApiPublicSarvamTtsRoute,

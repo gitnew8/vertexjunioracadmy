@@ -309,7 +309,8 @@ function StudentPage() {
   if (
     location.pathname.startsWith("/student/test/") ||
     location.pathname.startsWith("/student/ai") ||
-    location.pathname.startsWith("/student/reading")
+    location.pathname.startsWith("/student/reading") ||
+    location.pathname.startsWith("/student/imagine")
   ) {
     return <Outlet />;
   }
@@ -604,6 +605,12 @@ function StudentReports({ session }: { session: Session }) {
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-2.5 text-sm font-semibold shadow-md hover:opacity-90"
         >
           🎤 Reading Practice
+        </Link>
+        <Link
+          to="/student/imagine"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-fuchsia-500 via-pink-500 to-amber-500 text-white px-4 py-2.5 text-sm font-semibold shadow-md hover:opacity-90"
+        >
+          🎨 Imagine (AI Art)
         </Link>
       </div>
 
