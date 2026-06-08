@@ -138,7 +138,7 @@ function TeacherReadingPage() {
           </div>
         </div>
       </div>
-    </AdminShell>
+    </>
   );
 }
 
