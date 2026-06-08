@@ -55,6 +55,8 @@ function ReadingPage() {
     if (tickRef.current) clearInterval(tickRef.current);
   }, []);
 
+  const MAX_SEC = 600; // 10 minutes
+
   async function start() {
     if (!studentClass) return toast.error("Please choose your class");
     if (!bookName.trim()) return toast.error("Enter your book name");
@@ -70,21 +72,27 @@ function ReadingPage() {
       setElapsed(0);
       setRecording(true);
       setResult(null);
-      tickRef.current = setInterval(
-        () => setElapsed(Math.floor((Date.now() - startRef.current) / 1000)),
-        500
-      );
+      tickRef.current = setInterval(() => {
+        const s = Math.floor((Date.now() - startRef.current) / 1000);
+        setElapsed(s);
+        if (s >= MAX_SEC) {
+          toast.info("10 minute limit reached — submitting…");
+          stopAndSubmit();
+        }
+      }, 500);
     } catch (e: any) {
       toast.error(e?.message || "Microphone not available");
     }
   }
 
   async function stopAndSubmit() {
-    if (!mediaRef.current) return;
+    if (!mediaRef.current || busy) return;
+    if (mediaRef.current.state === "inactive") return;
     setBusy(true);
     setRecording(false);
-    if (tickRef.current) clearInterval(tickRef.current);
+    if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
     const durationSec = Math.max(1, Math.floor((Date.now() - startRef.current) / 1000));
+
 
     const blob: Blob = await new Promise((resolve) => {
       mediaRef.current!.onstop = () => {
@@ -255,17 +263,25 @@ function ReadingPage() {
                 <Mic className="size-12" />
               )}
             </button>
-            <div className="mt-4 font-mono text-2xl tabular-nums">
+            <div className="mt-4 font-mono text-3xl tabular-nums font-semibold">
               {mm}:{ss}
+              <span className="text-sm text-muted-foreground font-normal"> / 10:00</span>
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="mt-2 w-full max-w-xs h-1.5 rounded-full bg-secondary overflow-hidden">
+              <div
+                className={`h-full transition-all ${recording ? "bg-red-500" : "bg-primary"}`}
+                style={{ width: `${Math.min(100, (elapsed / MAX_SEC) * 100)}%` }}
+              />
+            </div>
+            <div className="text-xs text-muted-foreground mt-2 text-center px-4">
               {busy
                 ? "Analyzing your reading…"
                 : recording
-                ? "Recording… tap to Stop & Submit"
-                : "Tap the mic to Start Recording"}
+                ? `Recording… tap to Stop & Submit (auto-stops at 10:00)`
+                : "Tap the mic to Start Recording · max 10 minutes"}
             </div>
           </div>
+
         </div>
 
         {result && (
