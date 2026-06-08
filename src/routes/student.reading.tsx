@@ -263,17 +263,25 @@ function ReadingPage() {
                 <Mic className="size-12" />
               )}
             </button>
-            <div className="mt-4 font-mono text-2xl tabular-nums">
+            <div className="mt-4 font-mono text-3xl tabular-nums font-semibold">
               {mm}:{ss}
+              <span className="text-sm text-muted-foreground font-normal"> / 10:00</span>
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="mt-2 w-full max-w-xs h-1.5 rounded-full bg-secondary overflow-hidden">
+              <div
+                className={`h-full transition-all ${recording ? "bg-red-500" : "bg-primary"}`}
+                style={{ width: `${Math.min(100, (elapsed / MAX_SEC) * 100)}%` }}
+              />
+            </div>
+            <div className="text-xs text-muted-foreground mt-2 text-center px-4">
               {busy
                 ? "Analyzing your reading…"
                 : recording
-                ? "Recording… tap to Stop & Submit"
-                : "Tap the mic to Start Recording"}
+                ? `Recording… tap to Stop & Submit (auto-stops at 10:00)`
+                : "Tap the mic to Start Recording · max 10 minutes"}
             </div>
           </div>
+
         </div>
 
         {result && (
