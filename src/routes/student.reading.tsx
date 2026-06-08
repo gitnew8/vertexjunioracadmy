@@ -55,6 +55,8 @@ function ReadingPage() {
     if (tickRef.current) clearInterval(tickRef.current);
   }, []);
 
+  const MAX_SEC = 600; // 10 minutes
+
   async function start() {
     if (!studentClass) return toast.error("Please choose your class");
     if (!bookName.trim()) return toast.error("Enter your book name");
@@ -70,10 +72,14 @@ function ReadingPage() {
       setElapsed(0);
       setRecording(true);
       setResult(null);
-      tickRef.current = setInterval(
-        () => setElapsed(Math.floor((Date.now() - startRef.current) / 1000)),
-        500
-      );
+      tickRef.current = setInterval(() => {
+        const s = Math.floor((Date.now() - startRef.current) / 1000);
+        setElapsed(s);
+        if (s >= MAX_SEC) {
+          toast.info("10 minute limit reached — submitting…");
+          stopAndSubmit();
+        }
+      }, 500);
     } catch (e: any) {
       toast.error(e?.message || "Microphone not available");
     }
