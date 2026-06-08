@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { AdminShell } from "@/components/admin-shell";
+
 import { Mic, CheckCircle2, Loader2, Search } from "lucide-react";
 import { toast, Toaster } from "sonner";
 
@@ -69,7 +69,7 @@ function TeacherReadingPage() {
   }, [rows, q]);
 
   return (
-    <AdminShell>
+    <>
       <Toaster richColors position="top-center" />
       <div className="mx-auto max-w-7xl px-5 py-6">
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -138,7 +138,7 @@ function TeacherReadingPage() {
           </div>
         </div>
       </div>
-    </AdminShell>
+    </>
   );
 }
 
