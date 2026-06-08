@@ -309,7 +309,8 @@ function StudentPage() {
   if (
     location.pathname.startsWith("/student/test/") ||
     location.pathname.startsWith("/student/ai") ||
-    location.pathname.startsWith("/student/reading")
+    location.pathname.startsWith("/student/reading") ||
+    location.pathname.startsWith("/student/imagine")
   ) {
     return <Outlet />;
   }
