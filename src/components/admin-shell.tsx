@@ -85,7 +85,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             <Menu className="size-5" />
           </button>
           <div className="font-display text-sm md:text-base font-semibold truncate">
-            <span className="hidden sm:inline">Vertex Junior Academy · </span>Admin
+            Admin
           </div>
           <div className="flex items-center gap-1">
             <NotificationBell />
