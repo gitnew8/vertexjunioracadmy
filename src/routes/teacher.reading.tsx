@@ -69,7 +69,7 @@ function TeacherReadingPage() {
   }, [rows, q]);
 
   return (
-    <AdminShell>
+    <>
       <Toaster richColors position="top-center" />
       <div className="mx-auto max-w-7xl px-5 py-6">
         <div className="flex items-center justify-between gap-3 flex-wrap">
