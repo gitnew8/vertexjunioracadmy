@@ -617,6 +617,8 @@ function StudentReports({ session }: { session: Session }) {
 
       <FeeSummary session={session} />
 
+      <MyClasses session={session} />
+
       <MyTests session={session} />
 
       <MyMaterials session={session} />
