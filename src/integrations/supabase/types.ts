@@ -82,6 +82,58 @@ export type Database = {
         }
         Relationships: []
       }
+      class_attendance: {
+        Row: {
+          class_id: string
+          id: string
+          joined_at: string
+          left_at: string | null
+          student_class: string | null
+          student_id: string | null
+          student_name: string | null
+        }
+        Insert: {
+          class_id: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          student_class?: string | null
+          student_id?: string | null
+          student_name?: string | null
+        }
+        Update: {
+          class_id?: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          student_class?: string | null
+          student_id?: string | null
+          student_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_activity"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fees: {
         Row: {
           created_at: string
@@ -135,6 +187,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      live_classes: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          room_code: string
+          scheduled_at: string | null
+          started_at: string | null
+          status: string
+          student_class: string
+          subject: string | null
+          teacher_name: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          room_code: string
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          student_class: string
+          subject?: string | null
+          teacher_name?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          room_code?: string
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string
+          student_class?: string
+          subject?: string | null
+          teacher_name?: string | null
+          title?: string
+        }
+        Relationships: []
       }
       payments: {
         Row: {
