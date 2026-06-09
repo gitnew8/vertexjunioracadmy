@@ -22,12 +22,14 @@ import { Route as TeacherMaterialsRouteImport } from './routes/teacher.materials
 import { Route as TeacherLiveRouteImport } from './routes/teacher.live'
 import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
+import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
 import { Route as StudentReadingRouteImport } from './routes/student.reading'
 import { Route as StudentImagineRouteImport } from './routes/student.imagine'
 import { Route as StudentAiRouteImport } from './routes/student.ai'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
+import { Route as StudentClassCodeRouteImport } from './routes/student.class.$code'
 import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/public/watermark-material'
 import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
 import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
@@ -102,6 +104,11 @@ const TeacherDashboardRoute = TeacherDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => TeacherRoute,
 } as any)
+const TeacherClassesRoute = TeacherClassesRouteImport.update({
+  id: '/classes',
+  path: '/classes',
+  getParentRoute: () => TeacherRoute,
+} as any)
 const StudentReadingRoute = StudentReadingRouteImport.update({
   id: '/reading',
   path: '/reading',
@@ -130,6 +137,11 @@ const TeacherTestsIdRoute = TeacherTestsIdRouteImport.update({
 const StudentTestIdRoute = StudentTestIdRouteImport.update({
   id: '/test/$id',
   path: '/test/$id',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentClassCodeRoute = StudentClassCodeRouteImport.update({
+  id: '/class/$code',
+  path: '/class/$code',
   getParentRoute: () => StudentRoute,
 } as any)
 const ApiPublicWatermarkMaterialRoute =
@@ -183,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/fees': typeof TeacherFeesRoute
   '/teacher/live': typeof TeacherLiveRoute
@@ -201,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -211,6 +225,7 @@ export interface FileRoutesByTo {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/fees': typeof TeacherFeesRoute
   '/teacher/live': typeof TeacherLiveRoute
@@ -229,6 +244,7 @@ export interface FileRoutesByTo {
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -241,6 +257,7 @@ export interface FileRoutesById {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/fees': typeof TeacherFeesRoute
   '/teacher/live': typeof TeacherLiveRoute
@@ -259,6 +276,7 @@ export interface FileRoutesById {
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
 }
@@ -272,6 +290,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/fees'
     | '/teacher/live'
@@ -290,6 +309,7 @@ export interface FileRouteTypes {
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -300,6 +320,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/fees'
     | '/teacher/live'
@@ -318,6 +339,7 @@ export interface FileRouteTypes {
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   id:
@@ -329,6 +351,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/fees'
     | '/teacher/live'
@@ -347,6 +370,7 @@ export interface FileRouteTypes {
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
   fileRoutesById: FileRoutesById
@@ -459,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherDashboardRouteImport
       parentRoute: typeof TeacherRoute
     }
+    '/teacher/classes': {
+      id: '/teacher/classes'
+      path: '/classes'
+      fullPath: '/teacher/classes'
+      preLoaderRoute: typeof TeacherClassesRouteImport
+      parentRoute: typeof TeacherRoute
+    }
     '/student/reading': {
       id: '/student/reading'
       path: '/reading'
@@ -499,6 +530,13 @@ declare module '@tanstack/react-router' {
       path: '/test/$id'
       fullPath: '/student/test/$id'
       preLoaderRoute: typeof StudentTestIdRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/class/$code': {
+      id: '/student/class/$code'
+      path: '/class/$code'
+      fullPath: '/student/class/$code'
+      preLoaderRoute: typeof StudentClassCodeRouteImport
       parentRoute: typeof StudentRoute
     }
     '/api/public/watermark-material': {
@@ -564,6 +602,7 @@ interface StudentRouteChildren {
   StudentAiRoute: typeof StudentAiRoute
   StudentImagineRoute: typeof StudentImagineRoute
   StudentReadingRoute: typeof StudentReadingRoute
+  StudentClassCodeRoute: typeof StudentClassCodeRoute
   StudentTestIdRoute: typeof StudentTestIdRoute
 }
 
@@ -571,6 +610,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentAiRoute: StudentAiRoute,
   StudentImagineRoute: StudentImagineRoute,
   StudentReadingRoute: StudentReadingRoute,
+  StudentClassCodeRoute: StudentClassCodeRoute,
   StudentTestIdRoute: StudentTestIdRoute,
 }
 
@@ -590,6 +630,7 @@ const TeacherTestsRouteWithChildren = TeacherTestsRoute._addFileChildren(
 )
 
 interface TeacherRouteChildren {
+  TeacherClassesRoute: typeof TeacherClassesRoute
   TeacherDashboardRoute: typeof TeacherDashboardRoute
   TeacherFeesRoute: typeof TeacherFeesRoute
   TeacherLiveRoute: typeof TeacherLiveRoute
@@ -603,6 +644,7 @@ interface TeacherRouteChildren {
 }
 
 const TeacherRouteChildren: TeacherRouteChildren = {
+  TeacherClassesRoute: TeacherClassesRoute,
   TeacherDashboardRoute: TeacherDashboardRoute,
   TeacherFeesRoute: TeacherFeesRoute,
   TeacherLiveRoute: TeacherLiveRoute,
@@ -635,3 +677,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
