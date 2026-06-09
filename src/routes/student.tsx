@@ -294,6 +294,78 @@ function MyMaterials({ session }: { session: Session }) {
   );
 }
 
+type LiveClassRow = {
+  id: string;
+  title: string;
+  subject: string | null;
+  room_code: string;
+  teacher_name: string | null;
+  status: string;
+  scheduled_at: string | null;
+};
+
+function MyClasses({ session }: { session: Session }) {
+  const [items, setItems] = useState<LiveClassRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function load() {
+    setLoading(true);
+    const { data } = await supabase
+      .from("live_classes")
+      .select("id,title,subject,room_code,teacher_name,status,scheduled_at")
+      .eq("student_class", session.student_class)
+      .in("status", ["scheduled", "live"])
+      .order("created_at", { ascending: false });
+    setItems((data as LiveClassRow[]) || []);
+    setLoading(false);
+  }
+  useEffect(() => {
+    load();
+    const t = setInterval(load, 15000);
+    return () => clearInterval(t);
+  }, [session.student_class]);
+
+  if (loading && items.length === 0) return null;
+  if (items.length === 0) return null;
+
+  return (
+    <section className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
+      <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+        🎥 Live Classes
+      </h2>
+      <ul className="mt-4 space-y-2">
+        {items.map((c) => (
+          <li key={c.id} className="rounded-xl border border-border bg-background p-4 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-medium truncate">{c.title}</span>
+                {c.status === "live" && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500 text-white font-semibold animate-pulse">● LIVE</span>
+                )}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {c.subject || "Class"}{c.teacher_name ? ` · ${c.teacher_name}` : ""}
+                {c.scheduled_at ? ` · ${new Date(c.scheduled_at).toLocaleString()}` : ""}
+              </div>
+            </div>
+            <Link
+              to="/student/class/$code"
+              params={{ code: c.room_code }}
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold ${
+                c.status === "live"
+                  ? "bg-emerald-600 text-white hover:opacity-90"
+                  : "border border-border hover:bg-secondary"
+              }`}
+            >
+              {c.status === "live" ? "Join now" : "Open"}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function StudentPage() {
   const location = useLocation();
   const [session, setSession] = useState<Session | null>(null);
@@ -310,7 +382,8 @@ function StudentPage() {
     location.pathname.startsWith("/student/test/") ||
     location.pathname.startsWith("/student/ai") ||
     location.pathname.startsWith("/student/reading") ||
-    location.pathname.startsWith("/student/imagine")
+    location.pathname.startsWith("/student/imagine") ||
+    location.pathname.startsWith("/student/class/")
   ) {
     return <Outlet />;
   }
@@ -615,6 +688,8 @@ function StudentReports({ session }: { session: Session }) {
       </div>
 
       <FeeSummary session={session} />
+
+      <MyClasses session={session} />
 
       <MyTests session={session} />
 
