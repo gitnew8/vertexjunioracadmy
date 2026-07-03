@@ -251,28 +251,28 @@ function LiveRoom({
         userInfo: { displayName },
         configOverwrite: {
           prejoinPageEnabled: false,
+          prejoinConfig: { enabled: false },
           startWithAudioMuted: !isTeacher,
           startWithVideoMuted: true,
           disableDeepLinking: true,
-          toolbarButtons: [], // hide default toolbar
+          toolbarButtons: [],
           hideConferenceSubject: true,
           hideConferenceTimer: true,
           disableTileView: false,
-          notifications: [],
           disableInviteFunctions: true,
-          readOnlyName: true,
           enableClosePage: false,
         },
         interfaceConfigOverwrite: {
           MOBILE_APP_PROMO: false,
           SHOW_JITSI_WATERMARK: false,
           SHOW_WATERMARK_FOR_GUESTS: false,
-          DISABLE_VIDEO_BACKGROUND: false,
           TOOLBAR_BUTTONS: [],
           SETTINGS_SECTIONS: [],
         },
       });
       apiRef.current = api;
+      // Fallback: hide the connecting overlay even if the join event is delayed
+      setTimeout(() => setReady(true), 4000);
 
       api.addListener("videoConferenceJoined", () => setReady(true));
       api.addListener("audioMuteStatusChanged", (e: any) => setMicOn(!e.muted));
