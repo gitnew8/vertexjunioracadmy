@@ -246,7 +246,7 @@ function LiveRoom({
     (async () => {
       const JitsiAPI = await loadJitsi();
       if (cancelled || !containerRef.current) return;
-      api = new JitsiAPI("meet.jit.si", {
+      api = new JitsiAPI(JITSI_DOMAIN, {
         roomName: `Vertex-${cls.room_code}`,
         parentNode: containerRef.current,
         width: "100%",
