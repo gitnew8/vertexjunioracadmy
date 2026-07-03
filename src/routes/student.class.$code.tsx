@@ -17,7 +17,10 @@ export const Route = createFileRoute("/student/class/$code")({
 });
 
 const SESSION_KEY = "student_session_v2";
-const JITSI_SCRIPT = "https://meet.jit.si/external_api.js";
+// meet.jit.si now requires moderator login. Use a public community Jitsi
+// server that allows anonymous moderators so classes can start instantly.
+const JITSI_DOMAIN = "meet.guifi.net";
+const JITSI_SCRIPT = `https://${JITSI_DOMAIN}/external_api.js`;
 
 type Session = { name: string; student_class: string; roll_number: string; login_number: string };
 type LiveClass = {
@@ -243,7 +246,7 @@ function LiveRoom({
     (async () => {
       const JitsiAPI = await loadJitsi();
       if (cancelled || !containerRef.current) return;
-      api = new JitsiAPI("meet.jit.si", {
+      api = new JitsiAPI(JITSI_DOMAIN, {
         roomName: `Vertex-${cls.room_code}`,
         parentNode: containerRef.current,
         width: "100%",
@@ -251,28 +254,28 @@ function LiveRoom({
         userInfo: { displayName },
         configOverwrite: {
           prejoinPageEnabled: false,
+          prejoinConfig: { enabled: false },
           startWithAudioMuted: !isTeacher,
           startWithVideoMuted: true,
           disableDeepLinking: true,
-          toolbarButtons: [], // hide default toolbar
+          toolbarButtons: [],
           hideConferenceSubject: true,
           hideConferenceTimer: true,
           disableTileView: false,
-          notifications: [],
           disableInviteFunctions: true,
-          readOnlyName: true,
           enableClosePage: false,
         },
         interfaceConfigOverwrite: {
           MOBILE_APP_PROMO: false,
           SHOW_JITSI_WATERMARK: false,
           SHOW_WATERMARK_FOR_GUESTS: false,
-          DISABLE_VIDEO_BACKGROUND: false,
           TOOLBAR_BUTTONS: [],
           SETTINGS_SECTIONS: [],
         },
       });
       apiRef.current = api;
+      // Fallback: hide the connecting overlay even if the join event is delayed
+      setTimeout(() => setReady(true), 4000);
 
       api.addListener("videoConferenceJoined", () => setReady(true));
       api.addListener("audioMuteStatusChanged", (e: any) => setMicOn(!e.muted));
