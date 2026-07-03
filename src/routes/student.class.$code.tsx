@@ -19,7 +19,7 @@ export const Route = createFileRoute("/student/class/$code")({
 const SESSION_KEY = "student_session_v2";
 // meet.jit.si now requires moderator login. Use a public community Jitsi
 // server that allows anonymous moderators so classes can start instantly.
-const JITSI_DOMAIN = "meet.ffmuc.net";
+const JITSI_DOMAIN = "meet.guifi.net";
 const JITSI_SCRIPT = `https://${JITSI_DOMAIN}/external_api.js`;
 
 type Session = { name: string; student_class: string; roll_number: string; login_number: string };
