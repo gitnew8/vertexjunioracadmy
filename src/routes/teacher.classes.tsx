@@ -87,7 +87,8 @@ function Inner() {
     if (error) return toast.error(error.message);
     toast.success("Class started — share the link with students");
     load();
-    window.open(`https://meet.jit.si/Vertex-${c.room_code}#config.prejoinPageEnabled=false`, "_blank");
+    const teacherName = encodeURIComponent(c.teacher_name || "Teacher");
+    window.open(`/student/class/${c.room_code}?role=teacher&name=${teacherName}`, "_blank");
   }
 
   async function endClass(c: LiveClass) {
