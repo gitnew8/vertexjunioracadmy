@@ -2,6 +2,7 @@ import { createFileRoute, Link, useParams, useSearch } from "@tanstack/react-rou
 import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast, Toaster } from "sonner";
+import DailyIframe, { type DailyCall } from "@daily-co/daily-js";
 import {
   ArrowLeft, Video, AlertCircle, Mic, MicOff, VideoOff, Hand, ScreenShare,
   PhoneOff, MessageSquare, NotebookPen, HelpCircle, Users, X, Send, Sparkles,
@@ -17,10 +18,6 @@ export const Route = createFileRoute("/student/class/$code")({
 });
 
 const SESSION_KEY = "student_session_v2";
-// meet.jit.si now requires moderator login. Use a public community Jitsi
-// server that allows anonymous moderators so classes can start instantly.
-const JITSI_DOMAIN = "meet.guifi.net";
-const JITSI_SCRIPT = `https://${JITSI_DOMAIN}/external_api.js`;
 
 type Session = { name: string; student_class: string; roll_number: string; login_number: string };
 type LiveClass = {
@@ -28,22 +25,6 @@ type LiveClass = {
   room_code: string; teacher_name: string | null; status: string;
 };
 type ChatMsg = { id: string; from: string; text: string; me?: boolean; ts: number };
-
-declare global {
-  interface Window { JitsiMeetExternalAPI?: any }
-}
-
-function loadJitsi(): Promise<any> {
-  return new Promise((resolve, reject) => {
-    if (window.JitsiMeetExternalAPI) return resolve(window.JitsiMeetExternalAPI);
-    const s = document.createElement("script");
-    s.src = JITSI_SCRIPT;
-    s.async = true;
-    s.onload = () => resolve(window.JitsiMeetExternalAPI);
-    s.onerror = () => reject(new Error("Failed to load Jitsi"));
-    document.head.appendChild(s);
-  });
-}
 
 function fmtTimer(sec: number) {
   const h = Math.floor(sec / 3600);
@@ -220,9 +201,10 @@ function LiveRoom({
   cls, displayName, isTeacher,
 }: { cls: LiveClass; displayName: string; isTeacher: boolean }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const apiRef = useRef<any>(null);
+  const callRef = useRef<DailyCall | null>(null);
   const [ready, setReady] = useState(false);
-  const [micOn, setMicOn] = useState(false); // students start off
+  const [error, setError] = useState<string | null>(null);
+  const [micOn, setMicOn] = useState(false);
   const [camOn, setCamOn] = useState(false);
   const [handRaised, setHandRaised] = useState(false);
   const [sharing, setSharing] = useState(false);
@@ -242,91 +224,165 @@ function LiveRoom({
 
   useEffect(() => {
     let cancelled = false;
-    let api: any;
-    (async () => {
-      const JitsiAPI = await loadJitsi();
-      if (cancelled || !containerRef.current) return;
-      api = new JitsiAPI(JITSI_DOMAIN, {
-        roomName: `Vertex-${cls.room_code}`,
-        parentNode: containerRef.current,
-        width: "100%",
-        height: "100%",
-        userInfo: { displayName },
-        configOverwrite: {
-          prejoinPageEnabled: false,
-          prejoinConfig: { enabled: false },
-          startWithAudioMuted: !isTeacher,
-          startWithVideoMuted: true,
-          disableDeepLinking: true,
-          toolbarButtons: [],
-          hideConferenceSubject: true,
-          hideConferenceTimer: true,
-          disableTileView: false,
-          disableInviteFunctions: true,
-          enableClosePage: false,
-        },
-        interfaceConfigOverwrite: {
-          MOBILE_APP_PROMO: false,
-          SHOW_JITSI_WATERMARK: false,
-          SHOW_WATERMARK_FOR_GUESTS: false,
-          TOOLBAR_BUTTONS: [],
-          SETTINGS_SECTIONS: [],
-        },
-      });
-      apiRef.current = api;
-      // Fallback: hide the connecting overlay even if the join event is delayed
-      setTimeout(() => setReady(true), 4000);
+    let call: DailyCall | null = null;
 
-      api.addListener("videoConferenceJoined", () => setReady(true));
-      api.addListener("audioMuteStatusChanged", (e: any) => setMicOn(!e.muted));
-      api.addListener("videoMuteStatusChanged", (e: any) => setCamOn(!e.muted));
-      api.addListener("screenSharingStatusChanged", (e: any) => setSharing(!!e.on));
-      api.addListener("raiseHandUpdated", (e: any) => {
-        // only reflect our own
-        try {
-          const me = api.getParticipantsInfo?.().find((p: any) => p.displayName === displayName);
-          if (me && e.id === me.participantId) setHandRaised(!!e.handRaised);
-        } catch {}
-      });
-      const updateCount = () => {
-        try { setParticipants(api.getNumberOfParticipants?.() || 1); } catch {}
-      };
-      api.addListener("participantJoined", updateCount);
-      api.addListener("participantLeft", updateCount);
-      api.addListener("videoConferenceJoined", updateCount);
-      api.addListener("incomingMessage", (e: any) => {
-        setChat((c) => [...c, { id: `${Date.now()}-${Math.random()}`, from: e.nick || "Someone", text: e.message, ts: Date.now() }]);
-      });
-      api.addListener("readyToClose", () => { window.history.back(); });
+    (async () => {
+      try {
+        // 1. Fetch room + token from our server
+        const res = await fetch("/api/public/daily-room", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            room_code: cls.room_code,
+            role: isTeacher ? "teacher" : "student",
+            user_name: displayName,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || "Failed to prepare room");
+        if (cancelled || !containerRef.current) return;
+
+        // 2. Create Daily iframe with custom (chromeless) UI
+        call = DailyIframe.createFrame(containerRef.current, {
+          iframeStyle: {
+            position: "absolute",
+            inset: "0",
+            width: "100%",
+            height: "100%",
+            border: "0",
+            background: "black",
+          },
+          showLeaveButton: false,
+          showFullscreenButton: false,
+          showLocalVideo: true,
+          showParticipantsBar: !isTeacher ? false : true,
+          theme: {
+            colors: {
+              accent: "#0ea5e9",
+              accentText: "#ffffff",
+              background: "#020617",
+              backgroundAccent: "#0f172a",
+              baseText: "#f1f5f9",
+              border: "#1e293b",
+              mainAreaBg: "#020617",
+              mainAreaBgAccent: "#0f172a",
+              mainAreaText: "#f1f5f9",
+              supportiveText: "#94a3b8",
+            },
+          },
+        });
+        callRef.current = call;
+
+        call
+          .on("joined-meeting", (e: any) => {
+            setReady(true);
+            setMicOn(!!e?.participants?.local?.audio);
+            setCamOn(!!e?.participants?.local?.video);
+            setParticipants(Object.keys(e?.participants || { local: 1 }).length);
+          })
+          .on("participant-joined", () => {
+            setParticipants(Object.keys(call!.participants()).length);
+          })
+          .on("participant-updated", (e: any) => {
+            if (e?.participant?.local) {
+              setMicOn(!!e.participant.audio);
+              setCamOn(!!e.participant.video);
+              setSharing(!!e.participant.screen);
+            }
+          })
+          .on("participant-left", () => {
+            setParticipants(Object.keys(call!.participants()).length);
+          })
+          .on("app-message", (e: any) => {
+            const m = e?.data;
+            if (!m || typeof m !== "object") return;
+            const from = e?.fromId ? (call!.participants() as any)[e.fromId]?.user_name || "Someone" : "Someone";
+            if (m.type === "chat" && typeof m.text === "string") {
+              setChat((c) => [...c, { id: `${Date.now()}-${Math.random()}`, from, text: m.text, ts: Date.now() }]);
+            } else if (m.type === "doubt" && typeof m.text === "string") {
+              setDoubts((d) => [...d, { id: `${Date.now()}-${Math.random()}`, from, text: m.text, ts: Date.now() }]);
+            } else if (m.type === "hand") {
+              toast(`${from} raised their hand ✋`);
+            }
+          })
+          .on("error", (e: any) => {
+            setError(e?.errorMsg || "Video error");
+          });
+
+        await call.join({
+          url: data.url,
+          token: data.token,
+          userName: displayName,
+          startVideoOff: true,
+          startAudioOff: !isTeacher,
+        });
+      } catch (e: any) {
+        if (!cancelled) setError(e?.message || "Failed to connect");
+      }
     })();
+
     return () => {
       cancelled = true;
-      try { apiRef.current?.dispose?.(); } catch {}
+      try { call?.leave(); } catch {}
+      try { call?.destroy(); } catch {}
+      callRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const toggleMic = useCallback(() => apiRef.current?.executeCommand("toggleAudio"), []);
-  const toggleCam = useCallback(() => apiRef.current?.executeCommand("toggleVideo"), []);
-  const toggleShare = useCallback(() => apiRef.current?.executeCommand("toggleShareScreen"), []);
-  const toggleHand = useCallback(() => apiRef.current?.executeCommand("toggleRaiseHand"), []);
+  const toggleMic = useCallback(() => {
+    const c = callRef.current; if (!c) return;
+    c.setLocalAudio(!c.localAudio());
+  }, []);
+  const toggleCam = useCallback(() => {
+    const c = callRef.current; if (!c) return;
+    c.setLocalVideo(!c.localVideo());
+  }, []);
+  const toggleShare = useCallback(async () => {
+    const c = callRef.current; if (!c) return;
+    try {
+      if (sharing) c.stopScreenShare();
+      else await c.startScreenShare();
+    } catch (e: any) {
+      toast.error(e?.message || "Screen share failed");
+    }
+  }, [sharing]);
+  const toggleHand = useCallback(() => {
+    const c = callRef.current; if (!c) return;
+    const next = !handRaised;
+    setHandRaised(next);
+    if (next) {
+      try { c.sendAppMessage({ type: "hand" }, "*"); } catch {}
+    }
+  }, [handRaised]);
   const leave = useCallback(() => {
-    try { apiRef.current?.executeCommand("hangup"); } catch {}
+    try { callRef.current?.leave(); } catch {}
     window.history.back();
   }, []);
   const muteAll = useCallback(() => {
-    try { apiRef.current?.executeCommand("muteEveryone"); toast.success("Muted everyone"); } catch {}
+    const c = callRef.current; if (!c) return;
+    try {
+      const parts = c.participants() as any;
+      const ids = Object.keys(parts).filter((id) => id !== "local");
+      c.updateParticipants(
+        Object.fromEntries(ids.map((id) => [id, { setAudio: false }]))
+      );
+      toast.success("Muted everyone");
+    } catch (e: any) {
+      toast.error(e?.message || "Mute all failed");
+    }
   }, []);
 
   function sendChat() {
     const text = msg.trim();
     if (!text) return;
+    const c = callRef.current;
     if (tab === "doubts") {
       setDoubts((d) => [...d, { id: `${Date.now()}`, from: displayName, text, me: true, ts: Date.now() }]);
-      try { apiRef.current?.executeCommand("sendChatMessage", `❓ Doubt: ${text}`); } catch {}
+      try { c?.sendAppMessage({ type: "doubt", text }, "*"); } catch {}
     } else {
-      setChat((c) => [...c, { id: `${Date.now()}`, from: displayName, text, me: true, ts: Date.now() }]);
-      try { apiRef.current?.executeCommand("sendChatMessage", text); } catch {}
+      setChat((cs) => [...cs, { id: `${Date.now()}`, from: displayName, text, me: true, ts: Date.now() }]);
+      try { c?.sendAppMessage({ type: "chat", text }, "*"); } catch {}
     }
     setMsg("");
   }
@@ -363,10 +419,9 @@ function LiveRoom({
 
       {/* Main area */}
       <div className="flex-1 min-h-0 flex">
-        {/* Video */}
         <div className="flex-1 min-w-0 relative bg-black">
           <div ref={containerRef} className="absolute inset-0" />
-          {!ready && (
+          {!ready && !error && (
             <div className="absolute inset-0 grid place-items-center bg-slate-950">
               <div className="text-center">
                 <div className="mx-auto size-12 rounded-full border-2 border-white/20 border-t-white animate-spin" />
@@ -374,10 +429,20 @@ function LiveRoom({
               </div>
             </div>
           )}
+          {error && (
+            <div className="absolute inset-0 grid place-items-center bg-slate-950 p-6">
+              <div className="text-center max-w-sm">
+                <AlertCircle className="size-10 mx-auto text-red-400 mb-3" />
+                <p className="text-sm text-white/80">{error}</p>
+                <button onClick={() => location.reload()} className="mt-4 rounded-lg bg-white/10 hover:bg-white/20 px-4 py-2 text-sm">
+                  Retry
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Side panel (desktop) */}
-        <aside className={`hidden md:flex w-80 shrink-0 border-l border-white/5 bg-slate-900/70 flex-col`}>
+        <aside className="hidden md:flex w-80 shrink-0 border-l border-white/5 bg-slate-900/70 flex-col">
           <SidePanel
             tab={tab} setTab={setTab}
             chat={chat} doubts={doubts} notes={notes} setNotes={setNotes}
@@ -386,7 +451,6 @@ function LiveRoom({
         </aside>
       </div>
 
-      {/* Mobile side panel drawer */}
       {panelOpen && (
         <div className="md:hidden fixed inset-0 z-40 bg-black/60" onClick={() => setPanelOpen(false)}>
           <div
@@ -406,51 +470,20 @@ function LiveRoom({
         </div>
       )}
 
-      {/* Bottom control bar */}
       <footer className="shrink-0 bg-slate-900/95 backdrop-blur border-t border-white/5 px-2 sm:px-4 py-2.5">
         <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
-          <CtrlBtn
-            onClick={toggleMic}
-            active={micOn}
-            label={micOn ? "Mic" : "Muted"}
-            icon={micOn ? <Mic className="size-5" /> : <MicOff className="size-5" />}
-            danger={!micOn}
-          />
-          <CtrlBtn
-            onClick={toggleCam}
-            active={camOn}
-            label={camOn ? "Camera" : "Camera"}
-            icon={camOn ? <Video className="size-5" /> : <VideoOff className="size-5" />}
-            danger={!camOn}
-          />
-          <CtrlBtn
-            onClick={toggleHand}
-            active={handRaised}
-            label="Raise"
-            icon={<Hand className="size-5" />}
-            accent={handRaised}
-          />
-          {(isTeacher || true) && (
-            <CtrlBtn
-              onClick={toggleShare}
-              active={sharing}
-              label="Share"
-              icon={<ScreenShare className="size-5" />}
-              accent={sharing}
-            />
-          )}
-          <CtrlBtn
-            onClick={() => setPanelOpen(true)}
-            label="Chat"
-            icon={<MessageSquare className="size-5" />}
-            mobileOnly
-          />
+          <CtrlBtn onClick={toggleMic} active={micOn} label={micOn ? "Mic" : "Muted"}
+            icon={micOn ? <Mic className="size-5" /> : <MicOff className="size-5" />} danger={!micOn} />
+          <CtrlBtn onClick={toggleCam} active={camOn} label="Camera"
+            icon={camOn ? <Video className="size-5" /> : <VideoOff className="size-5" />} danger={!camOn} />
+          <CtrlBtn onClick={toggleHand} active={handRaised} label="Raise"
+            icon={<Hand className="size-5" />} accent={handRaised} />
+          <CtrlBtn onClick={toggleShare} active={sharing} label="Share"
+            icon={<ScreenShare className="size-5" />} accent={sharing} />
+          <CtrlBtn onClick={() => setPanelOpen(true)} label="Chat"
+            icon={<MessageSquare className="size-5" />} mobileOnly />
           {isTeacher && (
-            <CtrlBtn
-              onClick={muteAll}
-              label="Mute all"
-              icon={<MicOff className="size-5" />}
-            />
+            <CtrlBtn onClick={muteAll} label="Mute all" icon={<MicOff className="size-5" />} />
           )}
           <button
             onClick={leave}
