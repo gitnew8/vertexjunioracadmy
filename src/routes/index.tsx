@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GraduationCap, FileText, Share2, ShieldCheck } from "lucide-react";
+import { GraduationCap, FileText, Share2, ShieldCheck, Trophy, ArrowRight } from "lucide-react";
 import vertexLogo from "@/assets/vertex-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -26,6 +26,14 @@ function Landing() {
             <span className="font-display text-lg font-semibold">Vertex Junior Academy</span>
           </div>
           <div className="flex items-center gap-2">
+            <a
+              href="/rank-list.html"
+              target="_blank"
+              rel="noopener"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-accent/40 text-accent-foreground px-3 py-2 text-sm font-medium hover:bg-accent/60 transition"
+            >
+              <Trophy className="size-4" /> Rank list
+            </a>
             <Link
               to="/student"
               className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition"
@@ -41,6 +49,19 @@ function Landing() {
           </div>
         </div>
       </header>
+
+      <a
+        href="/rank-list.html"
+        target="_blank"
+        rel="noopener"
+        className="block bg-gradient-to-r from-[oklch(0.45_0.13_255)] to-[oklch(0.55_0.15_260)] text-primary-foreground"
+      >
+        <div className="mx-auto max-w-6xl px-5 py-3 flex items-center justify-center gap-3 text-sm font-medium">
+          <Trophy className="size-4 shrink-0" />
+          <span>📢 Result Declared — View the official Rank List for all students</span>
+          <ArrowRight className="size-4 shrink-0" />
+        </div>
+      </a>
 
       <main className="mx-auto max-w-6xl px-5 py-16 md:py-24">
         <section className="grid md:grid-cols-2 gap-12 items-center">
