@@ -81,8 +81,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Weekly Student Report" },
       { name: "twitter:description", content: "Create and share weekly student progress reports as PDF. No login required." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5acf9e64-f8e9-4be4-b3db-1b185f55026e/id-preview-0272e14c--4d2b3b0e-d2f3-4998-9efc-9cf5e5b92802.lovable.app-1779007551568.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5acf9e64-f8e9-4be4-b3db-1b185f55026e/id-preview-0272e14c--4d2b3b0e-d2f3-4998-9efc-9cf5e5b92802.lovable.app-1779007551568.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
