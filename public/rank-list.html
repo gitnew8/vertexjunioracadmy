@@ -377,6 +377,13 @@ function renderPage(){
   const tbody = document.getElementById('rankBody');
   tbody.innerHTML = '';
 
+  const medals = ['🥇','🥈','🥉'];
+  const hl = document.getElementById('hlToppers');
+  hl.innerHTML = sorted.slice(0,3).map((s,i) =>
+    `<div class="topper"><span class="medal">${medals[i]}</span>${s.name} — ${s.marks}/100 <span style="opacity:.75">(Class ${s.class})</span></div>`
+  ).join('');
+
+
   sorted.forEach((student, idx) => {
     const rank = idx + 1;
     const pct = student.marks;
