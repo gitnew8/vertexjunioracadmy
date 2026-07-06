@@ -5,6 +5,9 @@ import type { ReportRow } from "@/lib/types";
 import { GraduationCap, LogOut, Calendar, ExternalLink, Lock, UserPlus, Copy, CheckCircle2, Download, Receipt, BookOpen, Eye, FileText, Image as ImageIcon, File as FileIcon } from "lucide-react";
 import { generateReceiptPdf } from "@/lib/receipt";
 import { toast, Toaster } from "sonner";
+import { RewardProgressCard } from "@/components/reward-progress-card";
+import { TermsModal } from "@/components/terms-modal";
+import { checkAndAwardRewards } from "@/lib/rewards";
 
 export const Route = createFileRoute("/student")({
   component: StudentPage,
