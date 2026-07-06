@@ -276,6 +276,10 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
           time_limit_min: timeMin,
           total_marks: totalMarks,
           status: "draft",
+          is_free: isFree,
+          price: isFree ? 0 : Number(price) || 0,
+          discount_price:
+            isFree || discountPrice === "" ? null : Number(discountPrice) || null,
         })
         .select("id")
         .single();
