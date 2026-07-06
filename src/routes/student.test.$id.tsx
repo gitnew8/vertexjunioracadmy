@@ -59,10 +59,13 @@ function TakeTestPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [existing, setExisting] = useState<Attempt | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [startedAt] = useState(() => Date.now());
+  const [startedAt, setStartedAt] = useState<number>(() => Date.now());
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [started, setStarted] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const submittedRef = useRef(false);
 
   useEffect(() => {
