@@ -156,7 +156,6 @@ function TestDetailPage() {
         <TabBtn active={search.tab !== "results"} onClick={() => navigate({ to: "/teacher/tests/$id", params: { id }, search: { tab: "questions" } })}>
           Questions ({questions.length})
         </TabBtn>
-        </TabBtn>
         <TabBtn active={search.tab === "results"} onClick={() => navigate({ to: "/teacher/tests/$id", params: { id }, search: { tab: "results" } })}>
           Results
         </TabBtn>
