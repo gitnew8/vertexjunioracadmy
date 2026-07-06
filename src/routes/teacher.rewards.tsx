@@ -85,7 +85,7 @@ function RewardsPage() {
   }
 
   async function updateClaim(id: string, status: string) {
-    const patch: Record<string, unknown> = { status };
+    const patch: { status: string; approved_at?: string } = { status };
     if (status === "approved") patch.approved_at = new Date().toISOString();
     const { error } = await supabase.from("reward_claims").update(patch).eq("id", id);
     if (error) return toast.error(error.message);
