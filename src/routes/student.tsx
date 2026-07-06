@@ -88,6 +88,22 @@ function MyTests({ session }: { session: Session }) {
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {t.subject}{t.chapter ? ` · ${t.chapter}` : ""} · {t.time_limit_min}m · {t.total_marks} marks
                   </div>
+                  <div className="mt-1">
+                    {t.is_free ? (
+                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                        FREE
+                      </span>
+                    ) : t.discount_price != null && Number(t.discount_price) < Number(t.price || 0) ? (
+                      <span className="text-[11px]">
+                        <span className="font-semibold text-primary">₹{t.discount_price}</span>{" "}
+                        <span className="line-through text-muted-foreground">₹{t.price}</span>
+                      </span>
+                    ) : Number(t.price || 0) > 0 ? (
+                      <span className="text-[11px] font-semibold text-primary">₹{t.price}</span>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">FREE</span>
+                    )}
+                  </div>
                 </div>
                 {done ? (
                   <div className="text-right shrink-0">
