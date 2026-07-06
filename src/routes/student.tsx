@@ -730,6 +730,8 @@ function StudentReports({ session }: { session: Session }) {
 
       <FeeSummary session={session} />
 
+      <RewardProgressCard studentId={studentId} onOpenTerms={() => setShowTerms(true)} />
+
       <MyClasses session={session} />
 
       <MyTests session={session} />
@@ -737,6 +739,8 @@ function StudentReports({ session }: { session: Session }) {
       <MyMaterials session={session} />
 
       <PaymentHistory session={session} />
+
+      <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
 
 
 
