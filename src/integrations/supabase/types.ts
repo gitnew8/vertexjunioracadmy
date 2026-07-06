@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           attachments: Json
@@ -374,6 +392,115 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_claims: {
+        Row: {
+          approved_at: string | null
+          avg_score: number
+          created_at: string
+          earned_at: string
+          id: string
+          notes: string | null
+          rule_id: string
+          status: string
+          student_id: string
+          tests_count: number
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          avg_score?: number
+          created_at?: string
+          earned_at?: string
+          id?: string
+          notes?: string | null
+          rule_id: string
+          status?: string
+          student_id: string
+          tests_count?: number
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          avg_score?: number
+          created_at?: string
+          earned_at?: string
+          id?: string
+          notes?: string | null
+          rule_id?: string
+          status?: string
+          student_id?: string
+          tests_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_claims_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "reward_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_claims_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_activity"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_claims_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reward_rules: {
+        Row: {
+          active: boolean
+          created_at: string
+          cycle_days: number
+          description: string | null
+          id: string
+          image_url: string | null
+          min_score_percent: number
+          min_tests: number
+          sort_order: number
+          stock: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          cycle_days?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          min_score_percent?: number
+          min_tests?: number
+          sort_order?: number
+          stock?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          cycle_days?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          min_score_percent?: number
+          min_tests?: number
+          sort_order?: number
+          stock?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           course: string | null
@@ -559,8 +686,11 @@ export type Database = {
         Row: {
           chapter: string | null
           created_at: string
+          discount_price: number | null
           id: string
+          is_free: boolean
           language: string
+          price: number
           status: string
           student_class: string
           subject: string
@@ -572,8 +702,11 @@ export type Database = {
         Insert: {
           chapter?: string | null
           created_at?: string
+          discount_price?: number | null
           id?: string
+          is_free?: boolean
           language?: string
+          price?: number
           status?: string
           student_class: string
           subject: string
@@ -585,8 +718,11 @@ export type Database = {
         Update: {
           chapter?: string | null
           created_at?: string
+          discount_price?: number | null
           id?: string
+          is_free?: boolean
           language?: string
+          price?: number
           status?: string
           student_class?: string
           subject?: string

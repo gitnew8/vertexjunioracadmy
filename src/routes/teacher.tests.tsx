@@ -27,6 +27,9 @@ type Test = {
   total_marks: number;
   status: string;
   created_at: string;
+  price: number | null;
+  discount_price: number | null;
+  is_free: boolean | null;
 };
 
 function TestsPage() {
@@ -110,6 +113,7 @@ function TestsPage() {
                 <th className="text-left p-3">Subject</th>
                 <th className="text-left p-3">Time</th>
                 <th className="text-left p-3">Marks</th>
+                <th className="text-left p-3">Price</th>
                 <th className="text-left p-3">Status</th>
                 <th className="text-right p-3">Actions</th>
               </tr>
@@ -122,6 +126,17 @@ function TestsPage() {
                   <td className="p-3">{t.subject}</td>
                   <td className="p-3">{t.time_limit_min}m</td>
                   <td className="p-3">{t.total_marks}</td>
+                  <td className="p-3 text-xs">
+                    {t.is_free ? (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">FREE</span>
+                    ) : t.discount_price != null && Number(t.discount_price) < Number(t.price || 0) ? (
+                      <span>
+                        ₹{t.discount_price} <span className="line-through text-muted-foreground">₹{t.price}</span>
+                      </span>
+                    ) : (
+                      <span>₹{t.price || 0}</span>
+                    )}
+                  </td>
                   <td className="p-3">
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -197,6 +212,9 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [language, setLanguage] = useState<"en" | "hi" | "bilingual">("en");
   const [timeMin, setTimeMin] = useState(30);
+  const [isFree, setIsFree] = useState(true);
+  const [price, setPrice] = useState(0);
+  const [discountPrice, setDiscountPrice] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
 
   function toggleType(t: QType) {
@@ -258,6 +276,10 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
           time_limit_min: timeMin,
           total_marks: totalMarks,
           status: "draft",
+          is_free: isFree,
+          price: isFree ? 0 : Number(price) || 0,
+          discount_price:
+            isFree || discountPrice === "" ? null : Number(discountPrice) || null,
         })
         .select("id")
         .single();
@@ -427,6 +449,41 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
               })}
             </div>
           </Field>
+          <div className="rounded-lg border border-border bg-secondary/30 p-3 space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                checked={isFree}
+                onChange={(e) => setIsFree(e.target.checked)}
+              />
+              Free test
+            </label>
+            {!isFree && (
+              <div className="grid grid-cols-2 gap-2">
+                <Field label="Price (₹)">
+                  <input
+                    type="number"
+                    min={0}
+                    value={price}
+                    onChange={(e) => setPrice(Number(e.target.value))}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                  />
+                </Field>
+                <Field label="Discount price (₹)">
+                  <input
+                    type="number"
+                    min={0}
+                    value={discountPrice}
+                    onChange={(e) =>
+                      setDiscountPrice(e.target.value === "" ? "" : Number(e.target.value))
+                    }
+                    placeholder="Optional"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                  />
+                </Field>
+              </div>
+            )}
+          </div>
         </div>
 
         <DialogFooter>

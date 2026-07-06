@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
 import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
+import { Route as TeacherRewardsRouteImport } from './routes/teacher.rewards'
 import { Route as TeacherReportsRouteImport } from './routes/teacher.reports'
 import { Route as TeacherReadingRouteImport } from './routes/teacher.reading'
 import { Route as TeacherNewRouteImport } from './routes/teacher.new'
@@ -68,6 +69,11 @@ const TeacherTestsRoute = TeacherTestsRouteImport.update({
 const TeacherStudentsRoute = TeacherStudentsRouteImport.update({
   id: '/students',
   path: '/students',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherRewardsRoute = TeacherRewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherReportsRoute = TeacherReportsRouteImport.update({
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/teacher/new': typeof TeacherNewRoute
   '/teacher/reading': typeof TeacherReadingRoute
   '/teacher/reports': typeof TeacherReportsRoute
+  '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/teacher/new': typeof TeacherNewRoute
   '/teacher/reading': typeof TeacherReadingRoute
   '/teacher/reports': typeof TeacherReportsRoute
+  '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
   '/teacher': typeof TeacherIndexRoute
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/teacher/new': typeof TeacherNewRoute
   '/teacher/reading': typeof TeacherReadingRoute
   '/teacher/reports': typeof TeacherReportsRoute
+  '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
@@ -307,6 +316,7 @@ export interface FileRouteTypes {
     | '/teacher/new'
     | '/teacher/reading'
     | '/teacher/reports'
+    | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
     | '/teacher/'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/teacher/new'
     | '/teacher/reading'
     | '/teacher/reports'
+    | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
     | '/teacher'
@@ -370,6 +381,7 @@ export interface FileRouteTypes {
     | '/teacher/new'
     | '/teacher/reading'
     | '/teacher/reports'
+    | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
     | '/teacher/'
@@ -445,6 +457,13 @@ declare module '@tanstack/react-router' {
       path: '/students'
       fullPath: '/teacher/students'
       preLoaderRoute: typeof TeacherStudentsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/rewards': {
+      id: '/teacher/rewards'
+      path: '/rewards'
+      fullPath: '/teacher/rewards'
+      preLoaderRoute: typeof TeacherRewardsRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/reports': {
@@ -658,6 +677,7 @@ interface TeacherRouteChildren {
   TeacherNewRoute: typeof TeacherNewRoute
   TeacherReadingRoute: typeof TeacherReadingRoute
   TeacherReportsRoute: typeof TeacherReportsRoute
+  TeacherRewardsRoute: typeof TeacherRewardsRoute
   TeacherStudentsRoute: typeof TeacherStudentsRoute
   TeacherTestsRoute: typeof TeacherTestsRouteWithChildren
   TeacherIndexRoute: typeof TeacherIndexRoute
@@ -672,6 +692,7 @@ const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherNewRoute: TeacherNewRoute,
   TeacherReadingRoute: TeacherReadingRoute,
   TeacherReportsRoute: TeacherReportsRoute,
+  TeacherRewardsRoute: TeacherRewardsRoute,
   TeacherStudentsRoute: TeacherStudentsRoute,
   TeacherTestsRoute: TeacherTestsRouteWithChildren,
   TeacherIndexRoute: TeacherIndexRoute,
@@ -698,13 +719,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

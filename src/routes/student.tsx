@@ -5,6 +5,9 @@ import type { ReportRow } from "@/lib/types";
 import { GraduationCap, LogOut, Calendar, ExternalLink, Lock, UserPlus, Copy, CheckCircle2, Download, Receipt, BookOpen, Eye, FileText, Image as ImageIcon, File as FileIcon } from "lucide-react";
 import { generateReceiptPdf } from "@/lib/receipt";
 import { toast, Toaster } from "sonner";
+import { RewardProgressCard } from "@/components/reward-progress-card";
+import { TermsModal } from "@/components/terms-modal";
+import { checkAndAwardRewards } from "@/lib/rewards";
 
 export const Route = createFileRoute("/student")({
   component: StudentPage,
@@ -22,6 +25,9 @@ type StudentTest = {
   chapter: string | null;
   time_limit_min: number;
   total_marks: number;
+  is_free: boolean | null;
+  price: number | null;
+  discount_price: number | null;
 };
 
 function generateLoginNumber() {
@@ -46,7 +52,7 @@ function MyTests({ session }: { session: Session }) {
       if (cancelled) return;
       const { data: ts } = await supabase
         .from("tests")
-        .select("id, title, subject, chapter, time_limit_min, total_marks")
+        .select("id, title, subject, chapter, time_limit_min, total_marks, is_free, price, discount_price")
         .eq("student_class", session.student_class)
         .eq("status", "published")
         .order("created_at", { ascending: false });
@@ -84,6 +90,22 @@ function MyTests({ session }: { session: Session }) {
                   <div className="font-medium truncate">{t.title}</div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {t.subject}{t.chapter ? ` · ${t.chapter}` : ""} · {t.time_limit_min}m · {t.total_marks} marks
+                  </div>
+                  <div className="mt-1">
+                    {t.is_free ? (
+                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                        FREE
+                      </span>
+                    ) : t.discount_price != null && Number(t.discount_price) < Number(t.price || 0) ? (
+                      <span className="text-[11px]">
+                        <span className="font-semibold text-primary">₹{t.discount_price}</span>{" "}
+                        <span className="line-through text-muted-foreground">₹{t.price}</span>
+                      </span>
+                    ) : Number(t.price || 0) > 0 ? (
+                      <span className="text-[11px] font-semibold text-primary">₹{t.price}</span>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">FREE</span>
+                    )}
                   </div>
                 </div>
                 {done ? (
@@ -639,10 +661,29 @@ function RegisterForm({ onLoginAfter }: { onLoginAfter: (s: Session) => void }) 
 function StudentReports({ session }: { session: Session }) {
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [studentId, setStudentId] = useState<string | null>(null);
+  const [showTerms, setShowTerms] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const { data: stu } = await supabase
+        .from("students")
+        .select("id")
+        .eq("login_number", session.login_number)
+        .maybeSingle();
+      if (cancelled) return;
+      if (stu) {
+        setStudentId(stu.id);
+        // Auto-check rewards on dashboard load
+        checkAndAwardRewards(stu.id).then((res) => {
+          if (res.awarded.length > 0) {
+            toast.success(
+              `🎁 Congratulations! You unlocked: ${res.awarded.map((r) => r.title).join(", ")}`,
+            );
+          }
+        });
+      }
       const { data, error } = await supabase
         .from("reports")
         .select("*")
@@ -656,7 +697,7 @@ function StudentReports({ session }: { session: Session }) {
     return () => {
       cancelled = true;
     };
-  }, [session.name]);
+  }, [session.name, session.login_number]);
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-10">
@@ -689,6 +730,8 @@ function StudentReports({ session }: { session: Session }) {
 
       <FeeSummary session={session} />
 
+      <RewardProgressCard studentId={studentId} onOpenTerms={() => setShowTerms(true)} />
+
       <MyClasses session={session} />
 
       <MyTests session={session} />
@@ -696,6 +739,8 @@ function StudentReports({ session }: { session: Session }) {
       <MyMaterials session={session} />
 
       <PaymentHistory session={session} />
+
+      <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
 
 
 

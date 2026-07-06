@@ -2,7 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast, Toaster } from "sonner";
-import { ArrowLeft, Clock, GraduationCap, CheckCircle2, XCircle, Send } from "lucide-react";
+import { ArrowLeft, Clock, GraduationCap, CheckCircle2, XCircle, Send, FileText } from "lucide-react";
+import { TermsModal } from "@/components/terms-modal";
+import { checkAndAwardRewards } from "@/lib/rewards";
 
 const SESSION_KEY = "student_session_v2";
 
@@ -17,6 +19,9 @@ type Test = {
   time_limit_min: number;
   total_marks: number;
   status: string;
+  is_free: boolean | null;
+  price: number | null;
+  discount_price: number | null;
 };
 
 type Question = {
@@ -54,10 +59,13 @@ function TakeTestPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [existing, setExisting] = useState<Attempt | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [startedAt] = useState(() => Date.now());
+  const [startedAt, setStartedAt] = useState<number>(() => Date.now());
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [started, setStarted] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const submittedRef = useRef(false);
 
   useEffect(() => {
@@ -127,7 +135,7 @@ function TakeTestPage() {
 
   // Timer
   useEffect(() => {
-    if (existing || secondsLeft === null) return;
+    if (existing || !started || secondsLeft === null) return;
     if (secondsLeft <= 0) {
       submit();
       return;
@@ -135,7 +143,7 @@ function TakeTestPage() {
     const t = setTimeout(() => setSecondsLeft((s) => (s === null ? null : s - 1)), 1000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsLeft, existing]);
+  }, [secondsLeft, existing, started]);
 
   async function submit() {
     if (submittedRef.current) return;
@@ -248,6 +256,14 @@ function TakeTestPage() {
       return toast.error(error.message);
     }
     setExisting(data as unknown as Attempt);
+    // Reward auto-check
+    checkAndAwardRewards(studentId).then((res) => {
+      if (res.awarded.length > 0) {
+        toast.success(
+          `🎁 Congratulations! You unlocked: ${res.awarded.map((r) => r.title).join(", ")}`,
+        );
+      }
+    });
   }
 
   if (loading || !session || !test) {
@@ -260,6 +276,108 @@ function TakeTestPage() {
 
   if (existing) {
     return <ResultView test={test} questions={questions} attempt={existing} />;
+  }
+
+  if (!started) {
+    const hasDiscount =
+      !test.is_free &&
+      test.discount_price != null &&
+      Number(test.discount_price) < Number(test.price || 0);
+    const displayPrice = test.is_free
+      ? "FREE"
+      : hasDiscount
+        ? `₹${test.discount_price}`
+        : Number(test.price || 0) > 0
+          ? `₹${test.price}`
+          : "FREE";
+    return (
+      <div className="min-h-screen">
+        <Toaster richColors position="top-center" />
+        <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
+        <main className="mx-auto max-w-lg px-5 py-10">
+          <Link
+            to="/student"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
+          >
+            <ArrowLeft className="size-4" /> Back
+          </Link>
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)]">
+            <div className="size-12 rounded-xl bg-primary/10 text-primary grid place-items-center">
+              <GraduationCap className="size-6" />
+            </div>
+            <h1 className="font-display text-2xl font-semibold mt-3">{test.title}</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {test.subject}
+              {test.chapter ? ` · ${test.chapter}` : ""}
+            </p>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-lg border border-border p-2">
+                <div className="text-[10px] uppercase text-muted-foreground">Time</div>
+                <div className="font-semibold">{test.time_limit_min}m</div>
+              </div>
+              <div className="rounded-lg border border-border p-2">
+                <div className="text-[10px] uppercase text-muted-foreground">Marks</div>
+                <div className="font-semibold">{test.total_marks}</div>
+              </div>
+              <div className="rounded-lg border border-border p-2">
+                <div className="text-[10px] uppercase text-muted-foreground">Questions</div>
+                <div className="font-semibold">{questions.length}</div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-4 flex items-center justify-between">
+              <div>
+                <div className="text-xs text-muted-foreground">Test fee</div>
+                <div className="font-display text-2xl font-semibold text-primary">
+                  {displayPrice}
+                  {hasDiscount && (
+                    <span className="ml-2 text-sm text-muted-foreground line-through font-normal">
+                      ₹{test.price}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {test.is_free && (
+                <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">
+                  FREE TEST
+                </span>
+              )}
+            </div>
+
+            <label className="mt-4 flex items-start gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                Main{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowTerms(true)}
+                  className="text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  <FileText className="size-3.5" /> Terms &amp; Conditions
+                </button>{" "}
+                padh liye hain aur agree karta hoon.
+              </span>
+            </label>
+
+            <button
+              disabled={!acceptedTerms}
+              onClick={() => {
+                setStarted(true);
+                setStartedAt(Date.now());
+              }}
+              className="mt-5 w-full rounded-lg bg-primary text-primary-foreground py-3 text-sm font-medium hover:opacity-90 disabled:opacity-50"
+            >
+              Start test
+            </button>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   const mm = Math.floor((secondsLeft ?? 0) / 60);
