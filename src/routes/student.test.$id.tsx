@@ -256,6 +256,14 @@ function TakeTestPage() {
       return toast.error(error.message);
     }
     setExisting(data as unknown as Attempt);
+    // Reward auto-check
+    checkAndAwardRewards(studentId).then((res) => {
+      if (res.awarded.length > 0) {
+        toast.success(
+          `🎁 Congratulations! You unlocked: ${res.awarded.map((r) => r.title).join(", ")}`,
+        );
+      }
+    });
   }
 
   if (loading || !session || !test) {
