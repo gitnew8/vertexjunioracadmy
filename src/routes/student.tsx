@@ -661,10 +661,29 @@ function RegisterForm({ onLoginAfter }: { onLoginAfter: (s: Session) => void }) 
 function StudentReports({ session }: { session: Session }) {
   const [reports, setReports] = useState<ReportRow[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [studentId, setStudentId] = useState<string | null>(null);
+  const [showTerms, setShowTerms] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const { data: stu } = await supabase
+        .from("students")
+        .select("id")
+        .eq("login_number", session.login_number)
+        .maybeSingle();
+      if (cancelled) return;
+      if (stu) {
+        setStudentId(stu.id);
+        // Auto-check rewards on dashboard load
+        checkAndAwardRewards(stu.id).then((res) => {
+          if (res.awarded.length > 0) {
+            toast.success(
+              `🎁 Congratulations! You unlocked: ${res.awarded.map((r) => r.title).join(", ")}`,
+            );
+          }
+        });
+      }
       const { data, error } = await supabase
         .from("reports")
         .select("*")
@@ -678,7 +697,7 @@ function StudentReports({ session }: { session: Session }) {
     return () => {
       cancelled = true;
     };
-  }, [session.name]);
+  }, [session.name, session.login_number]);
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-10">
