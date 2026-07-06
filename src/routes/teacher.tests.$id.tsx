@@ -586,3 +586,81 @@ function compareAns(a: string | undefined, correct: string) {
   if (!a) return false;
   return a.trim().toLowerCase() === correct.trim().toLowerCase();
 }
+
+function PricePanel({ test }: { test: Test }) {
+  const qc = useQueryClient();
+  const [isFree, setIsFree] = useState<boolean>(test.is_free !== false);
+  const [price, setPrice] = useState<number>(Number(test.price || 0));
+  const [discountPrice, setDiscountPrice] = useState<number | "">(
+    test.discount_price == null ? "" : Number(test.discount_price),
+  );
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    setSaving(true);
+    const { error } = await supabase
+      .from("tests")
+      .update({
+        is_free: isFree,
+        price: isFree ? 0 : Number(price) || 0,
+        discount_price:
+          isFree || discountPrice === "" ? null : Number(discountPrice) || null,
+      })
+      .eq("id", test.id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Price updated");
+    qc.invalidateQueries({ queryKey: ["test", test.id] });
+    qc.invalidateQueries({ queryKey: ["tests"] });
+  }
+
+  return (
+    <div className="mb-4 rounded-xl border border-border bg-card p-4">
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="font-medium text-sm">Pricing</div>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={isFree}
+            onChange={(e) => setIsFree(e.target.checked)}
+          />
+          Free
+        </label>
+        {!isFree && (
+          <>
+            <label className="flex items-center gap-2 text-sm">
+              <span className="text-xs text-muted-foreground">Price ₹</span>
+              <input
+                type="number"
+                min={0}
+                value={price}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                className="w-24 rounded-lg border border-border bg-background px-2 py-1 text-sm"
+              />
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <span className="text-xs text-muted-foreground">Discount ₹</span>
+              <input
+                type="number"
+                min={0}
+                value={discountPrice}
+                onChange={(e) =>
+                  setDiscountPrice(e.target.value === "" ? "" : Number(e.target.value))
+                }
+                placeholder="Optional"
+                className="w-24 rounded-lg border border-border bg-background px-2 py-1 text-sm"
+              />
+            </label>
+          </>
+        )}
+        <button
+          onClick={save}
+          disabled={saving}
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:opacity-90 disabled:opacity-60"
+        >
+          <Save className="size-4" /> {saving ? "Saving…" : "Save price"}
+        </button>
+      </div>
+    </div>
+  );
+}
