@@ -35,6 +35,9 @@ type Test = {
   time_limit_min: number;
   total_marks: number;
   status: string;
+  is_free: boolean | null;
+  price: number | null;
+  discount_price: number | null;
 };
 
 type Question = {
