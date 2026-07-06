@@ -144,7 +144,6 @@ function TakeTestPage() {
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft, existing, started]);
-  }, [secondsLeft, existing]);
 
   async function submit() {
     if (submittedRef.current) return;
