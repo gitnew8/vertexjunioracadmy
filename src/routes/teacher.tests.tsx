@@ -113,6 +113,7 @@ function TestsPage() {
                 <th className="text-left p-3">Subject</th>
                 <th className="text-left p-3">Time</th>
                 <th className="text-left p-3">Marks</th>
+                <th className="text-left p-3">Price</th>
                 <th className="text-left p-3">Status</th>
                 <th className="text-right p-3">Actions</th>
               </tr>
@@ -125,6 +126,17 @@ function TestsPage() {
                   <td className="p-3">{t.subject}</td>
                   <td className="p-3">{t.time_limit_min}m</td>
                   <td className="p-3">{t.total_marks}</td>
+                  <td className="p-3 text-xs">
+                    {t.is_free ? (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">FREE</span>
+                    ) : t.discount_price != null && Number(t.discount_price) < Number(t.price || 0) ? (
+                      <span>
+                        ₹{t.discount_price} <span className="line-through text-muted-foreground">₹{t.price}</span>
+                      </span>
+                    ) : (
+                      <span>₹{t.price || 0}</span>
+                    )}
+                  </td>
                   <td className="p-3">
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
