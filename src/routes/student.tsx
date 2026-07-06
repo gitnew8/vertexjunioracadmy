@@ -22,6 +22,9 @@ type StudentTest = {
   chapter: string | null;
   time_limit_min: number;
   total_marks: number;
+  is_free: boolean | null;
+  price: number | null;
+  discount_price: number | null;
 };
 
 function generateLoginNumber() {
@@ -46,7 +49,7 @@ function MyTests({ session }: { session: Session }) {
       if (cancelled) return;
       const { data: ts } = await supabase
         .from("tests")
-        .select("id, title, subject, chapter, time_limit_min, total_marks")
+        .select("id, title, subject, chapter, time_limit_min, total_marks, is_free, price, discount_price")
         .eq("student_class", session.student_class)
         .eq("status", "published")
         .order("created_at", { ascending: false });
