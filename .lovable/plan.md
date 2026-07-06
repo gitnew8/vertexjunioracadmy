@@ -1,78 +1,109 @@
-## AI Exam Platform — Vertex Junior Academy
+## More Test – More Gift System
 
-Admin AI se question paper banayega, students apni class ke tests dekh kar attempt karenge. Existing admin gate (`/teacher`) aur student login (`/student`) reuse karenge.
+Ek complete reward + pricing + T&C system add karenge existing exam platform ke upar. Sab kuch admin controlled hoga.
 
-### 1. Database (one migration)
+---
 
-**`tests`**
-- `id`, `title`, `student_class`, `subject`, `chapter`, `language` (en/hi/bilingual)
-- `time_limit_min` int, `total_marks` int
-- `status` text ('draft' | 'published'), `created_at`
+### 1. Database (ek migration)
 
-**`test_questions`**
-- `id`, `test_id` → tests (cascade)
-- `q_no` int, `section` text (MCQ/TrueFalse/OneWord/Short)
-- `question` text, `options` jsonb (null for non-MCQ)
-- `correct_answer` text, `marks` int default 1
-- `difficulty` text
+**`tests` table me naye columns:**
+- `price` numeric default 0 (admin manual set kare)
+- `discount_price` numeric nullable (₹99 → ₹49 wala)
+- `is_free` boolean default true
 
-**`test_attempts`**
-- `id`, `test_id`, `student_id` → students
-- `started_at`, `submitted_at`, `time_taken_sec`
-- `score` int, `total` int
-- `answers` jsonb ({q_id: answer})
-- unique(test_id, student_id) — ek baar hi submit
+**`reward_rules`** (admin editable gift ladder)
+- `id`, `title` (e.g. "Brand New Pen")
+- `min_tests` int (10, 25, 50, 100)
+- `min_score_percent` int (90, 85, 80, 75)
+- `cycle_days` int default 30
+- `stock` int
+- `image_url` text nullable
+- `active` boolean
+- `sort_order` int
 
-RLS: public read/write (admin gate + student gate already UI-side; same pattern as fees/payments).
+**`reward_claims`** (student ne kaunsa gift claim/earn kiya)
+- `id`, `student_id`, `rule_id`
+- `status` text ('pending' | 'approved' | 'rejected' | 'delivered')
+- `earned_at`, `approved_at`, `notes`
+- unique(student_id, rule_id) — ek cycle me ek gift
 
-### 2. AI Integration
+**`app_settings`** (T&C aur global config)
+- `key` text primary key, `value` jsonb
+- seed: `terms_and_conditions`, `reward_system_enabled`
 
-TanStack server route `/api/public/generate-questions` (POST) — Lovable AI Gateway via `@ai-sdk/openai-compatible`, model `google/gemini-3-flash-preview`, structured output (Zod schema) for question array. Inputs: class, subject, chapter, count, types[], difficulty, language. Returns clean JSON questions ready to insert.
+RLS: existing pattern (public read/write, UI-side gating).
 
-LOVABLE_API_KEY already present.
+---
 
-### 3. Admin Routes (under `/teacher`)
+### 2. Admin Panel — naye pages
 
-- **`/teacher/tests`** — list tests, filter by class/subject, "Create with AI" button, edit/publish/delete, export PDF
-- **`/teacher/tests/$id`** — edit questions (regenerate single Q, edit text/answer, add/remove), set timer/marks, publish toggle
-- **`/teacher/tests/$id/results`** — student attempts table, per-question analysis (% correct), Excel/PDF export
+**`/teacher/rewards`**
+- Gift ladder table: add/edit/delete rules (title, min tests, min %, stock, image, cycle days)
+- Reward system on/off toggle
+- T&C editor (rich textarea, saves to `app_settings`)
+- Pending claims table → Approve / Reject / Mark Delivered
+- Export claims (Excel/PDF)
 
-Sidebar: add "Exams" entry.
+**`/teacher/tests` update**
+- Har test ke saath price fields: Free toggle, Price ₹, Discount ₹
+- List view me price column
 
-### 4. Student Routes
+---
 
-- **`/student`** — naya "My Tests" section: published tests for student's class (not yet attempted vs completed with score)
-- **`/student/test/$id`** — read-only test taking:
-  - Timer countdown
-  - Sectioned questions, MCQ radio / TF radio / text input
-  - "Submit" → calculate score server-side via server fn, save attempt
-  - Result screen: score, correct/wrong per question, time taken
-  - One-time submit (check existing attempt before allow)
+### 3. Student Side
 
-### 5. PDF Export
-Reuse jsPDF + autoTable in `src/lib/export.ts`. Add `exportTestPaperPDF(test, questions)` (clean printable) and `exportResultsPDF(test, attempts)`.
+**`/student` dashboard me naya "Rewards Progress" card:**
+- Total tests attempted (last N days)
+- Best score, average score
+- Progress bars for each active reward rule (e.g. "7 / 10 tests · avg 92%")
+- Next unlockable gift preview with image
+- Claimed rewards history
+- Auto-award logic: jab conditions match ho, `reward_claims` me `pending` insert ho (unique constraint duplicates rokega)
 
-### 6. Files to create/edit
-- migration (3 tables + RLS)
-- `src/lib/ai-gateway.ts` (provider helper)
-- `src/routes/api/generate-questions.ts` (server route)
-- `src/lib/exam-export.ts` (test paper + results PDF)
-- `src/routes/teacher.tests.tsx` (list + create dialog)
-- `src/routes/teacher.tests.$id.tsx` (editor)
-- `src/routes/teacher.tests.$id.results.tsx`
-- `src/routes/student.test.$id.tsx` (taking + result)
-- edit `src/routes/student.tsx` (My Tests section)
-- edit `src/components/admin-shell.tsx` (sidebar "Exams" link)
+**Test list me price badge:**
+- "FREE" badge ya "₹49 ~~₹99~~"
+- Test start karne se pehle price + T&C modal
 
-### 7. Out of scope
-- No proctoring/anti-cheat
-- No question bank reuse across tests
-- No re-attempt (one submission only)
+**T&C page/modal:**
+- Reward rules ke saath auto show
+- Admin ne set kiya wo text
 
-### Build order
-1. Migration
-2. AI server route + provider helper
-3. Admin tests list + AI generate dialog
-4. Test editor + publish
-5. Student test-taking + result
-6. Results analytics + PDF exports
+---
+
+### 4. Auto Reward Logic
+
+Server function `checkAndAwardRewards(student_id)`:
+- Har active rule ke liye, cycle window (last `cycle_days`) me distinct tests count nikaale
+- Average % >= `min_score_percent` aur count >= `min_tests` ho
+- Agar existing claim nahi hai → insert `pending`
+- Student dashboard load pe aur test submit ke baad chalega
+
+---
+
+### 5. Files
+
+Naye:
+- migration
+- `src/lib/rewards.functions.ts` (checkAndAwardRewards, listRules, claims CRUD)
+- `src/routes/teacher.rewards.tsx`
+- `src/components/reward-progress-card.tsx`
+- `src/components/test-price-badge.tsx`
+
+Edit:
+- `src/routes/teacher.tests.tsx` (price fields in create/edit dialog)
+- `src/routes/teacher.tests.$id.tsx` (price fields)
+- `src/routes/student.tsx` (Rewards Progress section + price badges)
+- `src/routes/student.test.$id.tsx` (price + T&C modal before start, auto-check after submit)
+- `src/components/admin-shell.tsx` (sidebar "Rewards" link)
+
+---
+
+### 6. Out of scope (baad me add kar sakte hain)
+- Leaderboard, streak, coins/bonus, parent login, certificate auto-gen — plan me mention hain but is turn me nahi banayenge (bahut bada ho jayega). Confirm karo agar chahiye toh next turn me add kar dunga.
+- Payment gateway integration — abhi sirf price display hoga, actual online payment nahi.
+
+---
+
+Build order: migration → admin rewards page → student progress + price display → auto-award logic.
+
+Kya main is plan pe implement karu, ya pehle koi cheez adjust karni hai (jaise leaderboard/certificate bhi include kare, ya payment gateway bhi)?
