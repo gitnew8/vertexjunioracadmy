@@ -135,7 +135,7 @@ function TakeTestPage() {
 
   // Timer
   useEffect(() => {
-    if (existing || secondsLeft === null) return;
+    if (existing || !started || secondsLeft === null) return;
     if (secondsLeft <= 0) {
       submit();
       return;
@@ -143,6 +143,7 @@ function TakeTestPage() {
     const t = setTimeout(() => setSecondsLeft((s) => (s === null ? null : s - 1)), 1000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsLeft, existing, started]);
   }, [secondsLeft, existing]);
 
   async function submit() {
