@@ -150,9 +150,12 @@ function TestDetailPage() {
         </div>
       </div>
 
+      <PricePanel test={test} />
+
       <div className="flex border-b border-border mb-4">
         <TabBtn active={search.tab !== "results"} onClick={() => navigate({ to: "/teacher/tests/$id", params: { id }, search: { tab: "questions" } })}>
           Questions ({questions.length})
+        </TabBtn>
         </TabBtn>
         <TabBtn active={search.tab === "results"} onClick={() => navigate({ to: "/teacher/tests/$id", params: { id }, search: { tab: "results" } })}>
           Results
