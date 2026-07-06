@@ -449,6 +449,41 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
               })}
             </div>
           </Field>
+          <div className="rounded-lg border border-border bg-secondary/30 p-3 space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                checked={isFree}
+                onChange={(e) => setIsFree(e.target.checked)}
+              />
+              Free test
+            </label>
+            {!isFree && (
+              <div className="grid grid-cols-2 gap-2">
+                <Field label="Price (₹)">
+                  <input
+                    type="number"
+                    min={0}
+                    value={price}
+                    onChange={(e) => setPrice(Number(e.target.value))}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                  />
+                </Field>
+                <Field label="Discount price (₹)">
+                  <input
+                    type="number"
+                    min={0}
+                    value={discountPrice}
+                    onChange={(e) =>
+                      setDiscountPrice(e.target.value === "" ? "" : Number(e.target.value))
+                    }
+                    placeholder="Optional"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                  />
+                </Field>
+              </div>
+            )}
+          </div>
         </div>
 
         <DialogFooter>
