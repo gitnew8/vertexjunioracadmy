@@ -27,6 +27,9 @@ type Test = {
   total_marks: number;
   status: string;
   created_at: string;
+  price: number | null;
+  discount_price: number | null;
+  is_free: boolean | null;
 };
 
 function TestsPage() {
