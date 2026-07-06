@@ -212,6 +212,9 @@ function CreateTestDialog({ open, onClose }: { open: boolean; onClose: () => voi
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [language, setLanguage] = useState<"en" | "hi" | "bilingual">("en");
   const [timeMin, setTimeMin] = useState(30);
+  const [isFree, setIsFree] = useState(true);
+  const [price, setPrice] = useState(0);
+  const [discountPrice, setDiscountPrice] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
 
   function toggleType(t: QType) {
