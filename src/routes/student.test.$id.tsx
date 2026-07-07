@@ -525,7 +525,15 @@ function TakeTestPage() {
       </header>
 
       <main className="mx-auto max-w-3xl px-5 py-6 space-y-4">
-        {questions.map((q) => (
+        {security.camera_required && (
+          <div className="fixed bottom-3 right-3 z-30 w-40 rounded-lg overflow-hidden border-2 border-primary shadow-lg bg-black">
+            <div className="flex items-center gap-1 bg-primary text-primary-foreground px-2 py-1 text-[10px] font-medium">
+              <Camera className="size-3" /> {cameraOn ? "Recording" : "Waiting…"}
+            </div>
+            <video ref={videoRef} className="w-full h-24 object-cover" playsInline muted />
+          </div>
+        )}
+        {shuffled.list.map((q) => (
           <div key={q.id} className="rounded-2xl border border-border bg-card p-5">
             <div className="text-xs text-muted-foreground mb-1">
               Q{q.q_no} · {q.section} · {q.marks} mark{q.marks > 1 ? "s" : ""}
@@ -534,12 +542,14 @@ function TakeTestPage() {
             <div className="mt-3">
               {q.section === "MCQ" && q.options ? (
                 <div className="space-y-2">
-                  {q.options.map((opt, i) => {
-                    const letter = String.fromCharCode(65 + i);
-                    const checked = answers[q.id] === letter;
+                  {(shuffled.optMap[q.id] || q.options.map((_, i) => i)).map((origIdx, displayIdx) => {
+                    const opt = q.options![origIdx];
+                    const origLetter = String.fromCharCode(65 + origIdx);
+                    const displayLetter = String.fromCharCode(65 + displayIdx);
+                    const checked = answers[q.id] === origLetter;
                     return (
                       <label
-                        key={i}
+                        key={origIdx}
                         className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer ${
                           checked ? "border-primary bg-primary/5" : "border-border"
                         }`}
@@ -548,13 +558,15 @@ function TakeTestPage() {
                           type="radio"
                           name={q.id}
                           checked={checked}
-                          onChange={() => setAnswers((a) => ({ ...a, [q.id]: letter }))}
+                          onChange={() => setAnswers((a) => ({ ...a, [q.id]: origLetter }))}
                         />
+                        <span className="text-xs text-muted-foreground w-5">{displayLetter}.</span>
                         <span>{opt}</span>
                       </label>
                     );
                   })}
                 </div>
+
               ) : q.section === "TrueFalse" ? (
                 <div className="flex gap-2">
                   {["True", "False"].map((v) => {
