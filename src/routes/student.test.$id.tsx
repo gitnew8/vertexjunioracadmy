@@ -159,7 +159,7 @@ function TakeTestPage() {
       setTest(t as Test);
       setSecondsLeft((t as Test).time_limit_min * 60);
 
-      const [{ data: qs }, { data: at }] = await Promise.all([
+      const [{ data: qs }, { data: at }, sec] = await Promise.all([
         supabase.from("test_questions").select("*").eq("test_id", id).order("q_no"),
         supabase
           .from("test_attempts")
@@ -167,11 +167,14 @@ function TakeTestPage() {
           .eq("test_id", id)
           .eq("student_id", stu.id)
           .maybeSingle(),
+        fetchExamSecuritySettings(),
       ]);
       if (cancelled) return;
       setQuestions((qs || []) as Question[]);
       if (at) setExisting(at as unknown as Attempt);
+      setSecurity(sec);
       setLoading(false);
+
     })();
     return () => {
       cancelled = true;
