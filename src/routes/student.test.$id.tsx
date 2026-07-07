@@ -616,6 +616,36 @@ function ResultView({ test, questions, attempt }: { test: Test; questions: Quest
   const pct = attempt.total ? Math.round((attempt.score / attempt.total) * 100) : 0;
   const mm = Math.floor(attempt.time_taken_sec / 60);
   const ss = attempt.time_taken_sec % 60;
+  const attemptAny = attempt as unknown as { result_status?: string; risk_label?: string };
+  const held = attemptAny.result_status && attemptAny.result_status !== "auto_released";
+
+  if (held) {
+    return (
+      <div className="min-h-screen grid place-items-center p-6">
+        <div className="max-w-md rounded-2xl border border-amber-500/30 bg-amber-500/5 p-8 text-center">
+          <Shield className="size-12 mx-auto text-amber-600" />
+          <h1 className="font-display text-2xl font-semibold mt-3">Result under review</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            Aapka test submit ho gaya hai. Security check ke baad teacher / admin result release karenge.
+          </p>
+          {attemptAny.risk_label && (
+            <p className="text-xs mt-3">
+              Status:{" "}
+              <span className="font-medium capitalize">
+                {attemptAny.result_status?.replace(/_/g, " ")}
+              </span>
+            </p>
+          )}
+          <Link
+            to="/student"
+            className="inline-flex mt-5 items-center gap-1 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium"
+          >
+            <ArrowLeft className="size-4" /> Back to my tests
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -635,6 +665,7 @@ function ResultView({ test, questions, attempt }: { test: Test; questions: Quest
           <Stat label="Percentage" value={`${pct}%`} accent={pct >= 60 ? "ok" : pct >= 35 ? "warn" : "bad"} />
           <Stat label="Time taken" value={`${mm}m ${ss}s`} />
         </div>
+
 
         <h2 className="font-display text-lg font-semibold mt-8 mb-3">Answers & teacher feedback</h2>
         <div className="space-y-3">
