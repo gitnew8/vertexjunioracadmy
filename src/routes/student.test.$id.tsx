@@ -283,6 +283,33 @@ function TakeTestPage() {
 
     const time_taken_sec = Math.floor((Date.now() - startedAt) / 1000);
 
+    // Compute risk from events
+    let risk_score = 0;
+    let risk_label: "low" | "medium" | "high" = "low";
+    let result_status = "auto_released";
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sb = supabase as any;
+      const { data: events } = await sb
+        .from("exam_security_events")
+        .select("event_type, severity")
+        .eq("student_id", studentId)
+        .eq("test_id", test.id)
+        .gte("created_at", new Date(startedAt).toISOString());
+      const r = computeRisk((events || []) as { event_type: string; severity: string }[]);
+      risk_score = r.score;
+      risk_label = r.label;
+      const policy =
+        risk_label === "high"
+          ? security.result_policy_high
+          : risk_label === "medium"
+            ? security.result_policy_medium
+            : security.result_policy_low;
+      result_status = policyToStatus(policy);
+    } catch {
+      /* ignore risk errors */
+    }
+
     const { data, error } = await supabase
       .from("test_attempts")
       .insert({
@@ -294,6 +321,11 @@ function TakeTestPage() {
         answers,
         evaluations,
         submitted_at: new Date().toISOString(),
+        warnings_count: warnings,
+        risk_score,
+        risk_label,
+        result_status,
+        security_summary: { tab_switches: tabSwitches, warnings },
       })
       .select("*")
       .single();
@@ -304,6 +336,7 @@ function TakeTestPage() {
       return toast.error(error.message);
     }
     setExisting(data as unknown as Attempt);
+
     // Reward auto-check
     checkAndAwardRewards(studentId).then((res) => {
       if (res.awarded.length > 0) {
