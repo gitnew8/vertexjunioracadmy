@@ -52,21 +52,20 @@ export const DEFAULT_SETTINGS: ExamSecuritySettings = {
 };
 
 export async function fetchExamSecuritySettings(): Promise<ExamSecuritySettings> {
-  const { data } = await supabase
-    .from("exam_security_settings" as never)
+  const { data } = await (supabase.from("exam_security_settings" as never) as never)
     .select("*")
     .eq("scope", "default")
     .maybeSingle();
-  return (data as ExamSecuritySettings) || DEFAULT_SETTINGS;
+  return (data as unknown as ExamSecuritySettings) || DEFAULT_SETTINGS;
 }
 
 export async function saveExamSecuritySettings(patch: Partial<ExamSecuritySettings>) {
-  const { error } = await supabase
-    .from("exam_security_settings" as never)
-    .update(patch)
+  const { error } = await (supabase.from("exam_security_settings" as never) as never)
+    .update(patch as never)
     .eq("scope", "default");
   if (error) throw error;
 }
+
 
 type EventType =
   | "tab_switch"
@@ -90,18 +89,19 @@ export async function logSecurityEvent(
   severity: "low" | "medium" | "high" = "low",
 ) {
   try {
-    await supabase.from("exam_security_events" as never).insert({
+    await (supabase.from("exam_security_events" as never) as never).insert({
       attempt_id: attemptCtx.attempt_id || null,
       student_id: attemptCtx.student_id || null,
       test_id: attemptCtx.test_id || null,
       event_type,
       severity,
       payload,
-    });
+    } as never);
   } catch {
     // fail silent — never block test taking
   }
 }
+
 
 // Deterministic seeded shuffle
 export function seededShuffle<T>(arr: T[], seed: string): T[] {

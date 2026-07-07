@@ -22,6 +22,7 @@ import { Route as TeacherNewRouteImport } from './routes/teacher.new'
 import { Route as TeacherMaterialsRouteImport } from './routes/teacher.materials'
 import { Route as TeacherLiveRouteImport } from './routes/teacher.live'
 import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
+import { Route as TeacherExamSecurityRouteImport } from './routes/teacher.exam-security'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
 import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
 import { Route as StudentReadingRouteImport } from './routes/student.reading'
@@ -104,6 +105,11 @@ const TeacherLiveRoute = TeacherLiveRouteImport.update({
 const TeacherFeesRoute = TeacherFeesRouteImport.update({
   id: '/fees',
   path: '/fees',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherExamSecurityRoute = TeacherExamSecurityRouteImport.update({
+  id: '/exam-security',
+  path: '/exam-security',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherDashboardRoute = TeacherDashboardRouteImport.update({
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/student/reading': typeof StudentReadingRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
+  '/teacher/exam-security': typeof TeacherExamSecurityRoute
   '/teacher/fees': typeof TeacherFeesRoute
   '/teacher/live': typeof TeacherLiveRoute
   '/teacher/materials': typeof TeacherMaterialsRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByTo {
   '/student/reading': typeof StudentReadingRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
+  '/teacher/exam-security': typeof TeacherExamSecurityRoute
   '/teacher/fees': typeof TeacherFeesRoute
   '/teacher/live': typeof TeacherLiveRoute
   '/teacher/materials': typeof TeacherMaterialsRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/student/reading': typeof StudentReadingRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
+  '/teacher/exam-security': typeof TeacherExamSecurityRoute
   '/teacher/fees': typeof TeacherFeesRoute
   '/teacher/live': typeof TeacherLiveRoute
   '/teacher/materials': typeof TeacherMaterialsRoute
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/student/reading'
     | '/teacher/classes'
     | '/teacher/dashboard'
+    | '/teacher/exam-security'
     | '/teacher/fees'
     | '/teacher/live'
     | '/teacher/materials'
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/student/reading'
     | '/teacher/classes'
     | '/teacher/dashboard'
+    | '/teacher/exam-security'
     | '/teacher/fees'
     | '/teacher/live'
     | '/teacher/materials'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/student/reading'
     | '/teacher/classes'
     | '/teacher/dashboard'
+    | '/teacher/exam-security'
     | '/teacher/fees'
     | '/teacher/live'
     | '/teacher/materials'
@@ -506,6 +518,13 @@ declare module '@tanstack/react-router' {
       path: '/fees'
       fullPath: '/teacher/fees'
       preLoaderRoute: typeof TeacherFeesRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/exam-security': {
+      id: '/teacher/exam-security'
+      path: '/exam-security'
+      fullPath: '/teacher/exam-security'
+      preLoaderRoute: typeof TeacherExamSecurityRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/dashboard': {
@@ -671,6 +690,7 @@ const TeacherTestsRouteWithChildren = TeacherTestsRoute._addFileChildren(
 interface TeacherRouteChildren {
   TeacherClassesRoute: typeof TeacherClassesRoute
   TeacherDashboardRoute: typeof TeacherDashboardRoute
+  TeacherExamSecurityRoute: typeof TeacherExamSecurityRoute
   TeacherFeesRoute: typeof TeacherFeesRoute
   TeacherLiveRoute: typeof TeacherLiveRoute
   TeacherMaterialsRoute: typeof TeacherMaterialsRoute
@@ -686,6 +706,7 @@ interface TeacherRouteChildren {
 const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherClassesRoute: TeacherClassesRoute,
   TeacherDashboardRoute: TeacherDashboardRoute,
+  TeacherExamSecurityRoute: TeacherExamSecurityRoute,
   TeacherFeesRoute: TeacherFeesRoute,
   TeacherLiveRoute: TeacherLiveRoute,
   TeacherMaterialsRoute: TeacherMaterialsRoute,
