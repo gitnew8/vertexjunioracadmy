@@ -152,6 +152,111 @@ export type Database = {
           },
         ]
       }
+      exam_security_events: {
+        Row: {
+          attempt_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          severity: string
+          student_id: string | null
+          test_id: string | null
+        }
+        Insert: {
+          attempt_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          severity?: string
+          student_id?: string | null
+          test_id?: string | null
+        }
+        Update: {
+          attempt_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          severity?: string
+          student_id?: string | null
+          test_id?: string | null
+        }
+        Relationships: []
+      }
+      exam_security_settings: {
+        Row: {
+          ai_behavior_tracking: boolean
+          allow_skip: boolean
+          auto_action: string
+          block_copy_paste: boolean
+          block_screenshot: boolean
+          camera_required: boolean
+          camera_snapshot_interval_sec: number
+          fullscreen_required: boolean
+          id: string
+          mic_monitoring: boolean
+          per_question_timer_sec: number
+          randomize_options: boolean
+          randomize_questions: boolean
+          result_policy_high: string
+          result_policy_low: string
+          result_policy_medium: string
+          scope: string
+          system_enabled: boolean
+          tab_switch_limit: number
+          updated_at: string
+          warning_limit: number
+        }
+        Insert: {
+          ai_behavior_tracking?: boolean
+          allow_skip?: boolean
+          auto_action?: string
+          block_copy_paste?: boolean
+          block_screenshot?: boolean
+          camera_required?: boolean
+          camera_snapshot_interval_sec?: number
+          fullscreen_required?: boolean
+          id?: string
+          mic_monitoring?: boolean
+          per_question_timer_sec?: number
+          randomize_options?: boolean
+          randomize_questions?: boolean
+          result_policy_high?: string
+          result_policy_low?: string
+          result_policy_medium?: string
+          scope?: string
+          system_enabled?: boolean
+          tab_switch_limit?: number
+          updated_at?: string
+          warning_limit?: number
+        }
+        Update: {
+          ai_behavior_tracking?: boolean
+          allow_skip?: boolean
+          auto_action?: string
+          block_copy_paste?: boolean
+          block_screenshot?: boolean
+          camera_required?: boolean
+          camera_snapshot_interval_sec?: number
+          fullscreen_required?: boolean
+          id?: string
+          mic_monitoring?: boolean
+          per_question_timer_sec?: number
+          randomize_options?: boolean
+          randomize_questions?: boolean
+          result_policy_high?: string
+          result_policy_low?: string
+          result_policy_medium?: string
+          scope?: string
+          system_enabled?: boolean
+          tab_switch_limit?: number
+          updated_at?: string
+          warning_limit?: number
+        }
+        Relationships: []
+      }
       fees: {
         Row: {
           created_at: string
@@ -591,39 +696,57 @@ export type Database = {
           created_at: string
           evaluations: Json
           id: string
+          result_status: string
+          risk_label: string
+          risk_score: number
           score: number
+          security_summary: Json
+          snapshots: Json
           started_at: string
           student_id: string
           submitted_at: string | null
           test_id: string
           time_taken_sec: number
           total: number
+          warnings_count: number
         }
         Insert: {
           answers?: Json
           created_at?: string
           evaluations?: Json
           id?: string
+          result_status?: string
+          risk_label?: string
+          risk_score?: number
           score?: number
+          security_summary?: Json
+          snapshots?: Json
           started_at?: string
           student_id: string
           submitted_at?: string | null
           test_id: string
           time_taken_sec?: number
           total?: number
+          warnings_count?: number
         }
         Update: {
           answers?: Json
           created_at?: string
           evaluations?: Json
           id?: string
+          result_status?: string
+          risk_label?: string
+          risk_score?: number
           score?: number
+          security_summary?: Json
+          snapshots?: Json
           started_at?: string
           student_id?: string
           submitted_at?: string | null
           test_id?: string
           time_taken_sec?: number
           total?: number
+          warnings_count?: number
         }
         Relationships: [
           {
