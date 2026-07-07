@@ -445,16 +445,40 @@ function TakeTestPage() {
               </span>
             </label>
 
+            {security.system_enabled && (
+              <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs">
+                <div className="flex items-center gap-1.5 font-medium mb-1">
+                  <Shield className="size-3.5" /> Exam security active
+                </div>
+                <ul className="list-disc pl-5 space-y-0.5 text-muted-foreground">
+                  {security.fullscreen_required && <li>Fullscreen mandatory</li>}
+                  {security.tab_switch_limit > 0 && (
+                    <li>Tab change → warning ({security.warning_limit} max)</li>
+                  )}
+                  {security.camera_required && <li>Camera monitoring on</li>}
+                  {security.block_copy_paste && <li>Copy/paste blocked</li>}
+                </ul>
+              </div>
+            )}
+
             <button
               disabled={!acceptedTerms}
               onClick={() => {
                 setStarted(true);
                 setStartedAt(Date.now());
+                setSeed(`${id}-${studentId || "anon"}-${Date.now()}`);
+                logSecurityEvent(
+                  { attempt_id: null, student_id: studentId, test_id: id },
+                  "warning",
+                  { reason: "test_started" },
+                  "low",
+                );
               }}
               className="mt-5 w-full rounded-lg bg-primary text-primary-foreground py-3 text-sm font-medium hover:opacity-90 disabled:opacity-50"
             >
               Start test
             </button>
+
           </div>
         </main>
       </div>
