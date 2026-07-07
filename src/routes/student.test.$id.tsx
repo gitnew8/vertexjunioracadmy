@@ -77,7 +77,41 @@ function TakeTestPage() {
   const [started, setStarted] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [security, setSecurity] = useState<ExamSecuritySettings>(DEFAULT_SETTINGS);
+  const [seed, setSeed] = useState<string>("");
   const submittedRef = useRef(false);
+  const secCtx = useMemo(
+    () => ({ test_id: id, student_id: studentId, attempt_id: null as string | null }),
+    [id, studentId],
+  );
+
+  const { warnings, tabSwitches, cameraOn, videoRef } = useExamSecurity({
+    active: started && !existing && security.system_enabled,
+    settings: security,
+    ctx: secCtx,
+    onAutoSubmit: (reason) => {
+      toast.error(`Auto-submitting: ${reason}`);
+      submit();
+    },
+  });
+
+  // Shuffle questions & options with per-attempt seed (once test loaded + started)
+  const shuffled = useMemo(() => {
+    if (!questions.length) return { list: questions, optMap: {} as Record<string, number[]> };
+    const s = seed || `${id}-${studentId || "anon"}`;
+    const list = security.randomize_questions ? seededShuffle(questions, s + ":q") : questions;
+    const optMap: Record<string, number[]> = {};
+    for (const q of list) {
+      if (q.section === "MCQ" && q.options && security.randomize_options) {
+        const idxs = q.options.map((_, i) => i);
+        optMap[q.id] = seededShuffle(idxs, s + ":" + q.id);
+      } else if (q.options) {
+        optMap[q.id] = q.options.map((_, i) => i);
+      }
+    }
+    return { list, optMap };
+  }, [questions, seed, id, studentId, security.randomize_questions, security.randomize_options]);
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;
