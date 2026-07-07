@@ -2,9 +2,20 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast, Toaster } from "sonner";
-import { ArrowLeft, Clock, GraduationCap, CheckCircle2, XCircle, Send, FileText } from "lucide-react";
+import { ArrowLeft, Clock, GraduationCap, CheckCircle2, XCircle, Send, FileText, Shield, Camera } from "lucide-react";
 import { TermsModal } from "@/components/terms-modal";
 import { checkAndAwardRewards } from "@/lib/rewards";
+import {
+  DEFAULT_SETTINGS,
+  fetchExamSecuritySettings,
+  useExamSecurity,
+  seededShuffle,
+  computeRisk,
+  policyToStatus,
+  logSecurityEvent,
+  type ExamSecuritySettings,
+} from "@/lib/exam-security";
+
 
 const SESSION_KEY = "student_session_v2";
 
