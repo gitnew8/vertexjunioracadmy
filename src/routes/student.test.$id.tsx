@@ -2,9 +2,20 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast, Toaster } from "sonner";
-import { ArrowLeft, Clock, GraduationCap, CheckCircle2, XCircle, Send, FileText } from "lucide-react";
+import { ArrowLeft, Clock, GraduationCap, CheckCircle2, XCircle, Send, FileText, Shield, Camera } from "lucide-react";
 import { TermsModal } from "@/components/terms-modal";
 import { checkAndAwardRewards } from "@/lib/rewards";
+import {
+  DEFAULT_SETTINGS,
+  fetchExamSecuritySettings,
+  useExamSecurity,
+  seededShuffle,
+  computeRisk,
+  policyToStatus,
+  logSecurityEvent,
+  type ExamSecuritySettings,
+} from "@/lib/exam-security";
+
 
 const SESSION_KEY = "student_session_v2";
 
@@ -66,7 +77,41 @@ function TakeTestPage() {
   const [started, setStarted] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [security, setSecurity] = useState<ExamSecuritySettings>(DEFAULT_SETTINGS);
+  const [seed, setSeed] = useState<string>("");
   const submittedRef = useRef(false);
+  const secCtx = useMemo(
+    () => ({ test_id: id, student_id: studentId, attempt_id: null as string | null }),
+    [id, studentId],
+  );
+
+  const { warnings, tabSwitches, cameraOn, videoRef } = useExamSecurity({
+    active: started && !existing && security.system_enabled,
+    settings: security,
+    ctx: secCtx,
+    onAutoSubmit: (reason) => {
+      toast.error(`Auto-submitting: ${reason}`);
+      submit();
+    },
+  });
+
+  // Shuffle questions & options with per-attempt seed (once test loaded + started)
+  const shuffled = useMemo(() => {
+    if (!questions.length) return { list: questions, optMap: {} as Record<string, number[]> };
+    const s = seed || `${id}-${studentId || "anon"}`;
+    const list = security.randomize_questions ? seededShuffle(questions, s + ":q") : questions;
+    const optMap: Record<string, number[]> = {};
+    for (const q of list) {
+      if (q.section === "MCQ" && q.options && security.randomize_options) {
+        const idxs = q.options.map((_, i) => i);
+        optMap[q.id] = seededShuffle(idxs, s + ":" + q.id);
+      } else if (q.options) {
+        optMap[q.id] = q.options.map((_, i) => i);
+      }
+    }
+    return { list, optMap };
+  }, [questions, seed, id, studentId, security.randomize_questions, security.randomize_options]);
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -114,7 +159,7 @@ function TakeTestPage() {
       setTest(t as Test);
       setSecondsLeft((t as Test).time_limit_min * 60);
 
-      const [{ data: qs }, { data: at }] = await Promise.all([
+      const [{ data: qs }, { data: at }, sec] = await Promise.all([
         supabase.from("test_questions").select("*").eq("test_id", id).order("q_no"),
         supabase
           .from("test_attempts")
@@ -122,11 +167,14 @@ function TakeTestPage() {
           .eq("test_id", id)
           .eq("student_id", stu.id)
           .maybeSingle(),
+        fetchExamSecuritySettings(),
       ]);
       if (cancelled) return;
       setQuestions((qs || []) as Question[]);
       if (at) setExisting(at as unknown as Attempt);
+      setSecurity(sec);
       setLoading(false);
+
     })();
     return () => {
       cancelled = true;
@@ -235,6 +283,33 @@ function TakeTestPage() {
 
     const time_taken_sec = Math.floor((Date.now() - startedAt) / 1000);
 
+    // Compute risk from events
+    let risk_score = 0;
+    let risk_label: "low" | "medium" | "high" = "low";
+    let result_status = "auto_released";
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sb = supabase as any;
+      const { data: events } = await sb
+        .from("exam_security_events")
+        .select("event_type, severity")
+        .eq("student_id", studentId)
+        .eq("test_id", test.id)
+        .gte("created_at", new Date(startedAt).toISOString());
+      const r = computeRisk((events || []) as { event_type: string; severity: string }[]);
+      risk_score = r.score;
+      risk_label = r.label;
+      const policy =
+        risk_label === "high"
+          ? security.result_policy_high
+          : risk_label === "medium"
+            ? security.result_policy_medium
+            : security.result_policy_low;
+      result_status = policyToStatus(policy);
+    } catch {
+      /* ignore risk errors */
+    }
+
     const { data, error } = await supabase
       .from("test_attempts")
       .insert({
@@ -246,6 +321,11 @@ function TakeTestPage() {
         answers,
         evaluations,
         submitted_at: new Date().toISOString(),
+        warnings_count: warnings,
+        risk_score,
+        risk_label,
+        result_status,
+        security_summary: { tab_switches: tabSwitches, warnings },
       })
       .select("*")
       .single();
@@ -256,6 +336,7 @@ function TakeTestPage() {
       return toast.error(error.message);
     }
     setExisting(data as unknown as Attempt);
+
     // Reward auto-check
     checkAndAwardRewards(studentId).then((res) => {
       if (res.awarded.length > 0) {
@@ -364,16 +445,40 @@ function TakeTestPage() {
               </span>
             </label>
 
+            {security.system_enabled && (
+              <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs">
+                <div className="flex items-center gap-1.5 font-medium mb-1">
+                  <Shield className="size-3.5" /> Exam security active
+                </div>
+                <ul className="list-disc pl-5 space-y-0.5 text-muted-foreground">
+                  {security.fullscreen_required && <li>Fullscreen mandatory</li>}
+                  {security.tab_switch_limit > 0 && (
+                    <li>Tab change → warning ({security.warning_limit} max)</li>
+                  )}
+                  {security.camera_required && <li>Camera monitoring on</li>}
+                  {security.block_copy_paste && <li>Copy/paste blocked</li>}
+                </ul>
+              </div>
+            )}
+
             <button
               disabled={!acceptedTerms}
               onClick={() => {
                 setStarted(true);
                 setStartedAt(Date.now());
+                setSeed(`${id}-${studentId || "anon"}-${Date.now()}`);
+                logSecurityEvent(
+                  { attempt_id: null, student_id: studentId, test_id: id },
+                  "warning",
+                  { reason: "test_started" },
+                  "low",
+                );
               }}
               className="mt-5 w-full rounded-lg bg-primary text-primary-foreground py-3 text-sm font-medium hover:opacity-90 disabled:opacity-50"
             >
               Start test
             </button>
+
           </div>
         </main>
       </div>
@@ -400,19 +505,35 @@ function TakeTestPage() {
               </div>
             </div>
           </div>
-          <div
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold ${
-              low ? "bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground"
-            }`}
-          >
-            <Clock className="size-4" />
-            {String(mm).padStart(2, "0")}:{String(ss).padStart(2, "0")}
+          <div className="flex items-center gap-2">
+            {warnings > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400 px-2 py-1 text-xs font-medium">
+                <Shield className="size-3.5" /> {warnings}/{security.warning_limit}
+              </span>
+            )}
+            <div
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold ${
+                low ? "bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground"
+              }`}
+            >
+              <Clock className="size-4" />
+              {String(mm).padStart(2, "0")}:{String(ss).padStart(2, "0")}
+            </div>
           </div>
+
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-5 py-6 space-y-4">
-        {questions.map((q) => (
+        {security.camera_required && (
+          <div className="fixed bottom-3 right-3 z-30 w-40 rounded-lg overflow-hidden border-2 border-primary shadow-lg bg-black">
+            <div className="flex items-center gap-1 bg-primary text-primary-foreground px-2 py-1 text-[10px] font-medium">
+              <Camera className="size-3" /> {cameraOn ? "Recording" : "Waiting…"}
+            </div>
+            <video ref={videoRef} className="w-full h-24 object-cover" playsInline muted />
+          </div>
+        )}
+        {shuffled.list.map((q) => (
           <div key={q.id} className="rounded-2xl border border-border bg-card p-5">
             <div className="text-xs text-muted-foreground mb-1">
               Q{q.q_no} · {q.section} · {q.marks} mark{q.marks > 1 ? "s" : ""}
@@ -421,12 +542,14 @@ function TakeTestPage() {
             <div className="mt-3">
               {q.section === "MCQ" && q.options ? (
                 <div className="space-y-2">
-                  {q.options.map((opt, i) => {
-                    const letter = String.fromCharCode(65 + i);
-                    const checked = answers[q.id] === letter;
+                  {(shuffled.optMap[q.id] || q.options.map((_, i) => i)).map((origIdx, displayIdx) => {
+                    const opt = q.options![origIdx];
+                    const origLetter = String.fromCharCode(65 + origIdx);
+                    const displayLetter = String.fromCharCode(65 + displayIdx);
+                    const checked = answers[q.id] === origLetter;
                     return (
                       <label
-                        key={i}
+                        key={origIdx}
                         className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer ${
                           checked ? "border-primary bg-primary/5" : "border-border"
                         }`}
@@ -435,13 +558,15 @@ function TakeTestPage() {
                           type="radio"
                           name={q.id}
                           checked={checked}
-                          onChange={() => setAnswers((a) => ({ ...a, [q.id]: letter }))}
+                          onChange={() => setAnswers((a) => ({ ...a, [q.id]: origLetter }))}
                         />
+                        <span className="text-xs text-muted-foreground w-5">{displayLetter}.</span>
                         <span>{opt}</span>
                       </label>
                     );
                   })}
                 </div>
+
               ) : q.section === "TrueFalse" ? (
                 <div className="flex gap-2">
                   {["True", "False"].map((v) => {
@@ -491,6 +616,36 @@ function ResultView({ test, questions, attempt }: { test: Test; questions: Quest
   const pct = attempt.total ? Math.round((attempt.score / attempt.total) * 100) : 0;
   const mm = Math.floor(attempt.time_taken_sec / 60);
   const ss = attempt.time_taken_sec % 60;
+  const attemptAny = attempt as unknown as { result_status?: string; risk_label?: string };
+  const held = attemptAny.result_status && attemptAny.result_status !== "auto_released";
+
+  if (held) {
+    return (
+      <div className="min-h-screen grid place-items-center p-6">
+        <div className="max-w-md rounded-2xl border border-amber-500/30 bg-amber-500/5 p-8 text-center">
+          <Shield className="size-12 mx-auto text-amber-600" />
+          <h1 className="font-display text-2xl font-semibold mt-3">Result under review</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            Aapka test submit ho gaya hai. Security check ke baad teacher / admin result release karenge.
+          </p>
+          {attemptAny.risk_label && (
+            <p className="text-xs mt-3">
+              Status:{" "}
+              <span className="font-medium capitalize">
+                {attemptAny.result_status?.replace(/_/g, " ")}
+              </span>
+            </p>
+          )}
+          <Link
+            to="/student"
+            className="inline-flex mt-5 items-center gap-1 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium"
+          >
+            <ArrowLeft className="size-4" /> Back to my tests
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -510,6 +665,7 @@ function ResultView({ test, questions, attempt }: { test: Test; questions: Quest
           <Stat label="Percentage" value={`${pct}%`} accent={pct >= 60 ? "ok" : pct >= 35 ? "warn" : "bad"} />
           <Stat label="Time taken" value={`${mm}m ${ss}s`} />
         </div>
+
 
         <h2 className="font-display text-lg font-semibold mt-8 mb-3">Answers & teacher feedback</h2>
         <div className="space-y-3">

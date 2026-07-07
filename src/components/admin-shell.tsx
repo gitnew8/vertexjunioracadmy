@@ -17,6 +17,7 @@ import {
   Mic,
   Video,
   Gift,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { ThemeProvider, useTheme } from "@/components/theme-provider";
@@ -35,6 +36,7 @@ const NAV = [
   { to: "/teacher/students", label: "Students", icon: Users },
   { to: "/teacher/fees", label: "Fees", icon: Wallet },
   { to: "/teacher/tests", label: "Exams", icon: ClipboardList },
+  { to: "/teacher/exam-security", label: "Exam Security", icon: Shield },
   { to: "/teacher/rewards", label: "Rewards", icon: Gift },
   { to: "/teacher/materials", label: "Materials", icon: BookOpen },
   { to: "/teacher/reading", label: "Reading", icon: Mic },
@@ -42,6 +44,7 @@ const NAV = [
   { to: "/teacher/live", label: "Live Now", icon: Activity },
   { to: "/teacher/reports", label: "Reports", icon: FileText },
 ] as const;
+
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
