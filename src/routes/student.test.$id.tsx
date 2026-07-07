@@ -505,14 +505,22 @@ function TakeTestPage() {
               </div>
             </div>
           </div>
-          <div
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold ${
-              low ? "bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground"
-            }`}
-          >
-            <Clock className="size-4" />
-            {String(mm).padStart(2, "0")}:{String(ss).padStart(2, "0")}
+          <div className="flex items-center gap-2">
+            {warnings > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-400 px-2 py-1 text-xs font-medium">
+                <Shield className="size-3.5" /> {warnings}/{security.warning_limit}
+              </span>
+            )}
+            <div
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-mono font-semibold ${
+                low ? "bg-destructive text-destructive-foreground" : "bg-secondary text-secondary-foreground"
+              }`}
+            >
+              <Clock className="size-4" />
+              {String(mm).padStart(2, "0")}:{String(ss).padStart(2, "0")}
+            </div>
           </div>
+
         </div>
       </header>
 
