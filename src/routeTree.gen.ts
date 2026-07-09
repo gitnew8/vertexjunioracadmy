@@ -32,6 +32,7 @@ import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
 import { Route as StudentClassCodeRouteImport } from './routes/student.class.$code'
+import { Route as ApiPublicWordMeaningRouteImport } from './routes/api/public/word-meaning'
 import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/public/watermark-material'
 import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
 import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
@@ -158,6 +159,11 @@ const StudentClassCodeRoute = StudentClassCodeRouteImport.update({
   path: '/class/$code',
   getParentRoute: () => StudentRoute,
 } as any)
+const ApiPublicWordMeaningRoute = ApiPublicWordMeaningRouteImport.update({
+  id: '/api/public/word-meaning',
+  path: '/api/public/word-meaning',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWatermarkMaterialRoute =
   ApiPublicWatermarkMaterialRouteImport.update({
     id: '/api/public/watermark-material',
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -383,6 +393,7 @@ export interface FileRouteTypes {
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -438,6 +450,7 @@ export interface RootRouteChildren {
   ApiPublicSarvamSttRoute: typeof ApiPublicSarvamSttRoute
   ApiPublicSarvamTtsRoute: typeof ApiPublicSarvamTtsRoute
   ApiPublicWatermarkMaterialRoute: typeof ApiPublicWatermarkMaterialRoute
+  ApiPublicWordMeaningRoute: typeof ApiPublicWordMeaningRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -603,6 +616,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentClassCodeRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/api/public/word-meaning': {
+      id: '/api/public/word-meaning'
+      path: '/api/public/word-meaning'
+      fullPath: '/api/public/word-meaning'
+      preLoaderRoute: typeof ApiPublicWordMeaningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/watermark-material': {
       id: '/api/public/watermark-material'
       path: '/api/public/watermark-material'
@@ -757,6 +777,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicSarvamSttRoute: ApiPublicSarvamSttRoute,
   ApiPublicSarvamTtsRoute: ApiPublicSarvamTtsRoute,
   ApiPublicWatermarkMaterialRoute: ApiPublicWatermarkMaterialRoute,
+  ApiPublicWordMeaningRoute: ApiPublicWordMeaningRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
