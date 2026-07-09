@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import "@tanstack/react-start";
 
 const LANG_MAP: Record<string, string> = {
-  en: "en-IN",
-  hi: "hi-IN",
+  en: "en",
+  hi: "hi",
+  hinglish: "hi",
 };
 
 type Analysis = {
@@ -22,9 +23,9 @@ export const Route = createFileRoute("/api/public/analyze-reading")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        const sarvamKey = process.env.SARVAM_API_KEY;
+        const groqKey = process.env.GROQ_API_KEY;
         const aiKey = process.env.LOVABLE_API_KEY;
-        if (!sarvamKey || !aiKey) {
+        if (!groqKey || !aiKey) {
           return new Response(
             JSON.stringify({ error: "Missing API keys" }),
             { status: 500, headers: { "Content-Type": "application/json" } }
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/api/public/analyze-reading")({
 
         const inForm = await request.formData();
         const audio = inForm.get("audio");
-        const language = String(inForm.get("language") || "en");
+        const language = String(inForm.get("language") || "hi");
         const studentClass = String(inForm.get("student_class") || "");
         const bookName = String(inForm.get("book_name") || "");
         const durationSec = Number(inForm.get("duration_sec") || 0);
@@ -45,39 +46,46 @@ export const Route = createFileRoute("/api/public/analyze-reading")({
           });
         }
 
-        // 1) Speech-to-text via Sarvam
+        // 1) Speech-to-text via Groq Whisper large v3
+        const mime = audio.type || "audio/webm";
+        const ext =
+          ({
+            "audio/webm": "webm",
+            "audio/mp4": "mp4",
+            "audio/mpeg": "mp3",
+            "audio/wav": "wav",
+            "audio/wave": "wav",
+            "audio/ogg": "ogg",
+          } as Record<string, string>)[mime.split(";")[0]] || "webm";
+
         const sttFd = new FormData();
         sttFd.append(
           "file",
-          new File([audio], "reading.webm", { type: audio.type || "audio/webm" })
+          new File([audio], `reading.${ext}`, { type: mime })
         );
-        sttFd.append("model", "saarika:v2.5");
-        sttFd.append("language_code", LANG_MAP[language] || "unknown");
+        sttFd.append("model", "whisper-large-v3");
+        sttFd.append("language", LANG_MAP[language] || "hi");
+        sttFd.append("response_format", "json");
+        sttFd.append("temperature", "0");
 
-        const sttResp = await fetch("https://api.sarvam.ai/speech-to-text", {
-          method: "POST",
-          headers: { "api-subscription-key": sarvamKey },
-          body: sttFd,
-        });
+        const sttResp = await fetch(
+          "https://api.groq.com/openai/v1/audio/transcriptions",
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${groqKey}` },
+            body: sttFd,
+          }
+        );
         if (!sttResp.ok) {
           const t = await sttResp.text();
-          const isDeprecation = /deprecated|has been deprecated|please use|no longer supported/i.test(t);
-          if (isDeprecation) {
-            return new Response(
-              JSON.stringify({
-                error: "Speech-to-text model is no longer supported by the provider.",
-                fix: "Ask your teacher or admin to update the STT model version in the backend code (e.g., switch to the latest model like saarika:v2.5).",
-              }),
-              { status: 502, headers: { "Content-Type": "application/json" } }
-            );
-          }
           return new Response(
             JSON.stringify({ error: `STT ${sttResp.status}: ${t}` }),
             { status: sttResp.status, headers: { "Content-Type": "application/json" } }
           );
         }
-        const sttData = (await sttResp.json()) as { transcript?: string };
-        const transcript = (sttData.transcript || "").trim();
+        const sttData = (await sttResp.json()) as { text?: string };
+        const transcript = (sttData.text || "").trim();
+
 
         const wordCount = transcript ? transcript.split(/\s+/).filter(Boolean).length : 0;
         const wpm = durationSec > 0 ? Math.round((wordCount / durationSec) * 60) : 0;
