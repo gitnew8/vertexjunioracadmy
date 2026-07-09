@@ -25,6 +25,7 @@ import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
 import { Route as TeacherExamSecurityRouteImport } from './routes/teacher.exam-security'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
 import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
+import { Route as StudentReadingPracticeRouteImport } from './routes/student.reading-practice'
 import { Route as StudentReadingRouteImport } from './routes/student.reading'
 import { Route as StudentImagineRouteImport } from './routes/student.imagine'
 import { Route as StudentAiRouteImport } from './routes/student.ai'
@@ -32,9 +33,11 @@ import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
 import { Route as StudentClassCodeRouteImport } from './routes/student.class.$code'
+import { Route as ApiPublicWordMeaningRouteImport } from './routes/api/public/word-meaning'
 import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/public/watermark-material'
 import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
 import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
+import { Route as ApiPublicReadingQuizRouteImport } from './routes/api/public/reading-quiz'
 import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
 import { Route as ApiPublicGenerateImageRouteImport } from './routes/api/public/generate-image'
 import { Route as ApiPublicDailyRoomRouteImport } from './routes/api/public/daily-room'
@@ -122,6 +125,11 @@ const TeacherClassesRoute = TeacherClassesRouteImport.update({
   path: '/classes',
   getParentRoute: () => TeacherRoute,
 } as any)
+const StudentReadingPracticeRoute = StudentReadingPracticeRouteImport.update({
+  id: '/reading-practice',
+  path: '/reading-practice',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentReadingRoute = StudentReadingRouteImport.update({
   id: '/reading',
   path: '/reading',
@@ -157,6 +165,11 @@ const StudentClassCodeRoute = StudentClassCodeRouteImport.update({
   path: '/class/$code',
   getParentRoute: () => StudentRoute,
 } as any)
+const ApiPublicWordMeaningRoute = ApiPublicWordMeaningRouteImport.update({
+  id: '/api/public/word-meaning',
+  path: '/api/public/word-meaning',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWatermarkMaterialRoute =
   ApiPublicWatermarkMaterialRouteImport.update({
     id: '/api/public/watermark-material',
@@ -171,6 +184,11 @@ const ApiPublicSarvamTtsRoute = ApiPublicSarvamTtsRouteImport.update({
 const ApiPublicSarvamSttRoute = ApiPublicSarvamSttRouteImport.update({
   id: '/api/public/sarvam-stt',
   path: '/api/public/sarvam-stt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicReadingQuizRoute = ApiPublicReadingQuizRouteImport.update({
+  id: '/api/public/reading-quiz',
+  path: '/api/public/reading-quiz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicGenerateQuestionsRoute =
@@ -213,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
@@ -232,9 +251,11 @@ export interface FileRoutesByFullPath {
   '/api/public/daily-room': typeof ApiPublicDailyRoomRoute
   '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
+  '/api/public/reading-quiz': typeof ApiPublicReadingQuizRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -246,6 +267,7 @@ export interface FileRoutesByTo {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
@@ -265,9 +287,11 @@ export interface FileRoutesByTo {
   '/api/public/daily-room': typeof ApiPublicDailyRoomRoute
   '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
+  '/api/public/reading-quiz': typeof ApiPublicReadingQuizRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -281,6 +305,7 @@ export interface FileRoutesById {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
@@ -300,9 +325,11 @@ export interface FileRoutesById {
   '/api/public/daily-room': typeof ApiPublicDailyRoomRoute
   '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
+  '/api/public/reading-quiz': typeof ApiPublicReadingQuizRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
+  '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
@@ -317,6 +344,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/student/reading-practice'
     | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
@@ -336,9 +364,11 @@ export interface FileRouteTypes {
     | '/api/public/daily-room'
     | '/api/public/generate-image'
     | '/api/public/generate-questions'
+    | '/api/public/reading-quiz'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -350,6 +380,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/student/reading-practice'
     | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
@@ -369,9 +400,11 @@ export interface FileRouteTypes {
     | '/api/public/daily-room'
     | '/api/public/generate-image'
     | '/api/public/generate-questions'
+    | '/api/public/reading-quiz'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -384,6 +417,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/student/reading-practice'
     | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
@@ -403,9 +437,11 @@ export interface FileRouteTypes {
     | '/api/public/daily-room'
     | '/api/public/generate-image'
     | '/api/public/generate-questions'
+    | '/api/public/reading-quiz'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
+    | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
@@ -422,9 +458,11 @@ export interface RootRouteChildren {
   ApiPublicDailyRoomRoute: typeof ApiPublicDailyRoomRoute
   ApiPublicGenerateImageRoute: typeof ApiPublicGenerateImageRoute
   ApiPublicGenerateQuestionsRoute: typeof ApiPublicGenerateQuestionsRoute
+  ApiPublicReadingQuizRoute: typeof ApiPublicReadingQuizRoute
   ApiPublicSarvamSttRoute: typeof ApiPublicSarvamSttRoute
   ApiPublicSarvamTtsRoute: typeof ApiPublicSarvamTtsRoute
   ApiPublicWatermarkMaterialRoute: typeof ApiPublicWatermarkMaterialRoute
+  ApiPublicWordMeaningRoute: typeof ApiPublicWordMeaningRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -541,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherClassesRouteImport
       parentRoute: typeof TeacherRoute
     }
+    '/student/reading-practice': {
+      id: '/student/reading-practice'
+      path: '/reading-practice'
+      fullPath: '/student/reading-practice'
+      preLoaderRoute: typeof StudentReadingPracticeRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/reading': {
       id: '/student/reading'
       path: '/reading'
@@ -590,6 +635,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentClassCodeRouteImport
       parentRoute: typeof StudentRoute
     }
+    '/api/public/word-meaning': {
+      id: '/api/public/word-meaning'
+      path: '/api/public/word-meaning'
+      fullPath: '/api/public/word-meaning'
+      preLoaderRoute: typeof ApiPublicWordMeaningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/watermark-material': {
       id: '/api/public/watermark-material'
       path: '/api/public/watermark-material'
@@ -609,6 +661,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/sarvam-stt'
       fullPath: '/api/public/sarvam-stt'
       preLoaderRoute: typeof ApiPublicSarvamSttRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/reading-quiz': {
+      id: '/api/public/reading-quiz'
+      path: '/api/public/reading-quiz'
+      fullPath: '/api/public/reading-quiz'
+      preLoaderRoute: typeof ApiPublicReadingQuizRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/generate-questions': {
@@ -660,6 +719,7 @@ interface StudentRouteChildren {
   StudentAiRoute: typeof StudentAiRoute
   StudentImagineRoute: typeof StudentImagineRoute
   StudentReadingRoute: typeof StudentReadingRoute
+  StudentReadingPracticeRoute: typeof StudentReadingPracticeRoute
   StudentClassCodeRoute: typeof StudentClassCodeRoute
   StudentTestIdRoute: typeof StudentTestIdRoute
 }
@@ -668,6 +728,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentAiRoute: StudentAiRoute,
   StudentImagineRoute: StudentImagineRoute,
   StudentReadingRoute: StudentReadingRoute,
+  StudentReadingPracticeRoute: StudentReadingPracticeRoute,
   StudentClassCodeRoute: StudentClassCodeRoute,
   StudentTestIdRoute: StudentTestIdRoute,
 }
@@ -733,9 +794,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicDailyRoomRoute: ApiPublicDailyRoomRoute,
   ApiPublicGenerateImageRoute: ApiPublicGenerateImageRoute,
   ApiPublicGenerateQuestionsRoute: ApiPublicGenerateQuestionsRoute,
+  ApiPublicReadingQuizRoute: ApiPublicReadingQuizRoute,
   ApiPublicSarvamSttRoute: ApiPublicSarvamSttRoute,
   ApiPublicSarvamTtsRoute: ApiPublicSarvamTtsRoute,
   ApiPublicWatermarkMaterialRoute: ApiPublicWatermarkMaterialRoute,
+  ApiPublicWordMeaningRoute: ApiPublicWordMeaningRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
