@@ -25,6 +25,7 @@ import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
 import { Route as TeacherExamSecurityRouteImport } from './routes/teacher.exam-security'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
 import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
+import { Route as StudentReadingPracticeRouteImport } from './routes/student.reading-practice'
 import { Route as StudentReadingRouteImport } from './routes/student.reading'
 import { Route as StudentImagineRouteImport } from './routes/student.imagine'
 import { Route as StudentAiRouteImport } from './routes/student.ai'
@@ -123,6 +124,11 @@ const TeacherClassesRoute = TeacherClassesRouteImport.update({
   id: '/classes',
   path: '/classes',
   getParentRoute: () => TeacherRoute,
+} as any)
+const StudentReadingPracticeRoute = StudentReadingPracticeRouteImport.update({
+  id: '/reading-practice',
+  path: '/reading-practice',
+  getParentRoute: () => StudentRoute,
 } as any)
 const StudentReadingRoute = StudentReadingRouteImport.update({
   id: '/reading',
@@ -225,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
@@ -297,6 +305,7 @@ export interface FileRoutesById {
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
   '/student/reading': typeof StudentReadingRoute
+  '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/student/reading-practice'
     | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/student/reading-practice'
     | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
@@ -406,6 +417,7 @@ export interface FileRouteTypes {
     | '/student/ai'
     | '/student/imagine'
     | '/student/reading'
+    | '/student/reading-practice'
     | '/teacher/classes'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
@@ -567,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherClassesRouteImport
       parentRoute: typeof TeacherRoute
     }
+    '/student/reading-practice': {
+      id: '/student/reading-practice'
+      path: '/reading-practice'
+      fullPath: '/student/reading-practice'
+      preLoaderRoute: typeof StudentReadingPracticeRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/reading': {
       id: '/student/reading'
       path: '/reading'
@@ -700,6 +719,7 @@ interface StudentRouteChildren {
   StudentAiRoute: typeof StudentAiRoute
   StudentImagineRoute: typeof StudentImagineRoute
   StudentReadingRoute: typeof StudentReadingRoute
+  StudentReadingPracticeRoute: typeof StudentReadingPracticeRoute
   StudentClassCodeRoute: typeof StudentClassCodeRoute
   StudentTestIdRoute: typeof StudentTestIdRoute
 }
@@ -708,6 +728,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentAiRoute: StudentAiRoute,
   StudentImagineRoute: StudentImagineRoute,
   StudentReadingRoute: StudentReadingRoute,
+  StudentReadingPracticeRoute: StudentReadingPracticeRoute,
   StudentClassCodeRoute: StudentClassCodeRoute,
   StudentTestIdRoute: StudentTestIdRoute,
 }

@@ -188,7 +188,12 @@ function ReadingPage() {
           <div className="font-display font-semibold flex items-center gap-2">
             <BookOpen className="size-5 text-primary" /> Reading practice
           </div>
-          <span className="w-12" />
+          <Link
+            to="/student/reading-practice"
+            className="text-xs font-medium rounded-lg border border-border px-2.5 py-1.5 hover:bg-secondary"
+          >
+            Guided ✨
+          </Link>
         </div>
       </header>
 
