@@ -384,6 +384,28 @@ function ReadingPage() {
                 style={{ width: `${Math.min(100, (elapsed / MAX_SEC) * 100)}%` }}
               />
             </div>
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium">
+              <span
+                className={`size-2 rounded-full ${
+                  status === "recording"
+                    ? "bg-red-500 animate-pulse"
+                    : status === "processing" || status === "uploading"
+                    ? "bg-amber-500 animate-pulse"
+                    : status === "done"
+                    ? "bg-emerald-500"
+                    : "bg-muted-foreground/40"
+                }`}
+              />
+              {status === "recording"
+                ? "Recording"
+                : status === "processing"
+                ? "Processing"
+                : status === "uploading"
+                ? "Uploading"
+                : status === "done"
+                ? "AI Analysis Complete"
+                : "Ready"}
+            </div>
             <div className="text-xs text-muted-foreground mt-2 text-center px-4">
               {busy
                 ? "Analyzing your reading…"
@@ -391,6 +413,7 @@ function ReadingPage() {
                 ? `Recording… tap to Stop & Submit (auto-stops at 10:00)`
                 : "Tap the mic to Start Recording · max 10 minutes"}
             </div>
+
           </div>
 
         </div>
