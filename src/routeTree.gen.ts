@@ -37,6 +37,7 @@ import { Route as ApiPublicWordMeaningRouteImport } from './routes/api/public/wo
 import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/public/watermark-material'
 import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
 import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
+import { Route as ApiPublicResultAnalysisRouteImport } from './routes/api/public/result-analysis'
 import { Route as ApiPublicReadingQuizRouteImport } from './routes/api/public/reading-quiz'
 import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
 import { Route as ApiPublicGenerateImageRouteImport } from './routes/api/public/generate-image'
@@ -186,6 +187,11 @@ const ApiPublicSarvamSttRoute = ApiPublicSarvamSttRouteImport.update({
   path: '/api/public/sarvam-stt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicResultAnalysisRoute = ApiPublicResultAnalysisRouteImport.update({
+  id: '/api/public/result-analysis',
+  path: '/api/public/result-analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicReadingQuizRoute = ApiPublicReadingQuizRouteImport.update({
   id: '/api/public/reading-quiz',
   path: '/api/public/reading-quiz',
@@ -252,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/reading-quiz': typeof ApiPublicReadingQuizRoute
+  '/api/public/result-analysis': typeof ApiPublicResultAnalysisRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
@@ -288,6 +295,7 @@ export interface FileRoutesByTo {
   '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/reading-quiz': typeof ApiPublicReadingQuizRoute
+  '/api/public/result-analysis': typeof ApiPublicResultAnalysisRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
@@ -326,6 +334,7 @@ export interface FileRoutesById {
   '/api/public/generate-image': typeof ApiPublicGenerateImageRoute
   '/api/public/generate-questions': typeof ApiPublicGenerateQuestionsRoute
   '/api/public/reading-quiz': typeof ApiPublicReadingQuizRoute
+  '/api/public/result-analysis': typeof ApiPublicResultAnalysisRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
@@ -365,6 +374,7 @@ export interface FileRouteTypes {
     | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/reading-quiz'
+    | '/api/public/result-analysis'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/reading-quiz'
+    | '/api/public/result-analysis'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/api/public/generate-image'
     | '/api/public/generate-questions'
     | '/api/public/reading-quiz'
+    | '/api/public/result-analysis'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
     | '/api/public/watermark-material'
@@ -459,6 +471,7 @@ export interface RootRouteChildren {
   ApiPublicGenerateImageRoute: typeof ApiPublicGenerateImageRoute
   ApiPublicGenerateQuestionsRoute: typeof ApiPublicGenerateQuestionsRoute
   ApiPublicReadingQuizRoute: typeof ApiPublicReadingQuizRoute
+  ApiPublicResultAnalysisRoute: typeof ApiPublicResultAnalysisRoute
   ApiPublicSarvamSttRoute: typeof ApiPublicSarvamSttRoute
   ApiPublicSarvamTtsRoute: typeof ApiPublicSarvamTtsRoute
   ApiPublicWatermarkMaterialRoute: typeof ApiPublicWatermarkMaterialRoute
@@ -663,6 +676,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSarvamSttRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/result-analysis': {
+      id: '/api/public/result-analysis'
+      path: '/api/public/result-analysis'
+      fullPath: '/api/public/result-analysis'
+      preLoaderRoute: typeof ApiPublicResultAnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/reading-quiz': {
       id: '/api/public/reading-quiz'
       path: '/api/public/reading-quiz'
@@ -795,6 +815,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGenerateImageRoute: ApiPublicGenerateImageRoute,
   ApiPublicGenerateQuestionsRoute: ApiPublicGenerateQuestionsRoute,
   ApiPublicReadingQuizRoute: ApiPublicReadingQuizRoute,
+  ApiPublicResultAnalysisRoute: ApiPublicResultAnalysisRoute,
   ApiPublicSarvamSttRoute: ApiPublicSarvamSttRoute,
   ApiPublicSarvamTtsRoute: ApiPublicSarvamTtsRoute,
   ApiPublicWatermarkMaterialRoute: ApiPublicWatermarkMaterialRoute,

@@ -2,8 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast, Toaster } from "sonner";
-import { ArrowLeft, Clock, GraduationCap, CheckCircle2, XCircle, Send, FileText, Shield, Camera } from "lucide-react";
+import { ArrowLeft, Clock, GraduationCap, Send, FileText, Shield, Camera } from "lucide-react";
 import { TermsModal } from "@/components/terms-modal";
+import { ExamResultDashboard } from "@/components/exam-result";
 import { checkAndAwardRewards } from "@/lib/rewards";
 import {
   DEFAULT_SETTINGS,
@@ -43,6 +44,7 @@ type Question = {
   options: string[] | null;
   correct_answer: string;
   marks: number;
+  difficulty?: string | null;
 };
 
 type QEval = { verdict: "Correct" | "Partial" | "Wrong"; marks: number; feedback: string };
@@ -356,7 +358,7 @@ function TakeTestPage() {
   }
 
   if (existing) {
-    return <ResultView test={test} questions={questions} attempt={existing} />;
+    return <ResultView test={test} questions={questions} attempt={existing} session={session} />;
   }
 
   if (!started) {
@@ -612,10 +614,17 @@ function TakeTestPage() {
   );
 }
 
-function ResultView({ test, questions, attempt }: { test: Test; questions: Question[]; attempt: Attempt }) {
-  const pct = attempt.total ? Math.round((attempt.score / attempt.total) * 100) : 0;
-  const mm = Math.floor(attempt.time_taken_sec / 60);
-  const ss = attempt.time_taken_sec % 60;
+function ResultView({
+  test,
+  questions,
+  attempt,
+  session,
+}: {
+  test: Test;
+  questions: Question[];
+  attempt: Attempt;
+  session: Session;
+}) {
   const attemptAny = attempt as unknown as { result_status?: string; risk_label?: string };
   const held = attemptAny.result_status && attemptAny.result_status !== "auto_released";
 
@@ -648,101 +657,15 @@ function ResultView({ test, questions, attempt }: { test: Test; questions: Quest
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-border bg-background/90 backdrop-blur sticky top-0 z-10">
-        <div className="mx-auto max-w-3xl px-5 py-3 flex items-center justify-between">
-          <Link to="/student" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="size-4" /> Back to my tests
-          </Link>
-        </div>
-      </header>
-      <main className="mx-auto max-w-3xl px-5 py-8">
-        <h1 className="font-display text-2xl font-semibold">{test.title}</h1>
-        <p className="text-sm text-muted-foreground">Test submitted</p>
-
-        <div className="mt-5 grid grid-cols-3 gap-3">
-          <Stat label="Score" value={`${attempt.score}/${attempt.total}`} />
-          <Stat label="Percentage" value={`${pct}%`} accent={pct >= 60 ? "ok" : pct >= 35 ? "warn" : "bad"} />
-          <Stat label="Time taken" value={`${mm}m ${ss}s`} />
-        </div>
-
-
-        <h2 className="font-display text-lg font-semibold mt-8 mb-3">Answers & teacher feedback</h2>
-        <div className="space-y-3">
-          {questions.map((q) => {
-            const a = attempt.answers?.[q.id] || "";
-            const ev = attempt.evaluations?.[q.id];
-            const verdict = ev?.verdict ?? (a.trim().toLowerCase() === q.correct_answer.trim().toLowerCase() ? "Correct" : "Wrong");
-            const awarded = ev?.marks ?? (verdict === "Correct" ? q.marks : 0);
-            const tone =
-              verdict === "Correct"
-                ? "border-emerald-500/30 bg-emerald-500/5"
-                : verdict === "Partial"
-                ? "border-amber-500/30 bg-amber-500/5"
-                : "border-red-500/30 bg-red-500/5";
-            const Icon = verdict === "Wrong" ? XCircle : CheckCircle2;
-            const iconCls =
-              verdict === "Correct"
-                ? "text-emerald-600 dark:text-emerald-400"
-                : verdict === "Partial"
-                ? "text-amber-600 dark:text-amber-400"
-                : "text-destructive";
-            return (
-              <div key={q.id} className={`rounded-xl border p-4 ${tone}`}>
-                <div className="flex items-start gap-2">
-                  <Icon className={`size-5 shrink-0 mt-0.5 ${iconCls}`} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-xs text-muted-foreground">
-                        Q{q.q_no} · {q.section} · {awarded}/{q.marks} mark{q.marks > 1 ? "s" : ""}
-                      </div>
-                      <span className={`text-xs font-semibold ${iconCls}`}>{verdict}</span>
-                    </div>
-                    <div className="font-medium">{q.question}</div>
-                    <div className="mt-2 text-sm space-y-1">
-                      <div>
-                        <span className="text-muted-foreground">Your answer: </span>
-                        <span className="font-medium whitespace-pre-wrap">{a || "— not answered —"}</span>
-                      </div>
-                      {ev?.feedback && (
-                        <div className="mt-2 rounded-lg bg-background/60 border border-border p-2.5 text-sm">
-                          <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">Teacher feedback</div>
-                          {ev.feedback}
-                        </div>
-                      )}
-                      {!ev && verdict === "Wrong" && (q.section === "MCQ" || q.section === "TrueFalse") && (
-                        <div>
-                          <span className="text-muted-foreground">Correct answer: </span>
-                          <span className="font-medium text-emerald-700 dark:text-emerald-400">
-                            {q.correct_answer}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </main>
-    </div>
-  );
-}
-
-function Stat({ label, value, accent }: { label: string; value: string; accent?: "ok" | "warn" | "bad" }) {
-  const cls =
-    accent === "ok"
-      ? "text-emerald-600 dark:text-emerald-400"
-      : accent === "warn"
-      ? "text-amber-600 dark:text-amber-400"
-      : accent === "bad"
-      ? "text-destructive"
-      : "";
-  return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="text-xs uppercase text-muted-foreground">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold font-display ${cls}`}>{value}</div>
-    </div>
+    <ExamResultDashboard
+      test={test}
+      questions={questions}
+      attempt={attempt}
+      student={{
+        name: session.name,
+        roll_number: session.roll_number,
+        student_class: session.student_class,
+      }}
+    />
   );
 }
