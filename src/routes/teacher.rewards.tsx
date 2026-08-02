@@ -1,3 +1,4 @@
+import { LeaderboardAdmin } from "@/components/leaderboard-admin";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -307,7 +308,12 @@ function RewardsPage() {
         </div>
       )}
 
-      {tab === "settings" && <SettingsTab />}
+      {tab === "settings" && (
+        <>
+          <LeaderboardAdmin />
+          <SettingsTab />
+        </>
+      )}
 
       {(creating || editing) && (
         <RuleDialog
