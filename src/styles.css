@@ -113,3 +113,13 @@
     letter-spacing: -0.02em;
   }
 }
+
+@keyframes lb-fall {
+  0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
+  15% { opacity: .9; }
+  100% { transform: translateY(320%) rotate(540deg); opacity: 0; }
+}
+@keyframes lb-rise {
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
