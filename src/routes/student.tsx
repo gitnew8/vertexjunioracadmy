@@ -730,6 +730,8 @@ function StudentReports({ session }: { session: Session }) {
 
       <FeeSummary session={session} />
 
+      <LeaderboardWidget studentId={studentId} />
+
       <RewardProgressCard studentId={studentId} onOpenTerms={() => setShowTerms(true)} />
 
       <MyClasses session={session} />
