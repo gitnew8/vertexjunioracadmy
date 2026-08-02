@@ -307,7 +307,12 @@ function RewardsPage() {
         </div>
       )}
 
-      {tab === "settings" && <SettingsTab />}
+      {tab === "settings" && (
+        <>
+          <LeaderboardAdmin />
+          <SettingsTab />
+        </>
+      )}
 
       {(creating || editing) && (
         <RuleDialog
