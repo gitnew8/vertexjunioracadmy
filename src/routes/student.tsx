@@ -1,3 +1,4 @@
+import { LeaderboardWidget } from "@/components/leaderboard";
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
