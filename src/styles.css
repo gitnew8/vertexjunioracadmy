@@ -114,6 +114,10 @@
   }
 }
 
+@utility fade-in-rise {
+  animation: lb-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @keyframes lb-fall {
   0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
   15% { opacity: .9; }

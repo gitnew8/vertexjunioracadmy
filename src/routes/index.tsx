@@ -20,6 +20,7 @@ import {
   Menu,
   X,
   ShieldCheck,
+  GraduationCap,
   type LucideIcon,
 } from "lucide-react";
 import vertexLogo from "@/assets/vertex-logo.png.asset.json";
@@ -247,6 +248,35 @@ function Landing() {
                   </div>
                 ))}
               </dl>
+            </div>
+          </div>
+        </section>
+
+        {/* Powered by branding */}
+        <section className="bg-white">
+          <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
+            <div className="fade-in-rise flex flex-col items-center text-center">
+              <span
+                className="mb-6 inline-flex items-center justify-center rounded-full p-4"
+                style={{ backgroundColor: "rgba(15, 76, 129, 0.06)" }}
+              >
+                <GraduationCap className="size-8" style={{ color: "#0F4C81" }} />
+              </span>
+              <p className="text-sm font-medium tracking-wide" style={{ color: "#6B7280" }}>
+                Powered by
+              </p>
+              <h2
+                className="mt-2 font-display text-[32px] font-bold leading-tight sm:text-[40px]"
+                style={{ color: "#0F4C81" }}
+              >
+                Vertex Junior Academy
+              </h2>
+              <p
+                className="mt-3 max-w-xl text-[15px] font-light leading-relaxed sm:text-base"
+                style={{ color: "#64748B" }}
+              >
+                India&apos;s Smart School & Coaching Management Platform
+              </p>
             </div>
           </div>
         </section>
