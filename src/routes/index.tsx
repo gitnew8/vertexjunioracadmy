@@ -20,6 +20,7 @@ import {
   Menu,
   X,
   ShieldCheck,
+  GraduationCap,
   type LucideIcon,
 } from "lucide-react";
 import vertexLogo from "@/assets/vertex-logo.png.asset.json";
