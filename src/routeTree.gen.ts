@@ -35,6 +35,7 @@ import { Route as StudentAiRouteImport } from './routes/student.ai'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as TeacherVisualIdRouteImport } from './routes/teacher.visual.$id'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
+import { Route as StudentVisualIdRouteImport } from './routes/student.visual.$id'
 import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
 import { Route as StudentClassCodeRouteImport } from './routes/student.class.$code'
 import { Route as ApiPublicWordMeaningRouteImport } from './routes/api/public/word-meaning'
@@ -181,6 +182,11 @@ const TeacherTestsIdRoute = TeacherTestsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => TeacherTestsRoute,
 } as any)
+const StudentVisualIdRoute = StudentVisualIdRouteImport.update({
+  id: '/visual/$id',
+  path: '/visual/$id',
+  getParentRoute: () => StudentRoute,
+} as any)
 const StudentTestIdRoute = StudentTestIdRouteImport.update({
   id: '/test/$id',
   path: '/test/$id',
@@ -299,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
+  '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
 }
@@ -341,6 +348,7 @@ export interface FileRoutesByTo {
   '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
+  '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
 }
@@ -385,6 +393,7 @@ export interface FileRoutesById {
   '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
+  '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
 }
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
+    | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
+    | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
   id:
@@ -515,6 +526,7 @@ export interface FileRouteTypes {
     | '/api/public/word-meaning'
     | '/student/class/$code'
     | '/student/test/$id'
+    | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
   fileRoutesById: FileRoutesById
@@ -725,6 +737,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeacherTestsIdRouteImport
       parentRoute: typeof TeacherTestsRoute
     }
+    '/student/visual/$id': {
+      id: '/student/visual/$id'
+      path: '/visual/$id'
+      fullPath: '/student/visual/$id'
+      preLoaderRoute: typeof StudentVisualIdRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/student/test/$id': {
       id: '/student/test/$id'
       path: '/test/$id'
@@ -840,6 +859,7 @@ interface StudentRouteChildren {
   StudentReadingPracticeRoute: typeof StudentReadingPracticeRoute
   StudentClassCodeRoute: typeof StudentClassCodeRoute
   StudentTestIdRoute: typeof StudentTestIdRoute
+  StudentVisualIdRoute: typeof StudentVisualIdRoute
 }
 
 const StudentRouteChildren: StudentRouteChildren = {
@@ -849,6 +869,7 @@ const StudentRouteChildren: StudentRouteChildren = {
   StudentReadingPracticeRoute: StudentReadingPracticeRoute,
   StudentClassCodeRoute: StudentClassCodeRoute,
   StudentTestIdRoute: StudentTestIdRoute,
+  StudentVisualIdRoute: StudentVisualIdRoute,
 }
 
 const StudentRouteWithChildren =
