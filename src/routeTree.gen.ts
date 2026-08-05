@@ -33,6 +33,7 @@ import { Route as StudentReadingRouteImport } from './routes/student.reading'
 import { Route as StudentImagineRouteImport } from './routes/student.imagine'
 import { Route as StudentAiRouteImport } from './routes/student.ai'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
+import { Route as TeacherVisualIdRouteImport } from './routes/teacher.visual.$id'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
 import { Route as StudentClassCodeRouteImport } from './routes/student.class.$code'
@@ -170,6 +171,11 @@ const ReportCodeRoute = ReportCodeRouteImport.update({
   path: '/report/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeacherVisualIdRoute = TeacherVisualIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => TeacherVisualRoute,
+} as any)
 const TeacherTestsIdRoute = TeacherTestsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -276,7 +282,7 @@ export interface FileRoutesByFullPath {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
-  '/teacher/visual': typeof TeacherVisualRoute
+  '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -294,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
+  '/teacher/visual/$id': typeof TeacherVisualIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -317,7 +324,7 @@ export interface FileRoutesByTo {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
-  '/teacher/visual': typeof TeacherVisualRoute
+  '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -335,6 +342,7 @@ export interface FileRoutesByTo {
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
+  '/teacher/visual/$id': typeof TeacherVisualIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -360,7 +368,7 @@ export interface FileRoutesById {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
-  '/teacher/visual': typeof TeacherVisualRoute
+  '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -378,6 +386,7 @@ export interface FileRoutesById {
   '/student/class/$code': typeof StudentClassCodeRoute
   '/student/test/$id': typeof StudentTestIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
+  '/teacher/visual/$id': typeof TeacherVisualIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -422,6 +431,7 @@ export interface FileRouteTypes {
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
+    | '/teacher/visual/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -463,6 +473,7 @@ export interface FileRouteTypes {
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
+    | '/teacher/visual/$id'
   id:
     | '__root__'
     | '/'
@@ -505,6 +516,7 @@ export interface FileRouteTypes {
     | '/student/class/$code'
     | '/student/test/$id'
     | '/teacher/tests/$id'
+    | '/teacher/visual/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -699,6 +711,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teacher/visual/$id': {
+      id: '/teacher/visual/$id'
+      path: '/$id'
+      fullPath: '/teacher/visual/$id'
+      preLoaderRoute: typeof TeacherVisualIdRouteImport
+      parentRoute: typeof TeacherVisualRoute
+    }
     '/teacher/tests/$id': {
       id: '/teacher/tests/$id'
       path: '/$id'
@@ -847,6 +866,18 @@ const TeacherTestsRouteWithChildren = TeacherTestsRoute._addFileChildren(
   TeacherTestsRouteChildren,
 )
 
+interface TeacherVisualRouteChildren {
+  TeacherVisualIdRoute: typeof TeacherVisualIdRoute
+}
+
+const TeacherVisualRouteChildren: TeacherVisualRouteChildren = {
+  TeacherVisualIdRoute: TeacherVisualIdRoute,
+}
+
+const TeacherVisualRouteWithChildren = TeacherVisualRoute._addFileChildren(
+  TeacherVisualRouteChildren,
+)
+
 interface TeacherRouteChildren {
   TeacherClassesRoute: typeof TeacherClassesRoute
   TeacherDashboardRoute: typeof TeacherDashboardRoute
@@ -860,7 +891,7 @@ interface TeacherRouteChildren {
   TeacherRewardsRoute: typeof TeacherRewardsRoute
   TeacherStudentsRoute: typeof TeacherStudentsRoute
   TeacherTestsRoute: typeof TeacherTestsRouteWithChildren
-  TeacherVisualRoute: typeof TeacherVisualRoute
+  TeacherVisualRoute: typeof TeacherVisualRouteWithChildren
   TeacherIndexRoute: typeof TeacherIndexRoute
 }
 
@@ -877,7 +908,7 @@ const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherRewardsRoute: TeacherRewardsRoute,
   TeacherStudentsRoute: TeacherStudentsRoute,
   TeacherTestsRoute: TeacherTestsRouteWithChildren,
-  TeacherVisualRoute: TeacherVisualRoute,
+  TeacherVisualRoute: TeacherVisualRouteWithChildren,
   TeacherIndexRoute: TeacherIndexRoute,
 }
 
