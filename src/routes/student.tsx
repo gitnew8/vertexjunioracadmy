@@ -374,6 +374,7 @@ function MyClasses({ session }: { session: Session }) {
             <Link
               to="/student/class/$code"
               params={{ code: c.room_code }}
+              search={{ role: "student" as const, name: undefined }}
               className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold ${
                 c.status === "live"
                   ? "bg-emerald-600 text-white hover:opacity-90"
