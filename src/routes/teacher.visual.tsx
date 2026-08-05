@@ -34,7 +34,6 @@ async function fileToPages(file: File): Promise<{ blob: Blob; width: number; hei
     return [{ blob: file, width: bmp.width, height: bmp.height }];
   }
   const pdfjsLib = await import("pdfjs-dist");
-  // @ts-expect-error vite ?url import
   const worker = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
   pdfjsLib.GlobalWorkerOptions.workerSrc = worker as string;
   const buf = await file.arrayBuffer();
@@ -47,7 +46,6 @@ async function fileToPages(file: File): Promise<{ blob: Blob; width: number; hei
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     const ctx = canvas.getContext("2d")!;
-    // @ts-expect-error pdfjs types
     await page.render({ canvasContext: ctx, viewport, canvas }).promise;
     const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), "image/png", 0.92));
     out.push({ blob, width: canvas.width, height: canvas.height });

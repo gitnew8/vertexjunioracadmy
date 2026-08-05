@@ -15,6 +15,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
+import { Route as TeacherVisualRouteImport } from './routes/teacher.visual'
 import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
 import { Route as TeacherRewardsRouteImport } from './routes/teacher.rewards'
@@ -77,6 +78,11 @@ const IndexRoute = IndexRouteImport.update({
 const TeacherIndexRoute = TeacherIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherVisualRoute = TeacherVisualRouteImport.update({
+  id: '/visual',
+  path: '/visual',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherTestsRoute = TeacherTestsRouteImport.update({
@@ -270,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
+  '/teacher/visual': typeof TeacherVisualRoute
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -310,6 +317,7 @@ export interface FileRoutesByTo {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
+  '/teacher/visual': typeof TeacherVisualRoute
   '/teacher': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -352,6 +360,7 @@ export interface FileRoutesById {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
+  '/teacher/visual': typeof TeacherVisualRoute
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -395,6 +404,7 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/teacher/visual'
     | '/teacher/'
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
@@ -435,6 +445,7 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/teacher/visual'
     | '/teacher'
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
@@ -476,6 +487,7 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/teacher/visual'
     | '/teacher/'
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
@@ -559,6 +571,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/teacher/'
       preLoaderRoute: typeof TeacherIndexRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/visual': {
+      id: '/teacher/visual'
+      path: '/visual'
+      fullPath: '/teacher/visual'
+      preLoaderRoute: typeof TeacherVisualRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/tests': {
@@ -841,6 +860,7 @@ interface TeacherRouteChildren {
   TeacherRewardsRoute: typeof TeacherRewardsRoute
   TeacherStudentsRoute: typeof TeacherStudentsRoute
   TeacherTestsRoute: typeof TeacherTestsRouteWithChildren
+  TeacherVisualRoute: typeof TeacherVisualRoute
   TeacherIndexRoute: typeof TeacherIndexRoute
 }
 
@@ -857,6 +877,7 @@ const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherRewardsRoute: TeacherRewardsRoute,
   TeacherStudentsRoute: TeacherStudentsRoute,
   TeacherTestsRoute: TeacherTestsRouteWithChildren,
+  TeacherVisualRoute: TeacherVisualRoute,
   TeacherIndexRoute: TeacherIndexRoute,
 }
 
