@@ -36,6 +36,51 @@ function generateLoginNumber() {
   return Math.floor(Math.random() * 1_000_000).toString().padStart(6, "0");
 }
 
+function MyVisualWorksheets({ session }: { session: Session }) {
+  const [rows, setRows] = useState<{ id: string; title: string; subject: string; student_class: string }[]>([]);
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("visual_papers")
+        .select("id,title,subject,student_class")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      const want = (session.student_class || "").toLowerCase().replace(/^class\s*/, "");
+      setRows(
+        (data || []).filter(
+          (r) => (r.student_class || "").toLowerCase().replace(/^class\s*/, "") === want,
+        ),
+      );
+    })();
+  }, [session.student_class]);
+
+  if (!rows.length) return null;
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4">
+      <h2 className="font-display font-semibold mb-3">🎨 Fun Worksheets</h2>
+      <div className="space-y-2">
+        {rows.map((r) => (
+          <Link
+            key={r.id}
+            to="/student/visual/$id"
+            params={{ id: r.id }}
+            className="flex items-center gap-3 rounded-xl border border-border p-3 hover:bg-secondary"
+          >
+            <span className="text-2xl">🧸</span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-medium truncate">{r.title}</span>
+              <span className="block text-xs text-muted-foreground">
+                {r.student_class} · {r.subject} · tap to answer
+              </span>
+            </span>
+            <span className="text-xs font-semibold text-primary">Start ▶</span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function MyTests({ session }: { session: Session }) {
   const [loading, setLoading] = useState(true);
   const [tests, setTests] = useState<StudentTest[]>([]);
@@ -737,6 +782,8 @@ function StudentReports({ session }: { session: Session }) {
       <RewardProgressCard studentId={studentId} onOpenTerms={() => setShowTerms(true)} />
 
       <MyClasses session={session} />
+
+      <MyVisualWorksheets session={session} />
 
       <MyTests session={session} />
 
