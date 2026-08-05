@@ -856,6 +856,160 @@ export type Database = {
         }
         Relationships: []
       }
+      visual_attempts: {
+        Row: {
+          answers: Json
+          correct_count: number
+          created_at: string
+          grade: string | null
+          id: string
+          paper_id: string
+          percentage: number
+          roll_number: string | null
+          student_class: string
+          student_name: string
+          time_taken_sec: number
+          total_questions: number
+          wrong_count: number
+        }
+        Insert: {
+          answers?: Json
+          correct_count?: number
+          created_at?: string
+          grade?: string | null
+          id?: string
+          paper_id: string
+          percentage?: number
+          roll_number?: string | null
+          student_class: string
+          student_name: string
+          time_taken_sec?: number
+          total_questions?: number
+          wrong_count?: number
+        }
+        Update: {
+          answers?: Json
+          correct_count?: number
+          created_at?: string
+          grade?: string | null
+          id?: string
+          paper_id?: string
+          percentage?: number
+          roll_number?: string | null
+          student_class?: string
+          student_name?: string
+          time_taken_sec?: number
+          total_questions?: number
+          wrong_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visual_attempts_paper_id_fkey"
+            columns: ["paper_id"]
+            isOneToOne: false
+            referencedRelation: "visual_papers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visual_hotspots: {
+        Row: {
+          created_at: string
+          group_key: string
+          h: number
+          id: string
+          is_correct: boolean
+          kind: string
+          label: string | null
+          match_key: string | null
+          page_index: number
+          paper_id: string
+          sort_order: number
+          w: number
+          x: number
+          y: number
+        }
+        Insert: {
+          created_at?: string
+          group_key: string
+          h: number
+          id?: string
+          is_correct?: boolean
+          kind?: string
+          label?: string | null
+          match_key?: string | null
+          page_index?: number
+          paper_id: string
+          sort_order?: number
+          w: number
+          x: number
+          y: number
+        }
+        Update: {
+          created_at?: string
+          group_key?: string
+          h?: number
+          id?: string
+          is_correct?: boolean
+          kind?: string
+          label?: string | null
+          match_key?: string | null
+          page_index?: number
+          paper_id?: string
+          sort_order?: number
+          w?: number
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visual_hotspots_paper_id_fkey"
+            columns: ["paper_id"]
+            isOneToOne: false
+            referencedRelation: "visual_papers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visual_papers: {
+        Row: {
+          created_at: string
+          id: string
+          instructions: string | null
+          pages: Json
+          questions: Json
+          status: string
+          student_class: string
+          subject: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instructions?: string | null
+          pages?: Json
+          questions?: Json
+          status?: string
+          student_class: string
+          subject?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instructions?: string | null
+          pages?: Json
+          questions?: Json
+          status?: string
+          student_class?: string
+          subject?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       student_activity: {
