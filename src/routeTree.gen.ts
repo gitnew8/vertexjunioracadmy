@@ -33,6 +33,7 @@ import { Route as StudentReadingRouteImport } from './routes/student.reading'
 import { Route as StudentImagineRouteImport } from './routes/student.imagine'
 import { Route as StudentAiRouteImport } from './routes/student.ai'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
+import { Route as TeacherVisualIndexRouteImport } from './routes/teacher.visual.index'
 import { Route as TeacherVisualIdRouteImport } from './routes/teacher.visual.$id'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentVisualIdRouteImport } from './routes/student.visual.$id'
@@ -172,6 +173,11 @@ const ReportCodeRoute = ReportCodeRouteImport.update({
   path: '/report/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeacherVisualIndexRoute = TeacherVisualIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherVisualRoute,
+} as any)
 const TeacherVisualIdRoute = TeacherVisualIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -308,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
+  '/teacher/visual/': typeof TeacherVisualIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -331,7 +338,6 @@ export interface FileRoutesByTo {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
-  '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -351,6 +357,7 @@ export interface FileRoutesByTo {
   '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
+  '/teacher/visual': typeof TeacherVisualIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -396,6 +403,7 @@ export interface FileRoutesById {
   '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
+  '/teacher/visual/': typeof TeacherVisualIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -442,6 +450,7 @@ export interface FileRouteTypes {
     | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
+    | '/teacher/visual/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -465,7 +474,6 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
-    | '/teacher/visual'
     | '/teacher'
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
@@ -485,6 +493,7 @@ export interface FileRouteTypes {
     | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
+    | '/teacher/visual'
   id:
     | '__root__'
     | '/'
@@ -529,6 +538,7 @@ export interface FileRouteTypes {
     | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
+    | '/teacher/visual/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -723,6 +733,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teacher/visual/': {
+      id: '/teacher/visual/'
+      path: '/'
+      fullPath: '/teacher/visual/'
+      preLoaderRoute: typeof TeacherVisualIndexRouteImport
+      parentRoute: typeof TeacherVisualRoute
+    }
     '/teacher/visual/$id': {
       id: '/teacher/visual/$id'
       path: '/$id'
@@ -889,10 +906,12 @@ const TeacherTestsRouteWithChildren = TeacherTestsRoute._addFileChildren(
 
 interface TeacherVisualRouteChildren {
   TeacherVisualIdRoute: typeof TeacherVisualIdRoute
+  TeacherVisualIndexRoute: typeof TeacherVisualIndexRoute
 }
 
 const TeacherVisualRouteChildren: TeacherVisualRouteChildren = {
   TeacherVisualIdRoute: TeacherVisualIdRoute,
+  TeacherVisualIndexRoute: TeacherVisualIndexRoute,
 }
 
 const TeacherVisualRouteWithChildren = TeacherVisualRoute._addFileChildren(

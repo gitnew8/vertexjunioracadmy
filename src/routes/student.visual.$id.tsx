@@ -31,7 +31,11 @@ import {
 import { downloadCertificatePdf, downloadParentReportPdf } from "@/lib/visual-report";
 
 export const Route = createFileRoute("/student/visual/$id")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    preview: s.preview === true || s.preview === 1 || s.preview === "1" || s.preview === "true",
+  }),
   component: VisualPlayer,
+
   head: () => ({
     meta: [
       { title: "Fun Worksheet — Vertex Junior Academy" },
@@ -57,6 +61,8 @@ type Flash = { id: string; ok: boolean } | null;
 
 function VisualPlayer() {
   const { id } = useParams({ from: "/student/visual/$id" });
+  const { preview } = Route.useSearch();
+
   const [paper, setPaper] = useState<VisualPaper | null>(null);
   const [urls, setUrls] = useState<string[]>([]);
   const [spots, setSpots] = useState<Hotspot[]>([]);
@@ -77,7 +83,9 @@ function VisualPlayer() {
   const session: Session = useMemo(() => {
     if (typeof window === "undefined") return { name: "Student", student_class: "LKG", roll_number: "" };
     try {
-      return { ...JSON.parse(localStorage.getItem(SESSION_KEY) || "{}") } as Session;
+      const raw = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY) || "{}";
+      return { name: "Student", student_class: "LKG", roll_number: "", ...JSON.parse(raw) } as Session;
+
     } catch {
       return { name: "Student", student_class: "LKG", roll_number: "" };
     }
@@ -235,7 +243,7 @@ function VisualPlayer() {
     );
   }
 
-  if (paper.status !== "published") {
+  if (paper.status !== "published" && !preview) {
     return (
       <div className="min-h-screen grid place-items-center bg-amber-50 p-6 text-center">
         <div>
