@@ -281,7 +281,10 @@ function VisualTestsPage() {
             <Link
               to="/student/visual/$id"
               params={{ id: p.id }}
+              search={{ preview: true }}
+              target="_blank"
               className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-secondary"
+
             >
               <Eye className="size-3.5" /> Preview
             </Link>
