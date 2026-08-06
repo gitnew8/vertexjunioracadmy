@@ -25,7 +25,7 @@ export const Route = createFileRoute("/teacher/visual/")({
   }),
 });
 
-const CLASSES = ["LKG", "UKG", "Nursery", "Class 1", "Class 2"];
+const CLASSES = ["Nursery", "LKG", "UKG", "UKG 1", "Class 1", "Class 2"];
 
 /** Render a PDF/image file into PNG page blobs using pdfjs. */
 async function fileToPages(file: File): Promise<{ blob: Blob; width: number; height: number }[]> {
