@@ -243,7 +243,7 @@ function VisualPlayer() {
     );
   }
 
-  if (paper.status !== "published") {
+  if (paper.status !== "published" && !preview) {
     return (
       <div className="min-h-screen grid place-items-center bg-amber-50 p-6 text-center">
         <div>
