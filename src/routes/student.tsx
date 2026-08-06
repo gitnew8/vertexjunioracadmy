@@ -447,15 +447,11 @@ function StudentPage() {
     setHydrated(true);
   }, []);
 
-  if (
-    location.pathname.startsWith("/student/test/") ||
-    location.pathname.startsWith("/student/ai") ||
-    location.pathname.startsWith("/student/reading") ||
-    location.pathname.startsWith("/student/imagine") ||
-    location.pathname.startsWith("/student/class/")
-  ) {
+  // Any nested student route renders its own full-screen experience.
+  if (location.pathname !== "/student" && location.pathname !== "/student/") {
     return <Outlet />;
   }
+
 
   function persist(s: Session | null) {
     if (s) sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
