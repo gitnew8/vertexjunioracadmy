@@ -32,7 +32,7 @@ import { downloadCertificatePdf, downloadParentReportPdf } from "@/lib/visual-re
 
 export const Route = createFileRoute("/student/visual/$id")({
   validateSearch: (s: Record<string, unknown>) => ({
-    preview: s.preview === true || s.preview === "1" || s.preview === "true",
+    preview: s.preview === true || s.preview === 1 || s.preview === "1" || s.preview === "true",
   }),
   component: VisualPlayer,
 
