@@ -31,7 +31,11 @@ import {
 import { downloadCertificatePdf, downloadParentReportPdf } from "@/lib/visual-report";
 
 export const Route = createFileRoute("/student/visual/$id")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    preview: s.preview === true || s.preview === "1" || s.preview === "true",
+  }),
   component: VisualPlayer,
+
   head: () => ({
     meta: [
       { title: "Fun Worksheet — Vertex Junior Academy" },
