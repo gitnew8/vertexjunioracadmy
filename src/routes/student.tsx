@@ -45,11 +45,15 @@ function MyVisualWorksheets({ session }: { session: Session }) {
         .select("id,title,subject,student_class")
         .eq("status", "published")
         .order("created_at", { ascending: false });
-      const want = (session.student_class || "").toLowerCase().replace(/^class\s*/, "");
+      const norm = (v: string) => (v || "").toLowerCase().replace(/^class\s*/, "").trim();
+      const want = norm(session.student_class || "");
+      // "UKG 1" student also sees plain "UKG" worksheets (section suffix ignored)
+      const wantBase = want.replace(/\s*\d+$/, "").trim();
       setRows(
-        (data || []).filter(
-          (r) => (r.student_class || "").toLowerCase().replace(/^class\s*/, "") === want,
-        ),
+        (data || []).filter((r) => {
+          const c = norm(r.student_class);
+          return c === want || (!!wantBase && wantBase !== want && c === wantBase);
+        }),
       );
     })();
   }, [session.student_class]);
