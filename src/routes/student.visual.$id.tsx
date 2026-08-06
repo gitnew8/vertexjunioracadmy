@@ -77,7 +77,9 @@ function VisualPlayer() {
   const session: Session = useMemo(() => {
     if (typeof window === "undefined") return { name: "Student", student_class: "LKG", roll_number: "" };
     try {
-      return { ...JSON.parse(localStorage.getItem(SESSION_KEY) || "{}") } as Session;
+      const raw = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY) || "{}";
+      return { name: "Student", student_class: "LKG", roll_number: "", ...JSON.parse(raw) } as Session;
+
     } catch {
       return { name: "Student", student_class: "LKG", roll_number: "" };
     }
