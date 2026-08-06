@@ -61,6 +61,8 @@ type Flash = { id: string; ok: boolean } | null;
 
 function VisualPlayer() {
   const { id } = useParams({ from: "/student/visual/$id" });
+  const { preview } = Route.useSearch();
+
   const [paper, setPaper] = useState<VisualPaper | null>(null);
   const [urls, setUrls] = useState<string[]>([]);
   const [spots, setSpots] = useState<Hotspot[]>([]);
