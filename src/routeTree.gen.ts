@@ -15,7 +15,6 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
-import { Route as TeacherVisualRouteImport } from './routes/teacher.visual'
 import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
 import { Route as TeacherRewardsRouteImport } from './routes/teacher.rewards'
@@ -33,6 +32,7 @@ import { Route as StudentReadingRouteImport } from './routes/student.reading'
 import { Route as StudentImagineRouteImport } from './routes/student.imagine'
 import { Route as StudentAiRouteImport } from './routes/student.ai'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
+import { Route as TeacherVisualIndexRouteImport } from './routes/teacher.visual.index'
 import { Route as TeacherVisualIdRouteImport } from './routes/teacher.visual.$id'
 import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as StudentVisualIdRouteImport } from './routes/student.visual.$id'
@@ -80,11 +80,6 @@ const IndexRoute = IndexRouteImport.update({
 const TeacherIndexRoute = TeacherIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherVisualRoute = TeacherVisualRouteImport.update({
-  id: '/visual',
-  path: '/visual',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherTestsRoute = TeacherTestsRouteImport.update({
@@ -172,10 +167,15 @@ const ReportCodeRoute = ReportCodeRouteImport.update({
   path: '/report/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeacherVisualIndexRoute = TeacherVisualIndexRouteImport.update({
+  id: '/visual/',
+  path: '/visual/',
+  getParentRoute: () => TeacherRoute,
+} as any)
 const TeacherVisualIdRoute = TeacherVisualIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => TeacherVisualRoute,
+  id: '/visual/$id',
+  path: '/visual/$id',
+  getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherTestsIdRoute = TeacherTestsIdRouteImport.update({
   id: '/$id',
@@ -288,7 +288,6 @@ export interface FileRoutesByFullPath {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
-  '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -308,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
+  '/teacher/visual/': typeof TeacherVisualIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -331,7 +331,6 @@ export interface FileRoutesByTo {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
-  '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -351,6 +350,7 @@ export interface FileRoutesByTo {
   '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
+  '/teacher/visual': typeof TeacherVisualIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -376,7 +376,6 @@ export interface FileRoutesById {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
-  '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -396,6 +395,7 @@ export interface FileRoutesById {
   '/student/visual/$id': typeof StudentVisualIdRoute
   '/teacher/tests/$id': typeof TeacherTestsIdRoute
   '/teacher/visual/$id': typeof TeacherVisualIdRoute
+  '/teacher/visual/': typeof TeacherVisualIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -422,7 +422,6 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
-    | '/teacher/visual'
     | '/teacher/'
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
@@ -442,6 +441,7 @@ export interface FileRouteTypes {
     | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
+    | '/teacher/visual/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -465,7 +465,6 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
-    | '/teacher/visual'
     | '/teacher'
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
@@ -485,6 +484,7 @@ export interface FileRouteTypes {
     | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
+    | '/teacher/visual'
   id:
     | '__root__'
     | '/'
@@ -509,7 +509,6 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
-    | '/teacher/visual'
     | '/teacher/'
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
@@ -529,6 +528,7 @@ export interface FileRouteTypes {
     | '/student/visual/$id'
     | '/teacher/tests/$id'
     | '/teacher/visual/$id'
+    | '/teacher/visual/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -595,13 +595,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/teacher/'
       preLoaderRoute: typeof TeacherIndexRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/visual': {
-      id: '/teacher/visual'
-      path: '/visual'
-      fullPath: '/teacher/visual'
-      preLoaderRoute: typeof TeacherVisualRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/tests': {
@@ -723,12 +716,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teacher/visual/': {
+      id: '/teacher/visual/'
+      path: '/visual'
+      fullPath: '/teacher/visual/'
+      preLoaderRoute: typeof TeacherVisualIndexRouteImport
+      parentRoute: typeof TeacherRoute
+    }
     '/teacher/visual/$id': {
       id: '/teacher/visual/$id'
-      path: '/$id'
+      path: '/visual/$id'
       fullPath: '/teacher/visual/$id'
       preLoaderRoute: typeof TeacherVisualIdRouteImport
-      parentRoute: typeof TeacherVisualRoute
+      parentRoute: typeof TeacherRoute
     }
     '/teacher/tests/$id': {
       id: '/teacher/tests/$id'
@@ -887,18 +887,6 @@ const TeacherTestsRouteWithChildren = TeacherTestsRoute._addFileChildren(
   TeacherTestsRouteChildren,
 )
 
-interface TeacherVisualRouteChildren {
-  TeacherVisualIdRoute: typeof TeacherVisualIdRoute
-}
-
-const TeacherVisualRouteChildren: TeacherVisualRouteChildren = {
-  TeacherVisualIdRoute: TeacherVisualIdRoute,
-}
-
-const TeacherVisualRouteWithChildren = TeacherVisualRoute._addFileChildren(
-  TeacherVisualRouteChildren,
-)
-
 interface TeacherRouteChildren {
   TeacherClassesRoute: typeof TeacherClassesRoute
   TeacherDashboardRoute: typeof TeacherDashboardRoute
@@ -912,8 +900,9 @@ interface TeacherRouteChildren {
   TeacherRewardsRoute: typeof TeacherRewardsRoute
   TeacherStudentsRoute: typeof TeacherStudentsRoute
   TeacherTestsRoute: typeof TeacherTestsRouteWithChildren
-  TeacherVisualRoute: typeof TeacherVisualRouteWithChildren
   TeacherIndexRoute: typeof TeacherIndexRoute
+  TeacherVisualIdRoute: typeof TeacherVisualIdRoute
+  TeacherVisualIndexRoute: typeof TeacherVisualIndexRoute
 }
 
 const TeacherRouteChildren: TeacherRouteChildren = {
@@ -929,8 +918,9 @@ const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherRewardsRoute: TeacherRewardsRoute,
   TeacherStudentsRoute: TeacherStudentsRoute,
   TeacherTestsRoute: TeacherTestsRouteWithChildren,
-  TeacherVisualRoute: TeacherVisualRouteWithChildren,
   TeacherIndexRoute: TeacherIndexRoute,
+  TeacherVisualIdRoute: TeacherVisualIdRoute,
+  TeacherVisualIndexRoute: TeacherVisualIndexRoute,
 }
 
 const TeacherRouteWithChildren =
@@ -960,13 +950,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
