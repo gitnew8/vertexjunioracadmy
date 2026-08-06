@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { VISUAL_BUCKET, type VisualPaper, type VisualPage } from "@/lib/visual-test";
 
-export const Route = createFileRoute("/teacher/visual")({
+export const Route = createFileRoute("/teacher/visual/")({
   component: VisualTestsPage,
   head: () => ({
     meta: [
