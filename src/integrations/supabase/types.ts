@@ -257,6 +257,135 @@ export type Database = {
         }
         Relationships: []
       }
+      fee_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json
+          id: string
+          payment_id: string | null
+          student_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json
+          id?: string
+          payment_id?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          payment_id?: string | null
+          student_id?: string | null
+        }
+        Relationships: []
+      }
+      fee_payment_allocations: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          payment_id: string
+          record_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          payment_id: string
+          record_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_id?: string
+          record_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_payment_allocations_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "fee_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_payment_allocations_record_id_fkey"
+            columns: ["record_id"]
+            isOneToOne: false
+            referencedRelation: "monthly_fee_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fee_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_mode: string
+          receipt_no: string
+          status: string
+          student_id: string
+          transaction_id: string | null
+          updated_at: string
+          void_reason: string | null
+          voided_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_mode?: string
+          receipt_no: string
+          status?: string
+          student_id: string
+          transaction_id?: string | null
+          updated_at?: string
+          void_reason?: string | null
+          voided_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_mode?: string
+          receipt_no?: string
+          status?: string
+          student_id?: string
+          transaction_id?: string | null
+          updated_at?: string
+          void_reason?: string | null
+          voided_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_activity"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fees: {
         Row: {
           created_at: string
@@ -352,6 +481,60 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      monthly_fee_records: {
+        Row: {
+          created_at: string
+          due_amount: number
+          expected_amount: number
+          id: string
+          month: number
+          paid_amount: number
+          status: string
+          student_id: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          due_amount?: number
+          expected_amount?: number
+          id?: string
+          month: number
+          paid_amount?: number
+          status?: string
+          student_id: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          due_amount?: number
+          expected_amount?: number
+          id?: string
+          month?: number
+          paid_amount?: number
+          status?: string
+          student_id?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_fee_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_activity"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "monthly_fee_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
@@ -605,6 +788,54 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      student_fee_settings: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          monthly_fee: number
+          start_month: number
+          start_year: number
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          monthly_fee: number
+          start_month: number
+          start_year: number
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          monthly_fee?: number
+          start_month?: number
+          start_year?: number
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_fee_settings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "student_activity"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_fee_settings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       students: {
         Row: {
@@ -1050,7 +1281,101 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      fee_allocate: { Args: { p_payment: string }; Returns: undefined }
+      fee_allocate_overflow: {
+        Args: { p_payment: string; p_remaining: number }
+        Returns: undefined
+      }
+      fee_allocate_targets: {
+        Args: { p_payment: string; p_record_ids: string[] }
+        Returns: undefined
+      }
+      fee_edit_payment: {
+        Args: {
+          p_amount: number
+          p_date: string
+          p_mode: string
+          p_notes?: string
+          p_payment: string
+          p_transaction_id?: string
+        }
+        Returns: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_mode: string
+          receipt_no: string
+          status: string
+          student_id: string
+          transaction_id: string | null
+          updated_at: string
+          void_reason: string | null
+          voided_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "fee_payments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      fee_ensure_months: {
+        Args: {
+          p_student: string
+          p_through_month: number
+          p_through_year: number
+        }
+        Returns: undefined
+      }
+      fee_next_receipt_no: { Args: never; Returns: string }
+      fee_recalc_student: { Args: { p_student: string }; Returns: undefined }
+      fee_record_payment: {
+        Args: {
+          p_amount: number
+          p_date: string
+          p_mode: string
+          p_notes?: string
+          p_record_ids?: string[]
+          p_student: string
+          p_transaction_id?: string
+        }
+        Returns: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_mode: string
+          receipt_no: string
+          status: string
+          student_id: string
+          transaction_id: string | null
+          updated_at: string
+          void_reason: string | null
+          voided_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "fee_payments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      fee_set_settings: {
+        Args: {
+          p_monthly_fee: number
+          p_start_month: number
+          p_start_year: number
+          p_student: string
+        }
+        Returns: undefined
+      }
+      fee_void_payment: {
+        Args: { p_payment: string; p_reason?: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

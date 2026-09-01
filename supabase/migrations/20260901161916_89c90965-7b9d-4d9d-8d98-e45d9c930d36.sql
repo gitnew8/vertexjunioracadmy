@@ -1,0 +1,9 @@
+ALTER FUNCTION public.fee_recalc_student(uuid) SECURITY INVOKER;
+ALTER FUNCTION public.fee_ensure_months(uuid,int,int) SECURITY INVOKER;
+ALTER FUNCTION public.fee_set_settings(uuid,numeric,int,int) SECURITY INVOKER;
+ALTER FUNCTION public.fee_allocate(uuid) SECURITY INVOKER;
+ALTER FUNCTION public.fee_allocate_targets(uuid,uuid[]) SECURITY INVOKER;
+ALTER FUNCTION public.fee_allocate_overflow(uuid,numeric) SECURITY INVOKER;
+ALTER FUNCTION public.fee_record_payment(uuid,numeric,date,text,text,text,uuid[]) SECURITY INVOKER;
+ALTER FUNCTION public.fee_edit_payment(uuid,numeric,date,text,text,text) SECURITY INVOKER;
+ALTER FUNCTION public.fee_void_payment(uuid,text) SECURITY INVOKER;
