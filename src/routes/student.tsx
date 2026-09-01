@@ -68,6 +68,7 @@ function MyVisualWorksheets({ session }: { session: Session }) {
             key={r.id}
             to="/student/visual/$id"
             params={{ id: r.id }}
+            search={{ preview: false }}
             className="flex items-center gap-3 rounded-xl border border-border p-3 hover:bg-secondary"
           >
             <span className="text-2xl">🧸</span>
