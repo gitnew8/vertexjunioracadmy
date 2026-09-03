@@ -3,10 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { pickActiveTheme, type SiteTheme } from "@/lib/themes";
 
 /**
- * Renders the currently active site theme inside a fully sandboxed iframe.
- * The iframe has no `allow-same-origin`, so theme HTML/CSS/JS runs in an opaque
- * origin: it cannot read cookies, localStorage, the database, or the parent DOM.
- * The overlay is click-through so app functionality is never blocked.
+ * Applies the active site theme as *styling only*.
+ * Only <style> blocks (and inline CSS) from the uploaded .html theme are used —
+ * the theme's markup and scripts are never rendered, so the real React app
+ * (dashboards, reports, tests, buttons) always stays on screen.
  */
 export function ThemeOverlay() {
   const [themes, setThemes] = useState<SiteTheme[] | null>(null);
@@ -29,10 +29,37 @@ export function ThemeOverlay() {
   }, []);
 
   const theme = useMemo(() => (themes ? pickActiveTheme(themes) : null), [themes]);
-  if (!theme) return null;
+  const css = useMemo(() => (theme ? extractThemeCss(theme.html) : ""), [theme]);
 
-  return <ThemeFrame key={theme.id} html={theme.html} name={theme.name} />;
+  useEffect(() => {
+    if (!css) return;
+    const el = document.createElement("style");
+    el.setAttribute("data-site-theme", "1");
+    el.textContent = css;
+    document.head.appendChild(el);
+    return () => {
+      el.remove();
+    };
+  }, [css]);
+
+  return null;
 }
+
+/** Pull only CSS out of an uploaded theme document; ignore all markup/scripts. */
+export function extractThemeCss(html: string): string {
+  if (!html) return "";
+  const blocks: string[] = [];
+  const re = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html))) blocks.push(m[1]);
+  if (!blocks.length && !/<[a-z!/]/i.test(html)) blocks.push(html); // plain CSS file
+  return blocks
+    .join("\n")
+    .replace(/@import[^;]*;/gi, "")
+    .replace(/<\/?script[\s\S]*?>/gi, "")
+    .trim();
+}
+
 
 export function buildThemeDoc(html: string) {
   const base = `<style>html,body{margin:0;padding:0;background:transparent;overflow:hidden}</style>`;
