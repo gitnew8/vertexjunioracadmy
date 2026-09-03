@@ -118,6 +118,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <ClientOnly>
+        <ThemeOverlay />
+      </ClientOnly>
     </QueryClientProvider>
   );
 }
+
