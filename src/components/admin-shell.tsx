@@ -19,6 +19,7 @@ import {
   Gift,
   Shield,
   Shapes,
+  Palette,
 } from "lucide-react";
 import { useState } from "react";
 import { ThemeProvider, useTheme } from "@/components/theme-provider";
