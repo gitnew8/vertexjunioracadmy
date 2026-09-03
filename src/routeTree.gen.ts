@@ -16,6 +16,7 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
 import { Route as TeacherVisualRouteImport } from './routes/teacher.visual'
+import { Route as TeacherThemesRouteImport } from './routes/teacher.themes'
 import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
 import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
 import { Route as TeacherRewardsRouteImport } from './routes/teacher.rewards'
@@ -86,6 +87,11 @@ const TeacherIndexRoute = TeacherIndexRouteImport.update({
 const TeacherVisualRoute = TeacherVisualRouteImport.update({
   id: '/visual',
   path: '/visual',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherThemesRoute = TeacherThemesRouteImport.update({
+  id: '/themes',
+  path: '/themes',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherTestsRoute = TeacherTestsRouteImport.update({
@@ -294,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
+  '/teacher/themes': typeof TeacherThemesRoute
   '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
@@ -338,6 +345,7 @@ export interface FileRoutesByTo {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
+  '/teacher/themes': typeof TeacherThemesRoute
   '/teacher': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
   '/api/public/ai-study-chat': typeof ApiPublicAiStudyChatRoute
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/teacher/rewards': typeof TeacherRewardsRoute
   '/teacher/students': typeof TeacherStudentsRoute
   '/teacher/tests': typeof TeacherTestsRouteWithChildren
+  '/teacher/themes': typeof TeacherThemesRoute
   '/teacher/visual': typeof TeacherVisualRouteWithChildren
   '/teacher/': typeof TeacherIndexRoute
   '/api/public/ai-evaluate': typeof ApiPublicAiEvaluateRoute
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/teacher/themes'
     | '/teacher/visual'
     | '/teacher/'
     | '/api/public/ai-evaluate'
@@ -474,6 +484,7 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/teacher/themes'
     | '/teacher'
     | '/api/public/ai-evaluate'
     | '/api/public/ai-study-chat'
@@ -518,6 +529,7 @@ export interface FileRouteTypes {
     | '/teacher/rewards'
     | '/teacher/students'
     | '/teacher/tests'
+    | '/teacher/themes'
     | '/teacher/visual'
     | '/teacher/'
     | '/api/public/ai-evaluate'
@@ -612,6 +624,13 @@ declare module '@tanstack/react-router' {
       path: '/visual'
       fullPath: '/teacher/visual'
       preLoaderRoute: typeof TeacherVisualRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/themes': {
+      id: '/teacher/themes'
+      path: '/themes'
+      fullPath: '/teacher/themes'
+      preLoaderRoute: typeof TeacherThemesRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/tests': {
@@ -931,6 +950,7 @@ interface TeacherRouteChildren {
   TeacherRewardsRoute: typeof TeacherRewardsRoute
   TeacherStudentsRoute: typeof TeacherStudentsRoute
   TeacherTestsRoute: typeof TeacherTestsRouteWithChildren
+  TeacherThemesRoute: typeof TeacherThemesRoute
   TeacherVisualRoute: typeof TeacherVisualRouteWithChildren
   TeacherIndexRoute: typeof TeacherIndexRoute
 }
@@ -948,6 +968,7 @@ const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherRewardsRoute: TeacherRewardsRoute,
   TeacherStudentsRoute: TeacherStudentsRoute,
   TeacherTestsRoute: TeacherTestsRouteWithChildren,
+  TeacherThemesRoute: TeacherThemesRoute,
   TeacherVisualRoute: TeacherVisualRouteWithChildren,
   TeacherIndexRoute: TeacherIndexRoute,
 }
