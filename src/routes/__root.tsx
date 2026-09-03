@@ -8,6 +8,9 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 
+import { ClientOnly } from "@tanstack/react-router";
+
+import { ThemeOverlay } from "@/components/theme-overlay";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
