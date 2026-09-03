@@ -789,6 +789,51 @@ export type Database = {
         }
         Relationships: []
       }
+      site_themes: {
+        Row: {
+          active: boolean
+          created_at: string
+          end_date: string | null
+          force_active: boolean
+          html: string
+          id: string
+          is_default: boolean
+          name: string
+          priority: number
+          repeat_yearly: boolean
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          end_date?: string | null
+          force_active?: boolean
+          html: string
+          id?: string
+          is_default?: boolean
+          name: string
+          priority?: number
+          repeat_yearly?: boolean
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          end_date?: string | null
+          force_active?: boolean
+          html?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          priority?: number
+          repeat_yearly?: boolean
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       student_fee_settings: {
         Row: {
           active: boolean
