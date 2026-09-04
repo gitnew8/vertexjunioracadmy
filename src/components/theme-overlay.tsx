@@ -130,39 +130,18 @@ export function buildLiveThemeCss(html: string): string {
 
 
 
-export function buildThemeDoc(html: string) {
-  const base = `<style>html,body{margin:0;padding:0;background:transparent;overflow:hidden}</style>`;
-  if (/<html[\s>]/i.test(html)) {
-    return html.replace(/<head[^>]*>/i, (m) => `${m}${base}`);
-  }
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${base}</head><body>${html}</body></html>`;
-}
-
-export function ThemeFrame({
-  html,
-  name,
-  interactive = false,
-  className = "",
-}: {
-  html: string;
-  name: string;
-  interactive?: boolean;
-  className?: string;
-}) {
-  return (
-    <iframe
-      title={`Theme: ${name}`}
-      aria-hidden={!interactive}
-      sandbox="allow-scripts"
-      referrerPolicy="no-referrer"
-      srcDoc={buildThemeDoc(html)}
-      className={
-        className ||
-        `fixed inset-0 z-[9998] h-full w-full border-0 bg-transparent ${
-          interactive ? "" : "pointer-events-none"
-        }`
-      }
-      style={{ background: "transparent" }}
-    />
-  );
+/**
+ * Temporarily apply theme CSS to the real page (used by the Theme Manager
+ * preview). Returns a cleanup function that fully restores the normal design.
+ * No iframe, no uploaded markup, no uploaded JavaScript.
+ */
+export function applyPreviewCss(html: string): () => void {
+  const css = buildLiveThemeCss(html);
+  document.querySelectorAll("style[data-theme-preview]").forEach((n) => n.remove());
+  if (!css) return () => {};
+  const el = document.createElement("style");
+  el.setAttribute("data-theme-preview", "1");
+  el.textContent = css;
+  document.head.appendChild(el);
+  return () => el.remove();
 }
