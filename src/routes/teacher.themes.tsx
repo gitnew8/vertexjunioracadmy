@@ -1,18 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { ThemeFrame } from "@/components/theme-overlay";
+import { applyPreviewCss } from "@/components/theme-overlay";
 import { istToday, isInWindow, pickActiveTheme, type SiteTheme } from "@/lib/themes";
-import { Upload, Eye, Trash2, Zap, Star, Power, X } from "lucide-react";
+import { Upload, Eye, Trash2, Zap, Star, Power, X, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/teacher/themes")({
   component: ThemesPage,
-  head: () => ({ meta: [{ title: "Theme Manager — Vertex Junior Academy" }] }),
+  head: () => ({
+    meta: [
+      { title: "Theme Manager — Vertex Junior Academy" },
+      {
+        name: "description",
+        content:
+          "Paste or upload festival, seasonal and custom theme code, schedule it by date and apply it site-wide as styling only.",
+      },
+      { property: "og:title", content: "Theme Manager — Vertex Junior Academy" },
+      {
+        property: "og:description",
+        content: "Code-driven festival, seasonal and custom themes for the whole site.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
 });
 
 const EMPTY = {
+  id: "" as string,
   name: "",
   html: "",
   start_date: "",
@@ -26,7 +43,7 @@ function ThemesPage() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({ ...EMPTY });
-  const [preview, setPreview] = useState<SiteTheme | null>(null);
+  const [previewCode, setPreviewCode] = useState<{ name: string; html: string } | null>(null);
 
   const { data: themes = [], isLoading } = useQuery({
     queryKey: ["site-themes"],
@@ -44,11 +61,18 @@ function ThemesPage() {
   const live = useMemo(() => pickActiveTheme(themes), [themes]);
   const today = istToday();
 
+  // CSS-only live preview on the real page (no iframe, no uploaded JS)
+  useEffect(() => {
+    if (!previewCode) return;
+    const cleanup = applyPreviewCss(previewCode.html);
+    return cleanup;
+  }, [previewCode]);
+
   const save = useMutation({
     mutationFn: async () => {
       if (!form.name.trim()) throw new Error("Theme name is required");
-      if (!form.html.trim()) throw new Error("Upload a .html theme file");
-      const { error } = await supabase.from("site_themes").insert({
+      if (!form.html.trim()) throw new Error("Paste or upload your theme code");
+      const values = {
         name: form.name.trim(),
         html: form.html,
         start_date: form.start_date || null,
@@ -56,12 +80,17 @@ function ThemesPage() {
         repeat_yearly: form.repeat_yearly,
         priority: Number(form.priority) || 0,
         is_default: form.is_default,
-        active: true,
-      });
-      if (error) throw error;
+      };
+      if (form.id) {
+        const { error } = await supabase.from("site_themes").update(values).eq("id", form.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("site_themes").insert({ ...values, active: true });
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
-      toast.success("Theme uploaded");
+      toast.success(form.id ? "Theme updated" : "Theme saved");
       setForm({ ...EMPTY });
       if (fileRef.current) fileRef.current.value = "";
       qc.invalidateQueries({ queryKey: ["site-themes"] });
@@ -98,12 +127,29 @@ function ThemesPage() {
       return;
     }
     const text = await f.text();
-    setForm((s) => ({ ...s, html: text, name: s.name || f.name.replace(/\.html?$/i, "") }));
+    setForm((s) => ({
+      ...s,
+      html: text,
+      name: s.name || f.name.replace(/\.(html?|css)$/i, ""),
+    }));
     toast.success(`${f.name} loaded (${Math.round(f.size / 1024)} KB)`);
   }
 
+  function editTheme(t: SiteTheme) {
+    setForm({
+      id: t.id,
+      name: t.name,
+      html: t.html,
+      start_date: t.start_date || "",
+      end_date: t.end_date || "",
+      repeat_yearly: t.repeat_yearly,
+      priority: t.priority,
+      is_default: t.is_default,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function forceActivate(t: SiteTheme) {
-    // only one theme can be force-activated at a time
     const others = themes.filter((x) => x.force_active && x.id !== t.id);
     for (const o of others) await patch.mutateAsync({ id: o.id, values: { force_active: false } });
     await patch.mutateAsync({ id: t.id, values: { force_active: !t.force_active, active: true } });
@@ -121,8 +167,9 @@ function ThemesPage() {
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-semibold">Theme Manager</h1>
         <p className="text-sm text-muted-foreground">
-          Upload festive .html themes. The system checks the India (IST) date automatically —
-          today is {String(today.d).padStart(2, "0")}/{String(today.m).padStart(2, "0")}/{today.y}.
+          Paste your own CSS/HTML theme code — only its styling is applied to the real pages.
+          Scheduling uses the Asia/Kolkata date; today is{" "}
+          {String(today.d).padStart(2, "0")}/{String(today.m).padStart(2, "0")}/{today.y}.
         </p>
       </div>
 
@@ -137,23 +184,39 @@ function ThemesPage() {
         </div>
       </div>
 
-      {/* Upload */}
+      {/* Editor */}
       <div className="rounded-2xl border border-border bg-card p-4 md:p-5 space-y-4">
-        <div className="font-display font-semibold">Upload theme</div>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="font-display font-semibold">
+            {form.id ? "Edit theme code" : "New theme"}
+          </div>
+          {form.id && (
+            <button
+              onClick={() => {
+                setForm({ ...EMPTY });
+                if (fileRef.current) fileRef.current.value = "";
+              }}
+              className="text-xs rounded-md border border-border px-3 py-1.5"
+            >
+              Cancel edit
+            </button>
+          )}
+        </div>
+
         <div className="grid md:grid-cols-2 gap-3">
           <Field label="Theme name">
             <input
               value={form.name}
               onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
-              placeholder="Independence Day"
+              placeholder="Independence Day / Winter / Custom"
               className="input"
             />
           </Field>
-          <Field label="Theme file (.html with CSS + JS inside)">
+          <Field label="Optional: load code from a .html or .css file">
             <input
               ref={fileRef}
               type="file"
-              accept=".html,.htm,text/html"
+              accept=".html,.htm,.css,text/html,text/css"
               onChange={onFile}
               className="input file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-2 file:py-1 file:text-xs"
             />
@@ -182,7 +245,7 @@ function ThemesPage() {
               className="input"
             />
           </Field>
-          <div className="flex items-end gap-4 pb-1">
+          <div className="flex items-end gap-4 pb-1 flex-wrap">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -201,32 +264,41 @@ function ThemesPage() {
             </label>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <Field label="Theme code (paste CSS, or HTML containing <style> blocks)">
+          <textarea
+            value={form.html}
+            onChange={(e) => setForm((s) => ({ ...s, html: e.target.value }))}
+            spellCheck={false}
+            rows={12}
+            placeholder={`:root{--primary:#0b3d2e;--accent:#f59e0b}\nbody{background:linear-gradient(180deg,#fff7ed,#ffedd5)}`}
+            className="input font-mono text-xs leading-relaxed min-h-48"
+          />
+        </Field>
+
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => save.mutate()}
             disabled={save.isPending}
             className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-60"
           >
-            <Upload className="size-4" /> {save.isPending ? "Saving…" : "Save theme"}
+            <Upload className="size-4" />
+            {save.isPending ? "Saving…" : form.id ? "Update theme" : "Save theme"}
           </button>
-          {form.html && (
+          {form.html.trim() && (
             <button
               onClick={() =>
-                setPreview({
-                  id: "draft",
-                  name: form.name || "Draft",
-                  html: form.html,
-                } as SiteTheme)
+                setPreviewCode({ name: form.name || "Draft", html: form.html })
               }
               className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm"
             >
-              <Eye className="size-4" /> Preview
+              <Eye className="size-4" /> Preview on this page
             </button>
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Themes run inside a sandboxed frame with no access to logins, tokens, storage or the
-          database, and never block clicks on the app.
+          Only stylesheet rules are used. Uploaded markup and JavaScript are never rendered or
+          executed, so logins, students, tests and reports stay exactly as they are.
         </p>
       </div>
 
@@ -236,7 +308,7 @@ function ThemesPage() {
         {isLoading ? (
           <div className="p-6 text-sm text-muted-foreground">Loading…</div>
         ) : themes.length === 0 ? (
-          <div className="p-6 text-sm text-muted-foreground">No themes uploaded yet.</div>
+          <div className="p-6 text-sm text-muted-foreground">No themes yet.</div>
         ) : (
           <ul className="divide-y divide-border">
             {themes.map((t) => {
@@ -273,9 +345,15 @@ function ThemesPage() {
                       {scheduledNow ? " · in season" : ""}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <IconBtn title="Preview" onClick={() => setPreview(t)}>
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <IconBtn
+                      title="Preview"
+                      onClick={() => setPreviewCode({ name: t.name, html: t.html })}
+                    >
                       <Eye className="size-4" />
+                    </IconBtn>
+                    <IconBtn title="Edit code" onClick={() => editTheme(t)}>
+                      <Pencil className="size-4" />
                     </IconBtn>
                     <IconBtn
                       title={t.active ? "Deactivate" : "Activate"}
@@ -305,22 +383,15 @@ function ThemesPage() {
         )}
       </div>
 
-      {preview && (
-        <div className="fixed inset-0 z-50 bg-black/60 p-4 grid place-items-center">
-          <div className="relative w-full max-w-4xl h-[70vh] rounded-2xl bg-card overflow-hidden border border-border">
-            <div className="h-12 px-4 flex items-center justify-between border-b border-border">
-              <div className="font-display font-semibold text-sm">Preview — {preview.name}</div>
-              <button onClick={() => setPreview(null)} className="p-2 rounded-md hover:bg-secondary">
-                <X className="size-4" />
-              </button>
-            </div>
-            <ThemeFrame
-              html={preview.html}
-              name={preview.name}
-              interactive
-              className="w-full h-[calc(70vh-3rem)] border-0 bg-white"
-            />
-          </div>
+      {previewCode && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[10000] flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2 shadow-lg max-w-[92vw]">
+          <span className="text-xs truncate">Previewing “{previewCode.name}” (not saved live)</span>
+          <button
+            onClick={() => setPreviewCode(null)}
+            className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-3 py-1 text-xs"
+          >
+            <X className="size-3" /> Stop
+          </button>
         </div>
       )}
 
