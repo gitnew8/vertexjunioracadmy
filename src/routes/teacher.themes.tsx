@@ -3,24 +3,43 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { applyPreviewCss } from "@/components/theme-overlay";
-import { istToday, isInWindow, pickActiveTheme, type SiteTheme } from "@/lib/themes";
-import { Upload, Eye, Trash2, Zap, Star, Power, X, Pencil } from "lucide-react";
+import { applyPreviewCode } from "@/components/theme-overlay";
+import {
+  istToday,
+  isInWindow,
+  pickThemeForPath,
+  THEME_TARGETS,
+  type SiteTheme,
+} from "@/lib/themes";
+import {
+  Upload,
+  Eye,
+  Trash2,
+  Zap,
+  Star,
+  Power,
+  X,
+  Pencil,
+  Copy,
+  Save,
+  RotateCcw,
+  Plus,
+} from "lucide-react";
 
 export const Route = createFileRoute("/teacher/themes")({
   component: ThemesPage,
   head: () => ({
     meta: [
-      { title: "Theme Manager — Vertex Junior Academy" },
+      { title: "Theme & Design Manager — Vertex Junior Academy" },
       {
         name: "description",
         content:
-          "Paste or upload festival, seasonal and custom theme code, schedule it by date and apply it site-wide as styling only.",
+          "Paste and edit CSS, HTML and JavaScript to control any theme, animation or festival design, schedule it by date and target any page.",
       },
-      { property: "og:title", content: "Theme Manager — Vertex Junior Academy" },
+      { property: "og:title", content: "Theme & Design Manager — Vertex Junior Academy" },
       {
         property: "og:description",
-        content: "Code-driven festival, seasonal and custom themes for the whole site.",
+        content: "Code-driven festival, seasonal and page-specific designs for the whole site.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -28,10 +47,27 @@ export const Route = createFileRoute("/teacher/themes")({
   }),
 });
 
-const EMPTY = {
-  id: "" as string,
+type Form = {
+  id: string;
+  name: string;
+  css: string;
+  html: string;
+  js: string;
+  target: string;
+  start_date: string;
+  end_date: string;
+  repeat_yearly: boolean;
+  priority: number;
+  is_default: boolean;
+};
+
+const EMPTY: Form = {
+  id: "",
   name: "",
+  css: "",
   html: "",
+  js: "",
+  target: "global",
   start_date: "",
   end_date: "",
   repeat_yearly: true,
@@ -39,11 +75,20 @@ const EMPTY = {
   is_default: false,
 };
 
+const SAMPLE = `/* Paste ANY CSS here — variables, gradients, @keyframes, media queries */
+body.theme-active { background: linear-gradient(160deg,#fff7ed,#ffedd5); }
+body.student-dashboard .card, body.student-dashboard [class*="rounded-"] { transition: transform .25s ease; }
+@keyframes floatUp { from { transform: translateY(8px); opacity: 0 } to { transform: none; opacity: 1 } }
+body.login-success main > * { animation: floatUp .5s ease both; }`;
+
 function ThemesPage() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState({ ...EMPTY });
-  const [previewCode, setPreviewCode] = useState<{ name: string; html: string } | null>(null);
+  const [form, setForm] = useState<Form>({ ...EMPTY });
+  const [tab, setTab] = useState<"css" | "html" | "js">("css");
+  const [preview, setPreview] = useState<{ name: string; css: string; html: string; js: string } | null>(
+    null,
+  );
 
   const { data: themes = [], isLoading } = useQuery({
     queryKey: ["site-themes"],
@@ -58,49 +103,65 @@ function ThemesPage() {
     },
   });
 
-  const live = useMemo(() => pickActiveTheme(themes), [themes]);
+  const live = useMemo(() => pickThemeForPath(themes, "/teacher/themes"), [themes]);
   const today = istToday();
 
-  // CSS-only live preview on the real page (no iframe, no uploaded JS)
   useEffect(() => {
-    if (!previewCode) return;
-    const cleanup = applyPreviewCss(previewCode.html);
-    return cleanup;
-  }, [previewCode]);
+    if (!preview) return;
+    return applyPreviewCode(preview);
+  }, [preview]);
+
+  const set = (patch: Partial<Form>) => setForm((f) => ({ ...f, ...patch }));
 
   const save = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (activate?: boolean) => {
       if (!form.name.trim()) throw new Error("Theme name is required");
-      if (!form.html.trim()) throw new Error("Paste or upload your theme code");
+      if (!form.css.trim() && !form.html.trim() && !form.js.trim())
+        throw new Error("Add some CSS, HTML or JavaScript first");
       const values = {
         name: form.name.trim(),
+        css: form.css,
         html: form.html,
+        js: form.js,
+        target: form.target,
         start_date: form.start_date || null,
         end_date: form.end_date || form.start_date || null,
         repeat_yearly: form.repeat_yearly,
         priority: Number(form.priority) || 0,
         is_default: form.is_default,
+        updated_at: new Date().toISOString(),
       };
-      if (form.id) {
-        const { error } = await supabase.from("site_themes").update(values).eq("id", form.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("site_themes").insert({ ...values, active: true });
-        if (error) throw error;
+      if (form.is_default) {
+        await supabase.from("site_themes").update({ is_default: false }).neq("id", form.id || "0");
       }
+      if (form.id) {
+        const patch = activate ? { ...values, active: true } : values;
+        const { error } = await supabase.from("site_themes").update(patch).eq("id", form.id);
+        if (error) throw error;
+        return form.id;
+      }
+      const { data, error } = await supabase
+        .from("site_themes")
+        .insert({ ...values, active: activate ?? false })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data.id as string;
     },
-    onSuccess: () => {
-      toast.success(form.id ? "Theme updated" : "Theme saved");
-      setForm({ ...EMPTY });
-      if (fileRef.current) fileRef.current.value = "";
+    onSuccess: (_id, activate) => {
       qc.invalidateQueries({ queryKey: ["site-themes"] });
+      toast.success(activate ? "Theme saved and applied" : "Theme saved");
+      setPreview(null);
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const patch = useMutation({
-    mutationFn: async ({ id, values }: { id: string; values: Partial<SiteTheme> }) => {
-      const { error } = await supabase.from("site_themes").update(values).eq("id", id);
+  const patchTheme = useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Partial<SiteTheme> }) => {
+      const { error } = await supabase
+        .from("site_themes")
+        .update({ ...patch, updated_at: new Date().toISOString() })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["site-themes"] }),
@@ -113,319 +174,383 @@ function ThemesPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Theme deleted");
       qc.invalidateQueries({ queryKey: ["site-themes"] });
+      toast.success("Theme deleted");
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    if (f.size > 2 * 1024 * 1024) {
-      toast.error("Theme file must be under 2 MB");
-      return;
-    }
-    const text = await f.text();
-    setForm((s) => ({
-      ...s,
-      html: text,
-      name: s.name || f.name.replace(/\.(html?|css)$/i, ""),
-    }));
-    toast.success(`${f.name} loaded (${Math.round(f.size / 1024)} KB)`);
-  }
+  const duplicate = useMutation({
+    mutationFn: async (t: SiteTheme) => {
+      const { error } = await supabase.from("site_themes").insert({
+        name: `${t.name} (copy)`,
+        css: t.css || "",
+        html: t.html || "",
+        js: t.js || "",
+        target: t.target || "global",
+        start_date: t.start_date,
+        end_date: t.end_date,
+        repeat_yearly: t.repeat_yearly,
+        priority: t.priority,
+        active: false,
+        is_default: false,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["site-themes"] });
+      toast.success("Theme duplicated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
-  function editTheme(t: SiteTheme) {
+  function edit(t: SiteTheme) {
     setForm({
       id: t.id,
       name: t.name,
-      html: t.html,
+      css: t.css || "",
+      html: t.html || "",
+      js: t.js || "",
+      target: t.target || "global",
       start_date: t.start_date || "",
       end_date: t.end_date || "",
       repeat_yearly: t.repeat_yearly,
       priority: t.priority,
       is_default: t.is_default,
     });
+    setTab("css");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function forceActivate(t: SiteTheme) {
-    const others = themes.filter((x) => x.force_active && x.id !== t.id);
-    for (const o of others) await patch.mutateAsync({ id: o.id, values: { force_active: false } });
-    await patch.mutateAsync({ id: t.id, values: { force_active: !t.force_active, active: true } });
-    toast.success(t.force_active ? "Force activation removed" : `${t.name} force-activated`);
+  async function onFile(file: File) {
+    const text = await file.text();
+    if (/\.css$/i.test(file.name)) set({ css: text, name: form.name || file.name.replace(/\.\w+$/, "") });
+    else if (/\.js$/i.test(file.name)) set({ js: text, name: form.name || file.name.replace(/\.\w+$/, "") });
+    else set({ html: text, name: form.name || file.name.replace(/\.\w+$/, "") });
+    toast.success(`Loaded ${file.name}`);
   }
 
-  async function makeDefault(t: SiteTheme) {
-    const others = themes.filter((x) => x.is_default && x.id !== t.id);
-    for (const o of others) await patch.mutateAsync({ id: o.id, values: { is_default: false } });
-    await patch.mutateAsync({ id: t.id, values: { is_default: !t.is_default } });
-  }
+  const code = tab === "css" ? form.css : tab === "html" ? form.html : form.js;
 
   return (
-    <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
-      <div>
-        <h1 className="font-display text-2xl md:text-3xl font-semibold">Theme Manager</h1>
-        <p className="text-sm text-muted-foreground">
-          Paste your own CSS/HTML theme code — only its styling is applied to the real pages.
-          Scheduling uses the Asia/Kolkata date; today is{" "}
-          {String(today.d).padStart(2, "0")}/{String(today.m).padStart(2, "0")}/{today.y}.
-        </p>
-      </div>
-
-      <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
-        <div className="text-xs uppercase tracking-wider text-muted-foreground">Currently live</div>
-        <div className="font-display text-lg font-semibold mt-1">
-          {live ? live.name : "No theme (plain site)"}
-          {live?.force_active && <span className="ml-2 text-xs text-amber-600">forced</span>}
-          {live?.is_default && !live.force_active && (
-            <span className="ml-2 text-xs text-muted-foreground">default</span>
-          )}
+    <div className="space-y-6">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">Theme &amp; Design Manager</h1>
+          <p className="text-sm text-muted-foreground">
+            Paste your own CSS / HTML / JavaScript. Nothing is rewritten — code is stored and applied
+            exactly as entered. No AI used.
+          </p>
         </div>
-      </div>
-
-      {/* Editor */}
-      <div className="rounded-2xl border border-border bg-card p-4 md:p-5 space-y-4">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="font-display font-semibold">
-            {form.id ? "Edit theme code" : "New theme"}
-          </div>
-          {form.id && (
-            <button
-              onClick={() => {
-                setForm({ ...EMPTY });
-                if (fileRef.current) fileRef.current.value = "";
-              }}
-              className="text-xs rounded-md border border-border px-3 py-1.5"
-            >
-              Cancel edit
-            </button>
-          )}
+        <div className="rounded-lg border bg-card px-3 py-2 text-xs">
+          <span className="text-muted-foreground">Live now:</span>{" "}
+          <span className="font-medium">{live ? live.name : "Default design"}</span>
+          <span className="ml-2 text-muted-foreground">
+            IST {String(today.d).padStart(2, "0")}/{String(today.m).padStart(2, "0")}/{today.y}
+          </span>
         </div>
+      </header>
 
-        <div className="grid md:grid-cols-2 gap-3">
-          <Field label="Theme name">
-            <input
-              value={form.name}
-              onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
-              placeholder="Independence Day / Winter / Custom"
-              className="input"
-            />
-          </Field>
-          <Field label="Optional: load code from a .html or .css file">
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".html,.htm,.css,text/html,text/css"
-              onChange={onFile}
-              className="input file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-2 file:py-1 file:text-xs"
-            />
-          </Field>
-          <Field label="Start date">
-            <input
-              type="date"
-              value={form.start_date}
-              onChange={(e) => setForm((s) => ({ ...s, start_date: e.target.value }))}
-              className="input"
-            />
-          </Field>
-          <Field label="End date">
-            <input
-              type="date"
-              value={form.end_date}
-              onChange={(e) => setForm((s) => ({ ...s, end_date: e.target.value }))}
-              className="input"
-            />
-          </Field>
-          <Field label="Priority (higher wins)">
-            <input
-              type="number"
-              value={form.priority}
-              onChange={(e) => setForm((s) => ({ ...s, priority: Number(e.target.value) }))}
-              className="input"
-            />
-          </Field>
-          <div className="flex items-end gap-4 pb-1 flex-wrap">
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={form.repeat_yearly}
-                onChange={(e) => setForm((s) => ({ ...s, repeat_yearly: e.target.checked }))}
-              />
-              Repeat every year
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={form.is_default}
-                onChange={(e) => setForm((s) => ({ ...s, is_default: e.target.checked }))}
-              />
-              Default theme
-            </label>
-          </div>
-        </div>
-
-        <Field label="Theme code (paste CSS, or HTML containing <style> blocks)">
-          <textarea
-            value={form.html}
-            onChange={(e) => setForm((s) => ({ ...s, html: e.target.value }))}
-            spellCheck={false}
-            rows={12}
-            placeholder={`:root{--primary:#0b3d2e;--accent:#f59e0b}\nbody{background:linear-gradient(180deg,#fff7ed,#ffedd5)}`}
-            className="input font-mono text-xs leading-relaxed min-h-48"
-          />
-        </Field>
-
-        <div className="flex items-center gap-2 flex-wrap">
+      {preview && (
+        <div className="sticky top-2 z-50 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-sm">
+          <span>
+            Previewing <strong>{preview.name || "unsaved theme"}</strong> on the real page.
+          </span>
           <button
-            onClick={() => save.mutate()}
-            disabled={save.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium disabled:opacity-60"
+            onClick={() => setPreview(null)}
+            className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground"
           >
-            <Upload className="size-4" />
-            {save.isPending ? "Saving…" : form.id ? "Update theme" : "Save theme"}
-          </button>
-          {form.html.trim() && (
-            <button
-              onClick={() =>
-                setPreviewCode({ name: form.name || "Draft", html: form.html })
-              }
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm"
-            >
-              <Eye className="size-4" /> Preview on this page
-            </button>
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Only stylesheet rules are used. Uploaded markup and JavaScript are never rendered or
-          executed, so logins, students, tests and reports stay exactly as they are.
-        </p>
-      </div>
-
-      {/* List */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="p-4 font-display font-semibold border-b border-border">All themes</div>
-        {isLoading ? (
-          <div className="p-6 text-sm text-muted-foreground">Loading…</div>
-        ) : themes.length === 0 ? (
-          <div className="p-6 text-sm text-muted-foreground">No themes yet.</div>
-        ) : (
-          <ul className="divide-y divide-border">
-            {themes.map((t) => {
-              const scheduledNow = isInWindow(t, today);
-              return (
-                <li key={t.id} className="p-4 flex flex-wrap items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium flex items-center gap-2 flex-wrap">
-                      {t.name}
-                      {live?.id === t.id && (
-                        <span className="text-[10px] uppercase tracking-wide rounded-full bg-emerald-500/15 text-emerald-600 px-2 py-0.5">
-                          Live
-                        </span>
-                      )}
-                      {t.is_default && (
-                        <span className="text-[10px] uppercase rounded-full bg-secondary px-2 py-0.5">
-                          Default
-                        </span>
-                      )}
-                      {t.force_active && (
-                        <span className="text-[10px] uppercase rounded-full bg-amber-500/15 text-amber-600 px-2 py-0.5">
-                          Forced
-                        </span>
-                      )}
-                      {!t.active && (
-                        <span className="text-[10px] uppercase rounded-full bg-destructive/10 text-destructive px-2 py-0.5">
-                          Inactive
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {t.start_date ? `${t.start_date} → ${t.end_date || t.start_date}` : "No dates"}
-                      {t.repeat_yearly ? " · yearly" : ""} · priority {t.priority}
-                      {scheduledNow ? " · in season" : ""}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 flex-wrap">
-                    <IconBtn
-                      title="Preview"
-                      onClick={() => setPreviewCode({ name: t.name, html: t.html })}
-                    >
-                      <Eye className="size-4" />
-                    </IconBtn>
-                    <IconBtn title="Edit code" onClick={() => editTheme(t)}>
-                      <Pencil className="size-4" />
-                    </IconBtn>
-                    <IconBtn
-                      title={t.active ? "Deactivate" : "Activate"}
-                      onClick={() => patch.mutate({ id: t.id, values: { active: !t.active } })}
-                    >
-                      <Power className={`size-4 ${t.active ? "text-emerald-600" : ""}`} />
-                    </IconBtn>
-                    <IconBtn title="Force activate" onClick={() => forceActivate(t)}>
-                      <Zap className={`size-4 ${t.force_active ? "text-amber-600" : ""}`} />
-                    </IconBtn>
-                    <IconBtn title="Set as default" onClick={() => makeDefault(t)}>
-                      <Star className={`size-4 ${t.is_default ? "text-primary" : ""}`} />
-                    </IconBtn>
-                    <IconBtn
-                      title="Delete"
-                      onClick={() => {
-                        if (confirm(`Delete theme "${t.name}"?`)) remove.mutate(t.id);
-                      }}
-                    >
-                      <Trash2 className="size-4 text-destructive" />
-                    </IconBtn>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-
-      {previewCode && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[10000] flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2 shadow-lg max-w-[92vw]">
-          <span className="text-xs truncate">Previewing “{previewCode.name}” (not saved live)</span>
-          <button
-            onClick={() => setPreviewCode(null)}
-            className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-3 py-1 text-xs"
-          >
-            <X className="size-3" /> Stop
+            <X className="h-3.5 w-3.5" /> Stop preview
           </button>
         </div>
       )}
 
-      <style>{`.input{width:100%;border:1px solid var(--border);background:var(--background);border-radius:.6rem;padding:.5rem .7rem;font-size:.875rem}`}</style>
+      {/* Editor */}
+      <section className="rounded-xl border bg-card p-4 shadow-soft">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <label className="text-sm">
+            <span className="mb-1 block text-muted-foreground">Theme name</span>
+            <input
+              value={form.name}
+              onChange={(e) => set({ name: e.target.value })}
+              placeholder="Independence Day"
+              className="w-full rounded-md border bg-background px-3 py-2"
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1 block text-muted-foreground">Applies to</span>
+            <select
+              value={form.target}
+              onChange={(e) => set({ target: e.target.value })}
+              className="w-full rounded-md border bg-background px-3 py-2"
+            >
+              {THEME_TARGETS.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm">
+            <span className="mb-1 block text-muted-foreground">Start date</span>
+            <input
+              type="date"
+              value={form.start_date}
+              onChange={(e) => set({ start_date: e.target.value })}
+              className="w-full rounded-md border bg-background px-3 py-2"
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1 block text-muted-foreground">End date</span>
+            <input
+              type="date"
+              value={form.end_date}
+              onChange={(e) => set({ end_date: e.target.value })}
+              className="w-full rounded-md border bg-background px-3 py-2"
+            />
+          </label>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={form.repeat_yearly}
+              onChange={(e) => set({ repeat_yearly: e.target.checked })}
+            />
+            Repeat every year
+          </label>
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={form.is_default}
+              onChange={(e) => set({ is_default: e.target.checked })}
+            />
+            Default theme
+          </label>
+          <label className="inline-flex items-center gap-2">
+            Priority
+            <input
+              type="number"
+              value={form.priority}
+              onChange={(e) => set({ priority: Number(e.target.value) })}
+              className="w-20 rounded-md border bg-background px-2 py-1"
+            />
+          </label>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs"
+          >
+            <Upload className="h-3.5 w-3.5" /> Load .css / .html / .js
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".css,.html,.htm,.js,text/css,text/html,text/javascript"
+            hidden
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onFile(f);
+              e.target.value = "";
+            }}
+          />
+        </div>
+
+        <div className="mt-4">
+          <div className="flex gap-1 border-b">
+            {(["css", "html", "js"] as const).map((k) => (
+              <button
+                key={k}
+                onClick={() => setTab(k)}
+                className={`rounded-t-md px-3 py-1.5 text-xs font-medium uppercase ${
+                  tab === k ? "bg-muted text-foreground" : "text-muted-foreground"
+                }`}
+              >
+                {k}
+              </button>
+            ))}
+            {tab === "css" && !form.css && (
+              <button
+                onClick={() => set({ css: SAMPLE })}
+                className="ml-auto px-3 py-1.5 text-xs text-primary"
+              >
+                Insert starter CSS
+              </button>
+            )}
+          </div>
+          <textarea
+            value={code}
+            spellCheck={false}
+            onChange={(e) =>
+              set(tab === "css" ? { css: e.target.value } : tab === "html" ? { html: e.target.value } : { js: e.target.value })
+            }
+            placeholder={
+              tab === "css"
+                ? "Paste CSS — variables, gradients, @keyframes, hover, media queries…"
+                : tab === "html"
+                  ? "Optional decorations (banners, popups, gift boxes). Rendered in a separate layer above the app."
+                  : "Optional JavaScript. Return a function to clean up when the theme is removed."
+            }
+            className="mt-2 h-72 w-full rounded-md border bg-background p-3 font-mono text-xs leading-relaxed"
+          />
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            onClick={() =>
+              setPreview({ name: form.name, css: form.css, html: form.html, js: form.js })
+            }
+            className="inline-flex items-center gap-1 rounded-md border px-3 py-2 text-sm"
+          >
+            <Eye className="h-4 w-4" /> Preview
+          </button>
+          <button
+            onClick={() => save.mutate(undefined)}
+            disabled={save.isPending}
+            className="inline-flex items-center gap-1 rounded-md border px-3 py-2 text-sm"
+          >
+            <Save className="h-4 w-4" /> Save
+          </button>
+          <button
+            onClick={() => save.mutate(true)}
+            disabled={save.isPending}
+            className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+          >
+            <Zap className="h-4 w-4" /> Save &amp; Apply
+          </button>
+          <button
+            onClick={() => {
+              setForm({ ...EMPTY });
+              setPreview(null);
+            }}
+            className="inline-flex items-center gap-1 rounded-md border px-3 py-2 text-sm"
+          >
+            {form.id ? <Plus className="h-4 w-4" /> : <RotateCcw className="h-4 w-4" />}
+            {form.id ? "New theme" : "Reset editor"}
+          </button>
+          <button
+            onClick={async () => {
+              await supabase.from("site_themes").update({ active: false, force_active: false }).neq("id", "0");
+              qc.invalidateQueries({ queryKey: ["site-themes"] });
+              setPreview(null);
+              toast.success("All themes disabled — original design restored");
+            }}
+            className="ml-auto inline-flex items-center gap-1 rounded-md border border-destructive/40 px-3 py-2 text-sm text-destructive"
+          >
+            <Power className="h-4 w-4" /> Disable all themes
+          </button>
+        </div>
+      </section>
+
+      {/* Saved themes */}
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Saved themes</h2>
+        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+        {!isLoading && !themes.length && (
+          <p className="text-sm text-muted-foreground">No themes yet. Paste your code above and save.</p>
+        )}
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {themes.map((t) => {
+            const scheduled = isInWindow(t, today);
+            const isLive = live?.id === t.id;
+            return (
+              <article key={t.id} className="rounded-xl border bg-card p-4 shadow-soft">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-medium">{t.name}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {THEME_TARGETS.find((x) => x.value === (t.target || "global"))?.label}
+                      {t.start_date
+                        ? ` · ${t.start_date}${t.end_date && t.end_date !== t.start_date ? ` → ${t.end_date}` : ""}${t.repeat_yearly ? " (yearly)" : ""}`
+                        : " · always"}
+                      {` · priority ${t.priority}`}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-1">
+                    {isLive && (
+                      <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                        LIVE
+                      </span>
+                    )}
+                    {t.force_active && (
+                      <span className="rounded-full bg-accent/25 px-2 py-0.5 text-[10px] font-semibold">
+                        FORCED
+                      </span>
+                    )}
+                    {t.is_default && (
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold">
+                        DEFAULT
+                      </span>
+                    )}
+                    {scheduled && (
+                      <span className="rounded-full bg-success/20 px-2 py-0.5 text-[10px] font-semibold">
+                        IN SEASON
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
+                  <button
+                    onClick={() =>
+                      setPreview({ name: t.name, css: t.css || "", html: t.html || "", js: t.js || "" })
+                    }
+                    className="inline-flex items-center gap-1 rounded-md border px-2 py-1"
+                  >
+                    <Eye className="h-3.5 w-3.5" /> Preview
+                  </button>
+                  <button
+                    onClick={() => edit(t)}
+                    className="inline-flex items-center gap-1 rounded-md border px-2 py-1"
+                  >
+                    <Pencil className="h-3.5 w-3.5" /> Edit
+                  </button>
+                  <button
+                    onClick={() => duplicate.mutate(t)}
+                    className="inline-flex items-center gap-1 rounded-md border px-2 py-1"
+                  >
+                    <Copy className="h-3.5 w-3.5" /> Duplicate
+                  </button>
+                  <button
+                    onClick={() => patchTheme.mutate({ id: t.id, patch: { active: !t.active } })}
+                    className="inline-flex items-center gap-1 rounded-md border px-2 py-1"
+                  >
+                    <Power className="h-3.5 w-3.5" /> {t.active ? "Deactivate" : "Activate"}
+                  </button>
+                  <button
+                    onClick={() =>
+                      patchTheme.mutate({
+                        id: t.id,
+                        patch: { force_active: !t.force_active, active: true },
+                      })
+                    }
+                    className="inline-flex items-center gap-1 rounded-md border px-2 py-1"
+                  >
+                    <Zap className="h-3.5 w-3.5" /> {t.force_active ? "Unforce" : "Force"}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await supabase.from("site_themes").update({ is_default: false }).neq("id", t.id);
+                      patchTheme.mutate({ id: t.id, patch: { is_default: true, active: true } });
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md border px-2 py-1"
+                  >
+                    <Star className="h-3.5 w-3.5" /> Default
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Delete theme "${t.name}"?`)) remove.mutate(t.id);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-md border border-destructive/40 px-2 py-1 text-destructive"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
     </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <div className="mt-1">{children}</div>
-    </label>
-  );
-}
-
-function IconBtn({
-  title,
-  onClick,
-  children,
-}: {
-  title: string;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      title={title}
-      aria-label={title}
-      onClick={onClick}
-      className="p-2 rounded-md hover:bg-secondary border border-transparent hover:border-border"
-    >
-      {children}
-    </button>
   );
 }
