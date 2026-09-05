@@ -793,43 +793,52 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          css: string
           end_date: string | null
           force_active: boolean
           html: string
           id: string
           is_default: boolean
+          js: string
           name: string
           priority: number
           repeat_yearly: boolean
           start_date: string | null
+          target: string
           updated_at: string
         }
         Insert: {
           active?: boolean
           created_at?: string
+          css?: string
           end_date?: string | null
           force_active?: boolean
           html: string
           id?: string
           is_default?: boolean
+          js?: string
           name: string
           priority?: number
           repeat_yearly?: boolean
           start_date?: string | null
+          target?: string
           updated_at?: string
         }
         Update: {
           active?: boolean
           created_at?: string
+          css?: string
           end_date?: string | null
           force_active?: boolean
           html?: string
           id?: string
           is_default?: boolean
+          js?: string
           name?: string
           priority?: number
           repeat_yearly?: boolean
           start_date?: string | null
+          target?: string
           updated_at?: string
         }
         Relationships: []
