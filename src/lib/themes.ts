@@ -22,10 +22,17 @@ export const THEME_TARGETS: Array<{ value: string; label: string }> = [
   { value: "student-login", label: "Student Login" },
   { value: "student-dashboard", label: "Student Dashboard" },
   { value: "student-profile", label: "Student Profile" },
-  { value: "test", label: "Test / Worksheet" },
-  { value: "result", label: "Result / Report" },
+  { value: "test", label: "Tests / Worksheets" },
+  { value: "result", label: "Results" },
+  { value: "reports", label: "Reports" },
+  { value: "fees", label: "Fees" },
+  { value: "materials", label: "Study Materials" },
+  { value: "reading", label: "Reading" },
+  { value: "live", label: "Live Classes" },
+  { value: "leaderboard", label: "Leaderboard" },
   { value: "teacher-dashboard", label: "Teacher Dashboard" },
   { value: "admin", label: "Admin Panel" },
+  { value: "path:/", label: "Custom page (edit path: value)" },
 ];
 
 /** Body classes exposed to theme code for the current page + login state. */
@@ -36,14 +43,25 @@ export function pageClasses(path: string): string[] {
   if (p === "/student" || p.startsWith("/student/")) out.push("student-dashboard", "login-success");
   if (p.startsWith("/student/profile")) out.push("student-profile");
   if (p.includes("/test") || p.includes("/visual")) out.push("page-test");
-  if (p.startsWith("/report") || p.includes("/result") || p.startsWith("/leaderboard")) out.push("page-result");
+  if (p.startsWith("/report") || p.includes("/result")) out.push("page-result");
+  if (p.startsWith("/leaderboard")) out.push("page-leaderboard");
+  if (p.includes("/fees")) out.push("page-fees");
+  if (p.includes("/material")) out.push("page-materials");
+  if (p.includes("/reading")) out.push("page-reading");
+  if (p.includes("/live")) out.push("page-live");
   if (p.startsWith("/teacher")) out.push("teacher-dashboard", "admin-panel", "login-success");
+  out.push(`page-${p.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "home"}`);
   return out;
 }
 
 /** Does a theme's target apply to this path? */
 export function targetMatches(target: string, path: string): boolean {
   const p = path.toLowerCase();
+  if (target && target.startsWith("path:")) {
+    const want = target.slice(5).toLowerCase().trim();
+    if (!want) return false;
+    return want === "/" ? p === "/" : p === want || p.startsWith(want.replace(/\/$/, "") + "/");
+  }
   switch (target) {
     case "global":
     case "":
@@ -58,7 +76,19 @@ export function targetMatches(target: string, path: string): boolean {
     case "test":
       return p.includes("/test") || p.includes("/visual");
     case "result":
-      return p.startsWith("/report") || p.includes("/result") || p.startsWith("/leaderboard");
+      return p.includes("/result") || p.startsWith("/report");
+    case "reports":
+      return p.startsWith("/report") || p.startsWith("/teacher/reports");
+    case "fees":
+      return p.includes("/fees");
+    case "materials":
+      return p.includes("/material");
+    case "reading":
+      return p.includes("/reading");
+    case "live":
+      return p.includes("/live");
+    case "leaderboard":
+      return p.startsWith("/leaderboard");
     case "teacher-dashboard":
     case "admin":
       return p.startsWith("/teacher");
@@ -66,6 +96,7 @@ export function targetMatches(target: string, path: string): boolean {
       return true;
   }
 }
+
 
 /** Current date in India/IST as {y,m,d} */
 export function istToday(now: Date = new Date()): { y: number; m: number; d: number } {
