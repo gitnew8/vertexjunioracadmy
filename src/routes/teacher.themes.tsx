@@ -280,7 +280,7 @@ function ThemesPage() {
           <label className="text-sm">
             <span className="mb-1 block text-muted-foreground">Applies to</span>
             <select
-              value={form.target}
+              value={form.target.startsWith("path:") ? "path:/" : form.target}
               onChange={(e) => set({ target: e.target.value })}
               className="w-full rounded-md border bg-background px-3 py-2"
             >
@@ -290,7 +290,16 @@ function ThemesPage() {
                 </option>
               ))}
             </select>
+            {form.target.startsWith("path:") && (
+              <input
+                value={form.target.slice(5)}
+                onChange={(e) => set({ target: `path:${e.target.value}` })}
+                placeholder="/student/reading"
+                className="mt-2 w-full rounded-md border bg-background px-3 py-2 font-mono text-xs"
+              />
+            )}
           </label>
+
           <label className="text-sm">
             <span className="mb-1 block text-muted-foreground">Start date</span>
             <input
