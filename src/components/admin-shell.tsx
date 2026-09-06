@@ -70,9 +70,12 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
+    <div className="min-h-screen flex bg-background text-foreground" data-theme-region="shell">
       {/* Sidebar - desktop */}
-      <aside className="hidden md:flex flex-col w-60 border-r border-border bg-card">
+      <aside
+        className="hidden md:flex flex-col w-60 border-r border-border bg-card"
+        data-theme-region="sidebar"
+      >
         <SidebarContent />
       </aside>
 
@@ -87,7 +90,10 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       )}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 border-b border-border bg-card/80 backdrop-blur sticky top-0 z-20 flex items-center justify-between px-4 gap-3">
+        <header
+          className="h-14 border-b border-border bg-card/80 backdrop-blur sticky top-0 z-20 flex items-center justify-between px-4 gap-3"
+          data-theme-region="header"
+        >
           <button
             className="md:hidden p-2 rounded-md hover:bg-secondary"
             onClick={() => setMobileOpen(true)}
@@ -118,10 +124,13 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="flex-1 min-w-0" data-theme-region="content">
+          {children}
+        </main>
       </div>
     </div>
   );
+
 
   function SidebarContent({ onNav }: { onNav?: () => void } = {}) {
     return (

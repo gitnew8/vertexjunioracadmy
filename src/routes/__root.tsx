@@ -120,11 +120,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <div data-theme-region="app" className="theme-app-root">
+        <div data-theme-region="page" className="theme-page-root">
+          <Outlet />
+        </div>
+      </div>
       <ClientOnly>
         <ThemeOverlay />
       </ClientOnly>
     </QueryClientProvider>
   );
 }
+
 
