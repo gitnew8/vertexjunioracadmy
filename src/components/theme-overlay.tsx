@@ -1,22 +1,31 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { pageClasses, pickThemeForPath, type SiteTheme } from "@/lib/themes";
+import { extractThemeCss, extractThemeMarkup, sanitizeThemeHtml } from "@/lib/theme-sanitize";
+import { createThemeSandbox, type ThemeOp, type ThemeSandbox } from "@/lib/theme-sandbox";
 
 export type ThemeCode = { css?: string | null; html?: string | null; js?: string | null };
 
 const STYLE_ATTR = "data-site-theme";
 const HTML_ID = "site-theme-layer";
-const SCRIPT_ATTR = "data-site-theme-js";
+
+/** CSS that makes region replacement possible without touching React trees. */
+const BASE_CSS = `
+[data-theme-region][data-theme-replaced] > :not([data-theme-injected]) { display: none !important; }
+#${HTML_ID}, .site-theme-preview-layer { position: relative; z-index: 40; }
+`;
 
 /**
- * Applies the active theme's code (CSS + optional HTML decorations + optional JS)
- * exactly as the admin entered it. The real React app always stays on screen —
- * theme HTML is rendered in a separate decoration layer, never in place of pages.
+ * Applies the active theme's code (CSS + HTML + sandboxed JS) exactly as the
+ * admin entered it. The React app keeps running underneath: theme markup is
+ * mounted into stable `data-theme-region` containers, and theme JavaScript runs
+ * in an isolated iframe that has no access to app data, tokens or storage.
  */
 export function ThemeOverlay() {
   const [themes, setThemes] = useState<SiteTheme[] | null>(null);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const handleRef = useRef<ThemeHandle | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,101 +50,196 @@ export function ThemeOverlay() {
   useEffect(() => {
     const classes = pageClasses(pathname);
     document.body.classList.add(...classes);
+    document.body.setAttribute("data-theme-path", pathname);
     return () => document.body.classList.remove(...classes);
   }, [pathname]);
 
   useEffect(() => {
     if (!theme) return;
-    return applyThemeCode(theme, { attr: STYLE_ATTR, layerId: HTML_ID, scriptAttr: SCRIPT_ATTR });
+    const handle = applyThemeCode(theme, { attr: STYLE_ATTR, layerId: HTML_ID });
+    handleRef.current = handle;
+    return () => {
+      handleRef.current = null;
+      handle();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme?.id, theme?.updated_at, theme?.css, theme?.html, theme?.js]);
+
+  // let theme JS react to navigation and re-mount markup on the new page
+  useEffect(() => {
+    handleRef.current?.onRoute?.(pathname);
+  }, [pathname]);
 
   return null;
 }
 
-/** Pull only CSS out of an uploaded theme document; ignore all markup/scripts. */
-export function extractThemeCss(html: string): string {
-  if (!html) return "";
-  const blocks: string[] = [];
-  const re = /<style[^>]*>([\s\S]*?)<\/style>/gi;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(html))) blocks.push(m[1]);
-  if (!blocks.length && !/<[a-z!/]/i.test(html)) blocks.push(html); // plain CSS file
-  return blocks
-    .join("\n")
-    .replace(/@import[^;]*;/gi, "")
-    .replace(/<\/?script[\s\S]*?>/gi, "")
-    .trim();
-}
-
-/** Strip <style>/<script> from pasted markup so only visible decorations render. */
-function extractThemeMarkup(html: string): string {
-  if (!html) return "";
-  if (!/<[a-z!/]/i.test(html)) return ""; // plain CSS, not markup
-  let body = html;
-  const bodyMatch = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(html);
-  if (bodyMatch) body = bodyMatch[1];
-  return body
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .trim();
-}
+type ThemeHandle = (() => void) & { onRoute?: (path: string) => void };
 
 /**
  * Injects theme code into the live document and returns a cleanup that fully
- * restores the original design. Nothing outside the injected style/layer/script
- * is touched, so app data and functionality are unaffected.
+ * restores the original design.
  */
 export function applyThemeCode(
   code: ThemeCode,
-  opts: { attr: string; layerId: string; scriptAttr: string },
-): () => void {
-  const css = (code.css || "").trim() || buildLiveThemeCss(code.html || "");
-  const markup = extractThemeMarkup(code.html || "");
+  opts: { attr: string; layerId: string; scriptAttr?: string },
+): ThemeHandle {
+  const rawCss = (code.css || "").trim();
+  const css = rawCss || buildLiveThemeCss(code.html || "");
+  const markup = sanitizeThemeHtml(extractThemeMarkup(code.html || ""));
   const js = (code.js || "").trim();
 
   document.querySelectorAll(`style[${opts.attr}]`).forEach((n) => n.remove());
   document.getElementById(opts.layerId)?.remove();
-  document.querySelectorAll(`script[${opts.scriptAttr}]`).forEach((n) => n.remove());
 
-  const nodes: Element[] = [];
-
-  if (css) {
-    const style = document.createElement("style");
-    style.setAttribute(opts.attr, "1");
-    style.textContent = css; // stored & applied exactly as entered
-    document.head.appendChild(style);
-    nodes.push(style);
-  }
-
-  if (markup) {
-    const layer = document.createElement("div");
-    layer.id = opts.layerId;
-    layer.className = "site-theme-layer";
-    layer.innerHTML = markup;
-    document.body.appendChild(layer);
-    nodes.push(layer);
-  }
-
-  let cleanupFn: unknown;
-  if (js) {
-    try {
-      // eslint-disable-next-line no-new-func
-      cleanupFn = new Function(js)();
-    } catch (err) {
-      console.error("[theme] script error", err);
+  const styles = new Map<string, HTMLStyleElement>();
+  const setStyle = (key: string, text: string) => {
+    let el = styles.get(key);
+    if (!el) {
+      el = document.createElement("style");
+      el.setAttribute(opts.attr, key);
+      document.head.appendChild(el);
+      styles.set(key, el);
     }
-  }
-
-  return () => {
-    if (typeof cleanupFn === "function") {
-      try {
-        (cleanupFn as () => void)();
-      } catch {
-        /* ignore */
-      }
-    }
-    nodes.forEach((n) => n.remove());
+    el.textContent = text; // stored & applied exactly as entered
   };
+
+  setStyle("base", BASE_CSS);
+  if (css) setStyle("main", css);
+
+  const layer = document.createElement("div");
+  layer.id = opts.layerId;
+  layer.className = "site-theme-layer";
+  layer.setAttribute("data-theme-injected", "1");
+  document.body.appendChild(layer);
+
+  const injected: Element[] = [];
+  const replacedRegions = new Set<Element>();
+  const addedBodyClasses = new Set<string>();
+
+  const clearInjected = () => {
+    injected.splice(0).forEach((n) => n.remove());
+    replacedRegions.forEach((r) => r.removeAttribute("data-theme-replaced"));
+    replacedRegions.clear();
+    layer.innerHTML = "";
+  };
+
+  /** Mount one piece of markup into a named region (or the floating layer). */
+  const mount = (slot: string, html: string, mode: "replace" | "append" | "prepend") => {
+    const holder = document.createElement("div");
+    holder.innerHTML = html;
+    const nodes = Array.from(holder.childNodes);
+    const region =
+      slot && slot !== "floating"
+        ? document.querySelector(`[data-theme-region="${CSS.escape(slot)}"]`)
+        : layer;
+    if (!region) return;
+
+    if (region !== layer && mode === "replace") {
+      region.setAttribute("data-theme-replaced", "1");
+      replacedRegions.add(region);
+    }
+    nodes.forEach((n) => {
+      if (n instanceof Element) {
+        n.setAttribute("data-theme-injected", "1");
+        injected.push(n);
+      }
+      if (mode === "prepend") region.insertBefore(n, region.firstChild);
+      else region.appendChild(n);
+    });
+  };
+
+  /** Split authored markup into slots based on data-theme-slot attributes. */
+  const mountAuthoredMarkup = () => {
+    clearInjected();
+    if (!markup) return;
+    const holder = document.createElement("div");
+    holder.innerHTML = markup;
+    Array.from(holder.childNodes).forEach((node) => {
+      if (!(node instanceof Element)) {
+        if (node.textContent?.trim()) layer.appendChild(node);
+        return;
+      }
+      const slot = node.getAttribute("data-theme-slot") || "floating";
+      const modeAttr = node.getAttribute("data-theme-mode");
+      const mode: "replace" | "append" | "prepend" =
+        modeAttr === "append" || modeAttr === "prepend" ? modeAttr : "replace";
+      mount(slot, node.outerHTML, slot === "floating" ? "append" : mode);
+    });
+  };
+
+  mountAuthoredMarkup();
+
+  // --- sandboxed theme JavaScript -----------------------------------------
+  let sandbox: ThemeSandbox | null = null;
+  let tick: ReturnType<typeof setInterval> | null = null;
+  let onClick: ((e: MouseEvent) => void) | null = null;
+
+  if (js) {
+    const handleOp = (op: ThemeOp) => {
+      switch (op.op) {
+        case "css":
+          setStyle(`js-${op.key}`, op.css);
+          break;
+        case "html":
+          mount(op.slot, sanitizeThemeHtml(op.html), op.mode);
+          break;
+        case "text": {
+          const el = document.querySelector(`[data-theme-region="${CSS.escape(op.slot)}"]`);
+          if (el) el.textContent = op.text;
+          break;
+        }
+        case "remove": {
+          const region = document.querySelector(`[data-theme-region="${CSS.escape(op.slot)}"]`);
+          region?.querySelectorAll("[data-theme-injected]").forEach((n) => n.remove());
+          break;
+        }
+        case "bodyClass":
+          op.add.forEach((c) => {
+            document.body.classList.add(c);
+            addedBodyClasses.add(c);
+          });
+          op.remove.forEach((c) => document.body.classList.remove(c));
+          break;
+        case "log":
+          console.info("[theme]", ...op.args);
+          break;
+      }
+    };
+
+    sandbox = createThemeSandbox(js, handleOp);
+    onClick = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      const node = target?.closest?.("[data-theme-id],[data-theme-region]") ?? null;
+      sandbox?.send({
+        type: "click",
+        id: node?.getAttribute("data-theme-id") ?? null,
+        slot: node?.getAttribute("data-theme-region") ?? null,
+      });
+    };
+    document.addEventListener("click", onClick, true);
+    tick = setInterval(() => sandbox?.send({ type: "tick", t: Date.now() }), 1000);
+  }
+
+  const cleanup = (() => {
+    if (tick) clearInterval(tick);
+    if (onClick) document.removeEventListener("click", onClick, true);
+    sandbox?.destroy();
+    clearInjected();
+    layer.remove();
+    styles.forEach((el) => el.remove());
+    styles.clear();
+    addedBodyClasses.forEach((c) => document.body.classList.remove(c));
+  }) as ThemeHandle;
+
+  cleanup.onRoute = (path: string) => {
+    // re-mount markup for the newly rendered page, then notify theme JS
+    requestAnimationFrame(() => {
+      mountAuthoredMarkup();
+      sandbox?.send({ type: "route", path });
+    });
+  };
+
+  return cleanup;
 }
 
 function ruleBody(css: string, selector: string): string {
@@ -156,7 +260,7 @@ const NEUTRAL = /^(#fff(f{3})?|#ffffff|white|#f\w{2}|transparent)$/i;
  * field, so their palette is bridged onto the app's design tokens.
  */
 export function buildLiveThemeCss(html: string): string {
-  const css = extractThemeCss(html);
+  const css = extractThemeCss(html).replace(/@import[^;]*;/gi, "");
   if (!css) return "";
 
   const rootBody = ruleBody(css, ":root");
@@ -205,7 +309,6 @@ export function applyPreviewCode(code: ThemeCode): () => void {
   return applyThemeCode(code, {
     attr: "data-theme-preview",
     layerId: "site-theme-preview-layer",
-    scriptAttr: "data-theme-preview-js",
   });
 }
 
@@ -213,3 +316,5 @@ export function applyPreviewCode(code: ThemeCode): () => void {
 export function applyPreviewCss(html: string): () => void {
   return applyPreviewCode({ html });
 }
+
+export { extractThemeCss };
