@@ -42,6 +42,7 @@ import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
 import { Route as StudentClassCodeRouteImport } from './routes/student.class.$code'
 import { Route as ApiPublicWordMeaningRouteImport } from './routes/api/public/word-meaning'
 import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/public/watermark-material'
+import { Route as ApiPublicVoiceCommandRouteImport } from './routes/api/public/voice-command'
 import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
 import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
 import { Route as ApiPublicResultAnalysisRouteImport } from './routes/api/public/result-analysis'
@@ -220,6 +221,11 @@ const ApiPublicWatermarkMaterialRoute =
     path: '/api/public/watermark-material',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicVoiceCommandRoute = ApiPublicVoiceCommandRouteImport.update({
+  id: '/api/public/voice-command',
+  path: '/api/public/voice-command',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSarvamTtsRoute = ApiPublicSarvamTtsRouteImport.update({
   id: '/api/public/sarvam-tts',
   path: '/api/public/sarvam-tts',
@@ -314,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/api/public/result-analysis': typeof ApiPublicResultAnalysisRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
+  '/api/public/voice-command': typeof ApiPublicVoiceCommandRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
   '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
@@ -358,6 +365,7 @@ export interface FileRoutesByTo {
   '/api/public/result-analysis': typeof ApiPublicResultAnalysisRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
+  '/api/public/voice-command': typeof ApiPublicVoiceCommandRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
   '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
@@ -405,6 +413,7 @@ export interface FileRoutesById {
   '/api/public/result-analysis': typeof ApiPublicResultAnalysisRoute
   '/api/public/sarvam-stt': typeof ApiPublicSarvamSttRoute
   '/api/public/sarvam-tts': typeof ApiPublicSarvamTtsRoute
+  '/api/public/voice-command': typeof ApiPublicVoiceCommandRoute
   '/api/public/watermark-material': typeof ApiPublicWatermarkMaterialRoute
   '/api/public/word-meaning': typeof ApiPublicWordMeaningRoute
   '/student/class/$code': typeof StudentClassCodeRoute
@@ -453,6 +462,7 @@ export interface FileRouteTypes {
     | '/api/public/result-analysis'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
+    | '/api/public/voice-command'
     | '/api/public/watermark-material'
     | '/api/public/word-meaning'
     | '/student/class/$code'
@@ -497,6 +507,7 @@ export interface FileRouteTypes {
     | '/api/public/result-analysis'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
+    | '/api/public/voice-command'
     | '/api/public/watermark-material'
     | '/api/public/word-meaning'
     | '/student/class/$code'
@@ -543,6 +554,7 @@ export interface FileRouteTypes {
     | '/api/public/result-analysis'
     | '/api/public/sarvam-stt'
     | '/api/public/sarvam-tts'
+    | '/api/public/voice-command'
     | '/api/public/watermark-material'
     | '/api/public/word-meaning'
     | '/student/class/$code'
@@ -571,6 +583,7 @@ export interface RootRouteChildren {
   ApiPublicResultAnalysisRoute: typeof ApiPublicResultAnalysisRoute
   ApiPublicSarvamSttRoute: typeof ApiPublicSarvamSttRoute
   ApiPublicSarvamTtsRoute: typeof ApiPublicSarvamTtsRoute
+  ApiPublicVoiceCommandRoute: typeof ApiPublicVoiceCommandRoute
   ApiPublicWatermarkMaterialRoute: typeof ApiPublicWatermarkMaterialRoute
   ApiPublicWordMeaningRoute: typeof ApiPublicWordMeaningRoute
 }
@@ -808,6 +821,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWatermarkMaterialRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/voice-command': {
+      id: '/api/public/voice-command'
+      path: '/api/public/voice-command'
+      fullPath: '/api/public/voice-command'
+      preLoaderRoute: typeof ApiPublicVoiceCommandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/sarvam-tts': {
       id: '/api/public/sarvam-tts'
       path: '/api/public/sarvam-tts'
@@ -994,6 +1014,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicResultAnalysisRoute: ApiPublicResultAnalysisRoute,
   ApiPublicSarvamSttRoute: ApiPublicSarvamSttRoute,
   ApiPublicSarvamTtsRoute: ApiPublicSarvamTtsRoute,
+  ApiPublicVoiceCommandRoute: ApiPublicVoiceCommandRoute,
   ApiPublicWatermarkMaterialRoute: ApiPublicWatermarkMaterialRoute,
   ApiPublicWordMeaningRoute: ApiPublicWordMeaningRoute,
 }
