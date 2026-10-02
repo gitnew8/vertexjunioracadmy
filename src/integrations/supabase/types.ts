@@ -152,6 +152,42 @@ export type Database = {
           },
         ]
       }
+      custom_curriculum: {
+        Row: {
+          added_by_name: string | null
+          added_by_type: string
+          chapter: string
+          created_at: string
+          id: string
+          student_class: string
+          subject: string
+          topics: string[]
+          updated_at: string
+        }
+        Insert: {
+          added_by_name?: string | null
+          added_by_type?: string
+          chapter?: string
+          created_at?: string
+          id?: string
+          student_class: string
+          subject?: string
+          topics?: string[]
+          updated_at?: string
+        }
+        Update: {
+          added_by_name?: string | null
+          added_by_type?: string
+          chapter?: string
+          created_at?: string
+          id?: string
+          student_class?: string
+          subject?: string
+          topics?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exam_security_events: {
         Row: {
           attempt_id: string | null
@@ -893,6 +929,7 @@ export type Database = {
       }
       students: {
         Row: {
+          can_manage_curriculum: boolean
           course: string | null
           created_at: string
           id: string
@@ -903,6 +940,7 @@ export type Database = {
           student_class: string
         }
         Insert: {
+          can_manage_curriculum?: boolean
           course?: string | null
           created_at?: string
           id?: string
@@ -913,6 +951,7 @@ export type Database = {
           student_class: string
         }
         Update: {
+          can_manage_curriculum?: boolean
           course?: string | null
           created_at?: string
           id?: string
@@ -1335,6 +1374,16 @@ export type Database = {
       }
     }
     Functions: {
+      curriculum_student_add: {
+        Args: {
+          p_chapter: string
+          p_class: string
+          p_login: string
+          p_subject: string
+          p_topics: string[]
+        }
+        Returns: string
+      }
       fee_allocate: { Args: { p_payment: string }; Returns: undefined }
       fee_allocate_overflow: {
         Args: { p_payment: string; p_remaining: number }
