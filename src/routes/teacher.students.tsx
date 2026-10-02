@@ -36,6 +36,7 @@ type Student = {
   login_number: string;
   course: string | null;
   status: string;
+  can_manage_curriculum?: boolean;
   created_at: string;
 };
 
@@ -88,6 +89,14 @@ function StudentsPage() {
     if (statusFilter === "inactive" && active) return false;
     return true;
   });
+
+  async function toggleSyllabus(s: Student) {
+    const next = !s.can_manage_curriculum;
+    const { error } = await supabase.from("students").update({ can_manage_curriculum: next }).eq("id", s.id);
+    if (error) return toast.error(error.message);
+    toast.success(next ? `${s.name} ko syllabus access mila` : `${s.name} ka access band`);
+    qc.invalidateQueries({ queryKey: ["students"] });
+  }
 
   async function remove(s: Student) {
     const { error } = await supabase.from("students").delete().eq("id", s.id);
@@ -193,6 +202,7 @@ function StudentsPage() {
                   <th className="text-left p-3">Course</th>
                   <th className="text-left p-3">Login ID</th>
                   <th className="text-left p-3">Status</th>
+                  <th className="text-left p-3">Syllabus Access</th>
                   <th className="text-right p-3">Actions</th>
                 </tr>
               </thead>
@@ -217,6 +227,17 @@ function StudentsPage() {
                           <span className={`size-1.5 rounded-full ${active ? "bg-[var(--success)]" : "bg-muted-foreground"}`} />
                           {active ? "Active" : "Inactive"}
                         </span>
+                      </td>
+                      <td className="p-3">
+                        <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer" title="Syllabus me chapter/topic jodne ki anumati">
+                          <input
+                            type="checkbox"
+                            className="size-4 accent-[var(--primary)]"
+                            checked={!!s.can_manage_curriculum}
+                            onChange={() => toggleSyllabus(s)}
+                          />
+                          {s.can_manage_curriculum ? "Allowed" : "Off"}
+                        </label>
                       </td>
                       <td className="p-3 text-right">
                         <button
