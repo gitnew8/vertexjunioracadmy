@@ -11,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { QuickTestBuilder } from "@/components/quick-test-builder";
+import { VoiceTestAgent } from "@/components/voice-test-agent";
 
 export const Route = createFileRoute("/teacher/tests")({
   component: TestsPage,
@@ -87,6 +89,11 @@ function TestsPage() {
           <Sparkles className="size-4" /> Create with AI
         </button>
       </div>
+
+      <div className="mb-6">
+        <QuickTestBuilder />
+      </div>
+      <VoiceTestAgent />
 
       {isLoading ? (
         <div className="text-sm text-muted-foreground">Loading…</div>
