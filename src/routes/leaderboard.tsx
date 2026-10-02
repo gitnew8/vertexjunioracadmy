@@ -25,7 +25,7 @@ export const Route = createFileRoute("/leaderboard")({
   }),
   errorComponent: ({ error }) => (
     <div role="alert" className="p-10 text-center text-sm text-destructive">
-      {error.message}
+      {(error as Error).message}
     </div>
   ),
   notFoundComponent: () => <div className="p-10 text-center text-sm">Leaderboard not found.</div>,
