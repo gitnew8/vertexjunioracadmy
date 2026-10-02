@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Zap, Loader2 } from "lucide-react";
-import { CLASSES, subjectsFor, chaptersFor, topicsFor } from "@/lib/curriculum";
+import { useCurriculum } from "@/lib/custom-curriculum";
 import { createQuickTest, specTitle } from "@/lib/quick-test";
 
 const ALL_TOPICS = "__all__";
@@ -11,6 +11,7 @@ const ALL_TOPICS = "__all__";
 export function QuickTestBuilder() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { classes, subjectsFor, chaptersFor, topicsFor } = useCurriculum();
   const [cls, setCls] = useState<string>("Class 5");
   const [subject, setSubject] = useState<string>("Maths");
   const [chapter, setChapter] = useState<string>("");
@@ -21,11 +22,11 @@ export function QuickTestBuilder() {
   const [language, setLanguage] = useState<"en" | "hi" | "bilingual">("en");
   const [busy, setBusy] = useState(false);
 
-  const subjects = useMemo(() => subjectsFor(cls), [cls]);
-  const chapters = useMemo(() => chaptersFor(cls, subject), [cls, subject]);
+  const subjects = useMemo(() => subjectsFor(cls), [cls, subjectsFor]);
+  const chapters = useMemo(() => chaptersFor(cls, subject), [cls, subject, chaptersFor]);
   const topics = useMemo(
     () => topicsFor(cls, subject, chapter),
-    [cls, subject, chapter]
+    [cls, subject, chapter, topicsFor]
   );
 
   function pickClass(next: string) {
@@ -87,7 +88,7 @@ export function QuickTestBuilder() {
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Select label="Class" value={cls} onChange={pickClass} options={[...CLASSES]} />
+        <Select label="Class" value={cls} onChange={pickClass} options={classes} />
         <Select label="Subject" value={subject} onChange={pickSubject} options={subjects} />
         <Select
           label="Chapter"

@@ -3,7 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Mic, Square, Loader2 } from "lucide-react";
-import { curriculumHint, matchClass } from "@/lib/curriculum";
+import { matchClass } from "@/lib/curriculum";
+import { useCurriculum } from "@/lib/custom-curriculum";
 import { createQuickTest } from "@/lib/quick-test";
 
 type Status = "idle" | "listening" | "thinking";
@@ -79,7 +80,7 @@ export function VoiceTestAgent() {
       const cmdRes = await fetch("/api/public/voice-command", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transcript, catalogue: curriculumHint(cls) }),
+        body: JSON.stringify({ transcript, catalogue: cur.hint(cls) }),
       });
       const cmd = await cmdRes.json();
       if (!cmdRes.ok) throw new Error(cmd.error || "AI command samajh nahi paya");
