@@ -34,6 +34,7 @@ const PAGES: Record<string, string> = {
 export function VoiceTestAgent() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const cur = useCurriculum();
   const [status, setStatus] = useState<Status>("idle");
   const [heard, setHeard] = useState("");
   const recRef = useRef<MediaRecorder | null>(null);
