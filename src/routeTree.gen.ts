@@ -9,65 +9,55 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TeacherRouteImport } from './routes/teacher'
-import { Route as StudentRouteImport } from './routes/student'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
-import { Route as TeacherVisualRouteImport } from './routes/teacher.visual'
-import { Route as TeacherThemesRouteImport } from './routes/teacher.themes'
-import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
-import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
-import { Route as TeacherRewardsRouteImport } from './routes/teacher.rewards'
-import { Route as TeacherReportsRouteImport } from './routes/teacher.reports'
-import { Route as TeacherReadingRouteImport } from './routes/teacher.reading'
-import { Route as TeacherNewRouteImport } from './routes/teacher.new'
-import { Route as TeacherMaterialsRouteImport } from './routes/teacher.materials'
-import { Route as TeacherLiveRouteImport } from './routes/teacher.live'
-import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
-import { Route as TeacherExamSecurityRouteImport } from './routes/teacher.exam-security'
-import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
-import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
-import { Route as StudentReadingPracticeRouteImport } from './routes/student.reading-practice'
-import { Route as StudentReadingRouteImport } from './routes/student.reading'
-import { Route as StudentImagineRouteImport } from './routes/student.imagine'
-import { Route as StudentAiRouteImport } from './routes/student.ai'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as StudentRouteImport } from './routes/student'
+import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
+import { Route as StudentAiRouteImport } from './routes/student.ai'
+import { Route as StudentImagineRouteImport } from './routes/student.imagine'
+import { Route as StudentReadingRouteImport } from './routes/student.reading'
+import { Route as StudentReadingPracticeRouteImport } from './routes/student.reading-practice'
+import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
+import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
+import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
+import { Route as TeacherExamSecurityRouteImport } from './routes/teacher.exam-security'
+import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
+import { Route as TeacherLiveRouteImport } from './routes/teacher.live'
+import { Route as TeacherMaterialsRouteImport } from './routes/teacher.materials'
+import { Route as TeacherNewRouteImport } from './routes/teacher.new'
+import { Route as TeacherReadingRouteImport } from './routes/teacher.reading'
+import { Route as TeacherReportsRouteImport } from './routes/teacher.reports'
+import { Route as TeacherRewardsRouteImport } from './routes/teacher.rewards'
+import { Route as TeacherStudentsRouteImport } from './routes/teacher.students'
+import { Route as TeacherTestsRouteImport } from './routes/teacher.tests'
+import { Route as TeacherThemesRouteImport } from './routes/teacher.themes'
+import { Route as TeacherVisualRouteImport } from './routes/teacher.visual'
+import { Route as ApiPublicAiEvaluateRouteImport } from './routes/api/public/ai-evaluate'
+import { Route as ApiPublicAiStudyChatRouteImport } from './routes/api/public/ai-study-chat'
+import { Route as ApiPublicAnalyzePaperRouteImport } from './routes/api/public/analyze-paper'
+import { Route as ApiPublicAnalyzeReadingRouteImport } from './routes/api/public/analyze-reading'
+import { Route as ApiPublicDailyRoomRouteImport } from './routes/api/public/daily-room'
+import { Route as ApiPublicGenerateImageRouteImport } from './routes/api/public/generate-image'
+import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
+import { Route as ApiPublicReadingQuizRouteImport } from './routes/api/public/reading-quiz'
+import { Route as ApiPublicResultAnalysisRouteImport } from './routes/api/public/result-analysis'
+import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
+import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
+import { Route as ApiPublicVoiceCommandRouteImport } from './routes/api/public/voice-command'
+import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/public/watermark-material'
+import { Route as ApiPublicWordMeaningRouteImport } from './routes/api/public/word-meaning'
+import { Route as StudentClassCodeRouteImport } from './routes/student.class.$code'
+import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
+import { Route as StudentVisualIdRouteImport } from './routes/student.visual.$id'
+import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
 import { Route as TeacherVisualIndexRouteImport } from './routes/teacher.visual.index'
 import { Route as TeacherVisualIdRouteImport } from './routes/teacher.visual.$id'
-import { Route as TeacherTestsIdRouteImport } from './routes/teacher.tests.$id'
-import { Route as StudentVisualIdRouteImport } from './routes/student.visual.$id'
-import { Route as StudentTestIdRouteImport } from './routes/student.test.$id'
-import { Route as StudentClassCodeRouteImport } from './routes/student.class.$code'
-import { Route as ApiPublicWordMeaningRouteImport } from './routes/api/public/word-meaning'
-import { Route as ApiPublicWatermarkMaterialRouteImport } from './routes/api/public/watermark-material'
-import { Route as ApiPublicVoiceCommandRouteImport } from './routes/api/public/voice-command'
-import { Route as ApiPublicSarvamTtsRouteImport } from './routes/api/public/sarvam-tts'
-import { Route as ApiPublicSarvamSttRouteImport } from './routes/api/public/sarvam-stt'
-import { Route as ApiPublicResultAnalysisRouteImport } from './routes/api/public/result-analysis'
-import { Route as ApiPublicReadingQuizRouteImport } from './routes/api/public/reading-quiz'
-import { Route as ApiPublicGenerateQuestionsRouteImport } from './routes/api/public/generate-questions'
-import { Route as ApiPublicGenerateImageRouteImport } from './routes/api/public/generate-image'
-import { Route as ApiPublicDailyRoomRouteImport } from './routes/api/public/daily-room'
-import { Route as ApiPublicAnalyzeReadingRouteImport } from './routes/api/public/analyze-reading'
-import { Route as ApiPublicAnalyzePaperRouteImport } from './routes/api/public/analyze-paper'
-import { Route as ApiPublicAiStudyChatRouteImport } from './routes/api/public/ai-study-chat'
-import { Route as ApiPublicAiEvaluateRouteImport } from './routes/api/public/ai-evaluate'
 
-const TeacherRoute = TeacherRouteImport.update({
-  id: '/teacher',
-  path: '/teacher',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StudentRoute = StudentRouteImport.update({
-  id: '/student',
-  path: '/student',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
@@ -75,94 +65,29 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TeacherIndexRoute = TeacherIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => TeacherRoute,
+const StudentRoute = StudentRouteImport.update({
+  id: '/student',
+  path: '/student',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const TeacherVisualRoute = TeacherVisualRouteImport.update({
-  id: '/visual',
-  path: '/visual',
-  getParentRoute: () => TeacherRoute,
+const TeacherRoute = TeacherRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const TeacherThemesRoute = TeacherThemesRouteImport.update({
-  id: '/themes',
-  path: '/themes',
-  getParentRoute: () => TeacherRoute,
+const ReportCodeRoute = ReportCodeRouteImport.update({
+  id: '/report/$code',
+  path: '/report/$code',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const TeacherTestsRoute = TeacherTestsRouteImport.update({
-  id: '/tests',
-  path: '/tests',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherStudentsRoute = TeacherStudentsRouteImport.update({
-  id: '/students',
-  path: '/students',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherRewardsRoute = TeacherRewardsRouteImport.update({
-  id: '/rewards',
-  path: '/rewards',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherReportsRoute = TeacherReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherReadingRoute = TeacherReadingRouteImport.update({
-  id: '/reading',
-  path: '/reading',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherNewRoute = TeacherNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherMaterialsRoute = TeacherMaterialsRouteImport.update({
-  id: '/materials',
-  path: '/materials',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherLiveRoute = TeacherLiveRouteImport.update({
-  id: '/live',
-  path: '/live',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherFeesRoute = TeacherFeesRouteImport.update({
-  id: '/fees',
-  path: '/fees',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherExamSecurityRoute = TeacherExamSecurityRouteImport.update({
-  id: '/exam-security',
-  path: '/exam-security',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherDashboardRoute = TeacherDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const TeacherClassesRoute = TeacherClassesRouteImport.update({
-  id: '/classes',
-  path: '/classes',
-  getParentRoute: () => TeacherRoute,
-} as any)
-const StudentReadingPracticeRoute = StudentReadingPracticeRouteImport.update({
-  id: '/reading-practice',
-  path: '/reading-practice',
-  getParentRoute: () => StudentRoute,
-} as any)
-const StudentReadingRoute = StudentReadingRouteImport.update({
-  id: '/reading',
-  path: '/reading',
+const StudentAiRoute = StudentAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
   getParentRoute: () => StudentRoute,
 } as any)
 const StudentImagineRoute = StudentImagineRouteImport.update({
@@ -170,15 +95,182 @@ const StudentImagineRoute = StudentImagineRouteImport.update({
   path: '/imagine',
   getParentRoute: () => StudentRoute,
 } as any)
-const StudentAiRoute = StudentAiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
+const StudentReadingRoute = StudentReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
   getParentRoute: () => StudentRoute,
 } as any)
-const ReportCodeRoute = ReportCodeRouteImport.update({
-  id: '/report/$code',
-  path: '/report/$code',
+const StudentReadingPracticeRoute = StudentReadingPracticeRouteImport.update({
+  id: '/reading-practice',
+  path: '/reading-practice',
+  getParentRoute: () => StudentRoute,
+} as any)
+const TeacherIndexRoute = TeacherIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherClassesRoute = TeacherClassesRouteImport.update({
+  id: '/classes',
+  path: '/classes',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherDashboardRoute = TeacherDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherExamSecurityRoute = TeacherExamSecurityRouteImport.update({
+  id: '/exam-security',
+  path: '/exam-security',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherFeesRoute = TeacherFeesRouteImport.update({
+  id: '/fees',
+  path: '/fees',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherLiveRoute = TeacherLiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherMaterialsRoute = TeacherMaterialsRouteImport.update({
+  id: '/materials',
+  path: '/materials',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherNewRoute = TeacherNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherReadingRoute = TeacherReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherReportsRoute = TeacherReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherRewardsRoute = TeacherRewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherStudentsRoute = TeacherStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherTestsRoute = TeacherTestsRouteImport.update({
+  id: '/tests',
+  path: '/tests',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherThemesRoute = TeacherThemesRouteImport.update({
+  id: '/themes',
+  path: '/themes',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherVisualRoute = TeacherVisualRouteImport.update({
+  id: '/visual',
+  path: '/visual',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const ApiPublicAiEvaluateRoute = ApiPublicAiEvaluateRouteImport.update({
+  id: '/api/public/ai-evaluate',
+  path: '/api/public/ai-evaluate',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAiStudyChatRoute = ApiPublicAiStudyChatRouteImport.update({
+  id: '/api/public/ai-study-chat',
+  path: '/api/public/ai-study-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAnalyzePaperRoute = ApiPublicAnalyzePaperRouteImport.update({
+  id: '/api/public/analyze-paper',
+  path: '/api/public/analyze-paper',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAnalyzeReadingRoute = ApiPublicAnalyzeReadingRouteImport.update({
+  id: '/api/public/analyze-reading',
+  path: '/api/public/analyze-reading',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDailyRoomRoute = ApiPublicDailyRoomRouteImport.update({
+  id: '/api/public/daily-room',
+  path: '/api/public/daily-room',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGenerateImageRoute = ApiPublicGenerateImageRouteImport.update({
+  id: '/api/public/generate-image',
+  path: '/api/public/generate-image',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGenerateQuestionsRoute =
+  ApiPublicGenerateQuestionsRouteImport.update({
+    id: '/api/public/generate-questions',
+    path: '/api/public/generate-questions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicReadingQuizRoute = ApiPublicReadingQuizRouteImport.update({
+  id: '/api/public/reading-quiz',
+  path: '/api/public/reading-quiz',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicResultAnalysisRoute = ApiPublicResultAnalysisRouteImport.update({
+  id: '/api/public/result-analysis',
+  path: '/api/public/result-analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSarvamSttRoute = ApiPublicSarvamSttRouteImport.update({
+  id: '/api/public/sarvam-stt',
+  path: '/api/public/sarvam-stt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSarvamTtsRoute = ApiPublicSarvamTtsRouteImport.update({
+  id: '/api/public/sarvam-tts',
+  path: '/api/public/sarvam-tts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVoiceCommandRoute = ApiPublicVoiceCommandRouteImport.update({
+  id: '/api/public/voice-command',
+  path: '/api/public/voice-command',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWatermarkMaterialRoute =
+  ApiPublicWatermarkMaterialRouteImport.update({
+    id: '/api/public/watermark-material',
+    path: '/api/public/watermark-material',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWordMeaningRoute = ApiPublicWordMeaningRouteImport.update({
+  id: '/api/public/word-meaning',
+  path: '/api/public/word-meaning',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentClassCodeRoute = StudentClassCodeRouteImport.update({
+  id: '/class/$code',
+  path: '/class/$code',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentTestIdRoute = StudentTestIdRouteImport.update({
+  id: '/test/$id',
+  path: '/test/$id',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentVisualIdRoute = StudentVisualIdRouteImport.update({
+  id: '/visual/$id',
+  path: '/visual/$id',
+  getParentRoute: () => StudentRoute,
+} as any)
+const TeacherTestsIdRoute = TeacherTestsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => TeacherTestsRoute,
 } as any)
 const TeacherVisualIndexRoute = TeacherVisualIndexRouteImport.update({
   id: '/',
@@ -189,98 +281,6 @@ const TeacherVisualIdRoute = TeacherVisualIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => TeacherVisualRoute,
-} as any)
-const TeacherTestsIdRoute = TeacherTestsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => TeacherTestsRoute,
-} as any)
-const StudentVisualIdRoute = StudentVisualIdRouteImport.update({
-  id: '/visual/$id',
-  path: '/visual/$id',
-  getParentRoute: () => StudentRoute,
-} as any)
-const StudentTestIdRoute = StudentTestIdRouteImport.update({
-  id: '/test/$id',
-  path: '/test/$id',
-  getParentRoute: () => StudentRoute,
-} as any)
-const StudentClassCodeRoute = StudentClassCodeRouteImport.update({
-  id: '/class/$code',
-  path: '/class/$code',
-  getParentRoute: () => StudentRoute,
-} as any)
-const ApiPublicWordMeaningRoute = ApiPublicWordMeaningRouteImport.update({
-  id: '/api/public/word-meaning',
-  path: '/api/public/word-meaning',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicWatermarkMaterialRoute =
-  ApiPublicWatermarkMaterialRouteImport.update({
-    id: '/api/public/watermark-material',
-    path: '/api/public/watermark-material',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicVoiceCommandRoute = ApiPublicVoiceCommandRouteImport.update({
-  id: '/api/public/voice-command',
-  path: '/api/public/voice-command',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicSarvamTtsRoute = ApiPublicSarvamTtsRouteImport.update({
-  id: '/api/public/sarvam-tts',
-  path: '/api/public/sarvam-tts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicSarvamSttRoute = ApiPublicSarvamSttRouteImport.update({
-  id: '/api/public/sarvam-stt',
-  path: '/api/public/sarvam-stt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicResultAnalysisRoute = ApiPublicResultAnalysisRouteImport.update({
-  id: '/api/public/result-analysis',
-  path: '/api/public/result-analysis',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicReadingQuizRoute = ApiPublicReadingQuizRouteImport.update({
-  id: '/api/public/reading-quiz',
-  path: '/api/public/reading-quiz',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicGenerateQuestionsRoute =
-  ApiPublicGenerateQuestionsRouteImport.update({
-    id: '/api/public/generate-questions',
-    path: '/api/public/generate-questions',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicGenerateImageRoute = ApiPublicGenerateImageRouteImport.update({
-  id: '/api/public/generate-image',
-  path: '/api/public/generate-image',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicDailyRoomRoute = ApiPublicDailyRoomRouteImport.update({
-  id: '/api/public/daily-room',
-  path: '/api/public/daily-room',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicAnalyzeReadingRoute = ApiPublicAnalyzeReadingRouteImport.update({
-  id: '/api/public/analyze-reading',
-  path: '/api/public/analyze-reading',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicAnalyzePaperRoute = ApiPublicAnalyzePaperRouteImport.update({
-  id: '/api/public/analyze-paper',
-  path: '/api/public/analyze-paper',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicAiStudyChatRoute = ApiPublicAiStudyChatRouteImport.update({
-  id: '/api/public/ai-study-chat',
-  path: '/api/public/ai-study-chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicAiEvaluateRoute = ApiPublicAiEvaluateRouteImport.update({
-  id: '/api/public/ai-evaluate',
-  path: '/api/public/ai-evaluate',
-  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -590,25 +590,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/teacher': {
-      id: '/teacher'
-      path: '/teacher'
-      fullPath: '/teacher'
-      preLoaderRoute: typeof TeacherRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/student': {
-      id: '/student'
-      path: '/student'
-      fullPath: '/student'
-      preLoaderRoute: typeof StudentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/leaderboard': {
@@ -618,130 +604,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/teacher/': {
-      id: '/teacher/'
-      path: '/'
-      fullPath: '/teacher/'
-      preLoaderRoute: typeof TeacherIndexRouteImport
-      parentRoute: typeof TeacherRoute
+    '/student': {
+      id: '/student'
+      path: '/student'
+      fullPath: '/student'
+      preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/teacher/visual': {
-      id: '/teacher/visual'
-      path: '/visual'
-      fullPath: '/teacher/visual'
-      preLoaderRoute: typeof TeacherVisualRouteImport
-      parentRoute: typeof TeacherRoute
+    '/teacher': {
+      id: '/teacher'
+      path: '/teacher'
+      fullPath: '/teacher'
+      preLoaderRoute: typeof TeacherRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/teacher/themes': {
-      id: '/teacher/themes'
-      path: '/themes'
-      fullPath: '/teacher/themes'
-      preLoaderRoute: typeof TeacherThemesRouteImport
-      parentRoute: typeof TeacherRoute
+    '/report/$code': {
+      id: '/report/$code'
+      path: '/report/$code'
+      fullPath: '/report/$code'
+      preLoaderRoute: typeof ReportCodeRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/teacher/tests': {
-      id: '/teacher/tests'
-      path: '/tests'
-      fullPath: '/teacher/tests'
-      preLoaderRoute: typeof TeacherTestsRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/students': {
-      id: '/teacher/students'
-      path: '/students'
-      fullPath: '/teacher/students'
-      preLoaderRoute: typeof TeacherStudentsRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/rewards': {
-      id: '/teacher/rewards'
-      path: '/rewards'
-      fullPath: '/teacher/rewards'
-      preLoaderRoute: typeof TeacherRewardsRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/reports': {
-      id: '/teacher/reports'
-      path: '/reports'
-      fullPath: '/teacher/reports'
-      preLoaderRoute: typeof TeacherReportsRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/reading': {
-      id: '/teacher/reading'
-      path: '/reading'
-      fullPath: '/teacher/reading'
-      preLoaderRoute: typeof TeacherReadingRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/new': {
-      id: '/teacher/new'
-      path: '/new'
-      fullPath: '/teacher/new'
-      preLoaderRoute: typeof TeacherNewRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/materials': {
-      id: '/teacher/materials'
-      path: '/materials'
-      fullPath: '/teacher/materials'
-      preLoaderRoute: typeof TeacherMaterialsRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/live': {
-      id: '/teacher/live'
-      path: '/live'
-      fullPath: '/teacher/live'
-      preLoaderRoute: typeof TeacherLiveRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/fees': {
-      id: '/teacher/fees'
-      path: '/fees'
-      fullPath: '/teacher/fees'
-      preLoaderRoute: typeof TeacherFeesRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/exam-security': {
-      id: '/teacher/exam-security'
-      path: '/exam-security'
-      fullPath: '/teacher/exam-security'
-      preLoaderRoute: typeof TeacherExamSecurityRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/dashboard': {
-      id: '/teacher/dashboard'
-      path: '/dashboard'
-      fullPath: '/teacher/dashboard'
-      preLoaderRoute: typeof TeacherDashboardRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/teacher/classes': {
-      id: '/teacher/classes'
-      path: '/classes'
-      fullPath: '/teacher/classes'
-      preLoaderRoute: typeof TeacherClassesRouteImport
-      parentRoute: typeof TeacherRoute
-    }
-    '/student/reading-practice': {
-      id: '/student/reading-practice'
-      path: '/reading-practice'
-      fullPath: '/student/reading-practice'
-      preLoaderRoute: typeof StudentReadingPracticeRouteImport
-      parentRoute: typeof StudentRoute
-    }
-    '/student/reading': {
-      id: '/student/reading'
-      path: '/reading'
-      fullPath: '/student/reading'
-      preLoaderRoute: typeof StudentReadingRouteImport
+    '/student/ai': {
+      id: '/student/ai'
+      path: '/ai'
+      fullPath: '/student/ai'
+      preLoaderRoute: typeof StudentAiRouteImport
       parentRoute: typeof StudentRoute
     }
     '/student/imagine': {
@@ -751,19 +646,250 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentImagineRouteImport
       parentRoute: typeof StudentRoute
     }
-    '/student/ai': {
-      id: '/student/ai'
-      path: '/ai'
-      fullPath: '/student/ai'
-      preLoaderRoute: typeof StudentAiRouteImport
+    '/student/reading': {
+      id: '/student/reading'
+      path: '/reading'
+      fullPath: '/student/reading'
+      preLoaderRoute: typeof StudentReadingRouteImport
       parentRoute: typeof StudentRoute
     }
-    '/report/$code': {
-      id: '/report/$code'
-      path: '/report/$code'
-      fullPath: '/report/$code'
-      preLoaderRoute: typeof ReportCodeRouteImport
+    '/student/reading-practice': {
+      id: '/student/reading-practice'
+      path: '/reading-practice'
+      fullPath: '/student/reading-practice'
+      preLoaderRoute: typeof StudentReadingPracticeRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/teacher/': {
+      id: '/teacher/'
+      path: '/'
+      fullPath: '/teacher/'
+      preLoaderRoute: typeof TeacherIndexRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/classes': {
+      id: '/teacher/classes'
+      path: '/classes'
+      fullPath: '/teacher/classes'
+      preLoaderRoute: typeof TeacherClassesRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/dashboard': {
+      id: '/teacher/dashboard'
+      path: '/dashboard'
+      fullPath: '/teacher/dashboard'
+      preLoaderRoute: typeof TeacherDashboardRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/exam-security': {
+      id: '/teacher/exam-security'
+      path: '/exam-security'
+      fullPath: '/teacher/exam-security'
+      preLoaderRoute: typeof TeacherExamSecurityRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/fees': {
+      id: '/teacher/fees'
+      path: '/fees'
+      fullPath: '/teacher/fees'
+      preLoaderRoute: typeof TeacherFeesRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/live': {
+      id: '/teacher/live'
+      path: '/live'
+      fullPath: '/teacher/live'
+      preLoaderRoute: typeof TeacherLiveRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/materials': {
+      id: '/teacher/materials'
+      path: '/materials'
+      fullPath: '/teacher/materials'
+      preLoaderRoute: typeof TeacherMaterialsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/new': {
+      id: '/teacher/new'
+      path: '/new'
+      fullPath: '/teacher/new'
+      preLoaderRoute: typeof TeacherNewRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/reading': {
+      id: '/teacher/reading'
+      path: '/reading'
+      fullPath: '/teacher/reading'
+      preLoaderRoute: typeof TeacherReadingRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/reports': {
+      id: '/teacher/reports'
+      path: '/reports'
+      fullPath: '/teacher/reports'
+      preLoaderRoute: typeof TeacherReportsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/rewards': {
+      id: '/teacher/rewards'
+      path: '/rewards'
+      fullPath: '/teacher/rewards'
+      preLoaderRoute: typeof TeacherRewardsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/students': {
+      id: '/teacher/students'
+      path: '/students'
+      fullPath: '/teacher/students'
+      preLoaderRoute: typeof TeacherStudentsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/tests': {
+      id: '/teacher/tests'
+      path: '/tests'
+      fullPath: '/teacher/tests'
+      preLoaderRoute: typeof TeacherTestsRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/themes': {
+      id: '/teacher/themes'
+      path: '/themes'
+      fullPath: '/teacher/themes'
+      preLoaderRoute: typeof TeacherThemesRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/visual': {
+      id: '/teacher/visual'
+      path: '/visual'
+      fullPath: '/teacher/visual'
+      preLoaderRoute: typeof TeacherVisualRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/api/public/ai-evaluate': {
+      id: '/api/public/ai-evaluate'
+      path: '/api/public/ai-evaluate'
+      fullPath: '/api/public/ai-evaluate'
+      preLoaderRoute: typeof ApiPublicAiEvaluateRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ai-study-chat': {
+      id: '/api/public/ai-study-chat'
+      path: '/api/public/ai-study-chat'
+      fullPath: '/api/public/ai-study-chat'
+      preLoaderRoute: typeof ApiPublicAiStudyChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/analyze-paper': {
+      id: '/api/public/analyze-paper'
+      path: '/api/public/analyze-paper'
+      fullPath: '/api/public/analyze-paper'
+      preLoaderRoute: typeof ApiPublicAnalyzePaperRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/analyze-reading': {
+      id: '/api/public/analyze-reading'
+      path: '/api/public/analyze-reading'
+      fullPath: '/api/public/analyze-reading'
+      preLoaderRoute: typeof ApiPublicAnalyzeReadingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/daily-room': {
+      id: '/api/public/daily-room'
+      path: '/api/public/daily-room'
+      fullPath: '/api/public/daily-room'
+      preLoaderRoute: typeof ApiPublicDailyRoomRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/generate-image': {
+      id: '/api/public/generate-image'
+      path: '/api/public/generate-image'
+      fullPath: '/api/public/generate-image'
+      preLoaderRoute: typeof ApiPublicGenerateImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/generate-questions': {
+      id: '/api/public/generate-questions'
+      path: '/api/public/generate-questions'
+      fullPath: '/api/public/generate-questions'
+      preLoaderRoute: typeof ApiPublicGenerateQuestionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/reading-quiz': {
+      id: '/api/public/reading-quiz'
+      path: '/api/public/reading-quiz'
+      fullPath: '/api/public/reading-quiz'
+      preLoaderRoute: typeof ApiPublicReadingQuizRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/result-analysis': {
+      id: '/api/public/result-analysis'
+      path: '/api/public/result-analysis'
+      fullPath: '/api/public/result-analysis'
+      preLoaderRoute: typeof ApiPublicResultAnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sarvam-stt': {
+      id: '/api/public/sarvam-stt'
+      path: '/api/public/sarvam-stt'
+      fullPath: '/api/public/sarvam-stt'
+      preLoaderRoute: typeof ApiPublicSarvamSttRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sarvam-tts': {
+      id: '/api/public/sarvam-tts'
+      path: '/api/public/sarvam-tts'
+      fullPath: '/api/public/sarvam-tts'
+      preLoaderRoute: typeof ApiPublicSarvamTtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/voice-command': {
+      id: '/api/public/voice-command'
+      path: '/api/public/voice-command'
+      fullPath: '/api/public/voice-command'
+      preLoaderRoute: typeof ApiPublicVoiceCommandRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/watermark-material': {
+      id: '/api/public/watermark-material'
+      path: '/api/public/watermark-material'
+      fullPath: '/api/public/watermark-material'
+      preLoaderRoute: typeof ApiPublicWatermarkMaterialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/word-meaning': {
+      id: '/api/public/word-meaning'
+      path: '/api/public/word-meaning'
+      fullPath: '/api/public/word-meaning'
+      preLoaderRoute: typeof ApiPublicWordMeaningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student/class/$code': {
+      id: '/student/class/$code'
+      path: '/class/$code'
+      fullPath: '/student/class/$code'
+      preLoaderRoute: typeof StudentClassCodeRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/test/$id': {
+      id: '/student/test/$id'
+      path: '/test/$id'
+      fullPath: '/student/test/$id'
+      preLoaderRoute: typeof StudentTestIdRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/visual/$id': {
+      id: '/student/visual/$id'
+      path: '/visual/$id'
+      fullPath: '/student/visual/$id'
+      preLoaderRoute: typeof StudentVisualIdRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/teacher/tests/$id': {
+      id: '/teacher/tests/$id'
+      path: '/$id'
+      fullPath: '/teacher/tests/$id'
+      preLoaderRoute: typeof TeacherTestsIdRouteImport
+      parentRoute: typeof TeacherTestsRoute
     }
     '/teacher/visual/': {
       id: '/teacher/visual/'
@@ -778,132 +904,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/teacher/visual/$id'
       preLoaderRoute: typeof TeacherVisualIdRouteImport
       parentRoute: typeof TeacherVisualRoute
-    }
-    '/teacher/tests/$id': {
-      id: '/teacher/tests/$id'
-      path: '/$id'
-      fullPath: '/teacher/tests/$id'
-      preLoaderRoute: typeof TeacherTestsIdRouteImport
-      parentRoute: typeof TeacherTestsRoute
-    }
-    '/student/visual/$id': {
-      id: '/student/visual/$id'
-      path: '/visual/$id'
-      fullPath: '/student/visual/$id'
-      preLoaderRoute: typeof StudentVisualIdRouteImport
-      parentRoute: typeof StudentRoute
-    }
-    '/student/test/$id': {
-      id: '/student/test/$id'
-      path: '/test/$id'
-      fullPath: '/student/test/$id'
-      preLoaderRoute: typeof StudentTestIdRouteImport
-      parentRoute: typeof StudentRoute
-    }
-    '/student/class/$code': {
-      id: '/student/class/$code'
-      path: '/class/$code'
-      fullPath: '/student/class/$code'
-      preLoaderRoute: typeof StudentClassCodeRouteImport
-      parentRoute: typeof StudentRoute
-    }
-    '/api/public/word-meaning': {
-      id: '/api/public/word-meaning'
-      path: '/api/public/word-meaning'
-      fullPath: '/api/public/word-meaning'
-      preLoaderRoute: typeof ApiPublicWordMeaningRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/watermark-material': {
-      id: '/api/public/watermark-material'
-      path: '/api/public/watermark-material'
-      fullPath: '/api/public/watermark-material'
-      preLoaderRoute: typeof ApiPublicWatermarkMaterialRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/voice-command': {
-      id: '/api/public/voice-command'
-      path: '/api/public/voice-command'
-      fullPath: '/api/public/voice-command'
-      preLoaderRoute: typeof ApiPublicVoiceCommandRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/sarvam-tts': {
-      id: '/api/public/sarvam-tts'
-      path: '/api/public/sarvam-tts'
-      fullPath: '/api/public/sarvam-tts'
-      preLoaderRoute: typeof ApiPublicSarvamTtsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/sarvam-stt': {
-      id: '/api/public/sarvam-stt'
-      path: '/api/public/sarvam-stt'
-      fullPath: '/api/public/sarvam-stt'
-      preLoaderRoute: typeof ApiPublicSarvamSttRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/result-analysis': {
-      id: '/api/public/result-analysis'
-      path: '/api/public/result-analysis'
-      fullPath: '/api/public/result-analysis'
-      preLoaderRoute: typeof ApiPublicResultAnalysisRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/reading-quiz': {
-      id: '/api/public/reading-quiz'
-      path: '/api/public/reading-quiz'
-      fullPath: '/api/public/reading-quiz'
-      preLoaderRoute: typeof ApiPublicReadingQuizRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/generate-questions': {
-      id: '/api/public/generate-questions'
-      path: '/api/public/generate-questions'
-      fullPath: '/api/public/generate-questions'
-      preLoaderRoute: typeof ApiPublicGenerateQuestionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/generate-image': {
-      id: '/api/public/generate-image'
-      path: '/api/public/generate-image'
-      fullPath: '/api/public/generate-image'
-      preLoaderRoute: typeof ApiPublicGenerateImageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/daily-room': {
-      id: '/api/public/daily-room'
-      path: '/api/public/daily-room'
-      fullPath: '/api/public/daily-room'
-      preLoaderRoute: typeof ApiPublicDailyRoomRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/analyze-reading': {
-      id: '/api/public/analyze-reading'
-      path: '/api/public/analyze-reading'
-      fullPath: '/api/public/analyze-reading'
-      preLoaderRoute: typeof ApiPublicAnalyzeReadingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/analyze-paper': {
-      id: '/api/public/analyze-paper'
-      path: '/api/public/analyze-paper'
-      fullPath: '/api/public/analyze-paper'
-      preLoaderRoute: typeof ApiPublicAnalyzePaperRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/ai-study-chat': {
-      id: '/api/public/ai-study-chat'
-      path: '/api/public/ai-study-chat'
-      fullPath: '/api/public/ai-study-chat'
-      preLoaderRoute: typeof ApiPublicAiStudyChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/ai-evaluate': {
-      id: '/api/public/ai-evaluate'
-      path: '/api/public/ai-evaluate'
-      fullPath: '/api/public/ai-evaluate'
-      preLoaderRoute: typeof ApiPublicAiEvaluateRouteImport
-      parentRoute: typeof rootRouteImport
     }
   }
 }
