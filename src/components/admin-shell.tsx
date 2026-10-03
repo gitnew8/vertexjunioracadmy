@@ -41,6 +41,7 @@ const NAV = [
   { to: "/teacher/exam-security", label: "Exam Security", icon: Shield },
   { to: "/teacher/rewards", label: "Rewards", icon: Gift },
   { to: "/teacher/visual", label: "Visual Tests", icon: Shapes },
+  { to: "/teacher/curriculum", label: "Syllabus Manager", icon: BookOpen },
   { to: "/teacher/materials", label: "Materials", icon: BookOpen },
   { to: "/teacher/reading", label: "Reading", icon: Mic },
   { to: "/teacher/classes", label: "Live Classes", icon: Video },
