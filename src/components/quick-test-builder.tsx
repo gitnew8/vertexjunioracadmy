@@ -6,16 +6,14 @@ import { Zap, Loader2 } from "lucide-react";
 import { useCurriculum } from "@/lib/custom-curriculum";
 import { createQuickTest, specTitle } from "@/lib/quick-test";
 
-const ALL_TOPICS = "__all__";
-
 export function QuickTestBuilder() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { classes, subjectsFor, chaptersFor, topicsFor } = useCurriculum();
   const [cls, setCls] = useState<string>("Class 5");
   const [subject, setSubject] = useState<string>("Maths");
-  const [chapter, setChapter] = useState<string>("");
-  const [topic, setTopic] = useState<string>(ALL_TOPICS);
+  const [selChapters, setSelChapters] = useState<string[]>([]);
+  const [selTopics, setSelTopics] = useState<string[]>([]);
   const [customChapter, setCustomChapter] = useState("");
   const [count, setCount] = useState(10);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
@@ -24,27 +22,40 @@ export function QuickTestBuilder() {
 
   const subjects = useMemo(() => subjectsFor(cls), [cls, subjectsFor]);
   const chapters = useMemo(() => chaptersFor(cls, subject), [cls, subject, chaptersFor]);
-  const topics = useMemo(
-    () => topicsFor(cls, subject, chapter),
-    [cls, subject, chapter, topicsFor]
+  const topicGroups = useMemo(
+    () => selChapters.map((ch) => ({ chapter: ch, topics: topicsFor(cls, subject, ch) })),
+    [cls, subject, selChapters, topicsFor]
   );
 
+  function reset() {
+    setSelChapters([]);
+    setSelTopics([]);
+  }
   function pickClass(next: string) {
     setCls(next);
     const subs = subjectsFor(next);
-    const nextSubject = subs.includes(subject) ? subject : subs[0] || "";
-    setSubject(nextSubject);
-    setChapter("");
-    setTopic(ALL_TOPICS);
+    setSubject(subs.includes(subject) ? subject : subs[0] || "");
+    reset();
   }
-
   function pickSubject(next: string) {
     setSubject(next);
-    setChapter("");
-    setTopic(ALL_TOPICS);
+    reset();
+  }
+  function toggleChapter(ch: string) {
+    if (selChapters.includes(ch)) {
+      setSelChapters(selChapters.filter((c) => c !== ch));
+      const drop = new Set(topicsFor(cls, subject, ch).map((t) => `${ch}::${t}`));
+      setSelTopics(selTopics.filter((t) => !drop.has(t)));
+    } else setSelChapters([...selChapters, ch]);
+  }
+  function toggleTopic(key: string) {
+    setSelTopics(selTopics.includes(key) ? selTopics.filter((t) => t !== key) : [...selTopics, key]);
   }
 
-  const effectiveChapter = customChapter.trim() || chapter;
+  const chapterList = [...selChapters, ...(customChapter.trim() ? [customChapter.trim()] : [])];
+  const topicNames = selTopics.map((k) => k.split("::")[1]);
+  const chapterStr = chapterList.join(", ");
+  const topicStr = topicNames.join(", ");
 
   async function generate() {
     if (!cls || !subject) return toast.error("Class aur subject chuniye");
@@ -54,8 +65,10 @@ export function QuickTestBuilder() {
       const id = await createQuickTest({
         student_class: cls,
         subject,
-        chapter: effectiveChapter || null,
-        topic: topic !== ALL_TOPICS ? topic : null,
+        chapter: chapterStr || null,
+        topic: topicStr || null,
+        chapters: chapterList,
+        topics: topicNames,
         count,
         difficulty,
         language,
@@ -73,8 +86,8 @@ export function QuickTestBuilder() {
   const previewTitle = specTitle({
     student_class: cls,
     subject,
-    chapter: effectiveChapter,
-    topic: topic !== ALL_TOPICS ? topic : null,
+    chapter: chapterList.length > 2 ? `${chapterList.length} chapters` : chapterStr,
+    topic: topicNames.length > 2 ? `${topicNames.length} topics` : topicStr || null,
   });
 
   return (
@@ -84,32 +97,72 @@ export function QuickTestBuilder() {
         <h2 className="font-display text-lg font-semibold">1-Click Instant Test</h2>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
-        Class → Subject → Chapter → Topic chuniye, 1 click me paper taiyar.
+        Class → Subject chuniye, phir ek ya zyada chapters aur topics par ✓ lagaiye.
       </p>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Select label="Class" value={cls} onChange={pickClass} options={classes} />
         <Select label="Subject" value={subject} onChange={pickSubject} options={subjects} />
-        <Select
-          label="Chapter"
-          value={chapter}
-          onChange={(v) => {
-            setChapter(v);
-            setTopic(ALL_TOPICS);
-          }}
-          options={chapters.map((c) => c.name)}
-          placeholder="Full subject (all chapters)"
-        />
-        <Select
-          label="Topic"
-          value={topic}
-          onChange={setTopic}
-          options={topics}
-          allLabel="Poora chapter (all topics)"
-          allValue={ALL_TOPICS}
-          disabled={!chapter || topics.length === 0}
-        />
       </div>
+
+      <div className="mt-3 rounded-xl border border-border p-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-muted-foreground">
+            Chapters ({selChapters.length} chune) — koi nahi = poora subject
+          </span>
+          {chapters.length > 0 && (
+            <button
+              type="button"
+              className="text-xs text-primary hover:underline"
+              onClick={() =>
+                selChapters.length === chapters.length ? reset() : setSelChapters(chapters.map((c) => c.name))
+              }
+            >
+              {selChapters.length === chapters.length ? "Sab hatao" : "Sab chuno"}
+            </button>
+          )}
+        </div>
+        <div className="grid gap-1.5 sm:grid-cols-2 max-h-56 overflow-y-auto">
+          {chapters.map((c) => (
+            <label key={c.name} className="flex items-center gap-2 text-sm rounded-md px-2 py-1 hover:bg-muted cursor-pointer">
+              <input type="checkbox" checked={selChapters.includes(c.name)} onChange={() => toggleChapter(c.name)} />
+              <span>{c.name}</span>
+            </label>
+          ))}
+          {chapters.length === 0 && <p className="text-xs text-muted-foreground">Is subject me chapters nahi hain.</p>}
+        </div>
+      </div>
+
+      {topicGroups.some((g) => g.topics.length > 0) && (
+        <div className="mt-3 rounded-xl border border-border p-3">
+          <span className="text-xs font-medium text-muted-foreground">
+            Topics ({selTopics.length} chune) — koi nahi = chune gaye chapters ke sabhi topics
+          </span>
+          <div className="mt-2 space-y-2 max-h-64 overflow-y-auto">
+            {topicGroups.filter((g) => g.topics.length).map((g) => (
+              <div key={g.chapter}>
+                <p className="text-xs font-semibold mb-1">{g.chapter}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {g.topics.map((tp) => {
+                    const key = `${g.chapter}::${tp}`;
+                    const on = selTopics.includes(key);
+                    return (
+                      <button
+                        type="button"
+                        key={key}
+                        onClick={() => toggleTopic(key)}
+                        className={`rounded-full border px-2.5 py-1 text-xs ${on ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"}`}
+                      >
+                        {on ? "✓ " : ""}{tp}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mt-3">
         <label className="text-xs font-medium">
