@@ -1,3 +1,4 @@
+import { SyllabusCoordinatorCard } from "@/components/syllabus-coordinator-card";
 import { LeaderboardWidget } from "@/components/leaderboard";
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -789,6 +790,8 @@ function StudentReports({ session }: { session: Session }) {
       <MyTests session={session} />
 
       <MyMaterials session={session} />
+
+      <SyllabusCoordinatorCard loginNumber={session.login_number} defaultClass={session.student_class} />
 
       <PaymentHistory session={session} />
 
