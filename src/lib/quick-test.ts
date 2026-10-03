@@ -5,6 +5,8 @@ export type QuickSpec = {
   subject: string;
   chapter?: string | null;
   topic?: string | null;
+  chapters?: string[];
+  topics?: string[];
   count?: number | null;
   difficulty?: "easy" | "medium" | "hard" | null;
   language?: "en" | "hi" | "bilingual" | null;
@@ -47,9 +49,12 @@ export async function createQuickTest(spec: QuickSpec): Promise<string> {
       types: ["MCQ"],
       difficulty,
       language,
-      prompt: spec.topic
-        ? `Focus strictly on the topic "${spec.topic}" from chapter "${spec.chapter || ""}". Age-appropriate for ${spec.student_class}.`
-        : undefined,
+      prompt:
+        (spec.chapters?.length ?? 0) > 1 || (spec.topics?.length ?? 0) > 1
+          ? `Cover ALL of these, distributing the ${count} questions as evenly as possible across them. Chapters: ${(spec.chapters || []).join("; ") || "—"}.${spec.topics?.length ? ` Topics: ${spec.topics.join("; ")}.` : ""} Age-appropriate for ${spec.student_class}.`
+          : spec.topic
+            ? `Focus strictly on the topic "${spec.topic}" from chapter "${spec.chapter || ""}". Age-appropriate for ${spec.student_class}.`
+            : undefined,
     }),
   });
   if (!res.ok) throw new Error(await res.text());
