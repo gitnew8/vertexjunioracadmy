@@ -21,6 +21,7 @@ import { Route as StudentReadingRouteImport } from './routes/student.reading'
 import { Route as StudentReadingPracticeRouteImport } from './routes/student.reading-practice'
 import { Route as TeacherIndexRouteImport } from './routes/teacher.index'
 import { Route as TeacherClassesRouteImport } from './routes/teacher.classes'
+import { Route as TeacherCurriculumRouteImport } from './routes/teacher.curriculum'
 import { Route as TeacherDashboardRouteImport } from './routes/teacher.dashboard'
 import { Route as TeacherExamSecurityRouteImport } from './routes/teacher.exam-security'
 import { Route as TeacherFeesRouteImport } from './routes/teacher.fees'
@@ -113,6 +114,11 @@ const TeacherIndexRoute = TeacherIndexRouteImport.update({
 const TeacherClassesRoute = TeacherClassesRouteImport.update({
   id: '/classes',
   path: '/classes',
+  getParentRoute: () => TeacherRoute,
+} as any)
+const TeacherCurriculumRoute = TeacherCurriculumRouteImport.update({
+  id: '/curriculum',
+  path: '/curriculum',
   getParentRoute: () => TeacherRoute,
 } as any)
 const TeacherDashboardRoute = TeacherDashboardRouteImport.update({
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/student/reading': typeof StudentReadingRoute
   '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
+  '/teacher/curriculum': typeof TeacherCurriculumRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
   '/teacher/fees': typeof TeacherFeesRoute
@@ -341,6 +348,7 @@ export interface FileRoutesByTo {
   '/student/reading': typeof StudentReadingRoute
   '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
+  '/teacher/curriculum': typeof TeacherCurriculumRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
   '/teacher/fees': typeof TeacherFeesRoute
@@ -388,6 +396,7 @@ export interface FileRoutesById {
   '/student/reading': typeof StudentReadingRoute
   '/student/reading-practice': typeof StudentReadingPracticeRoute
   '/teacher/classes': typeof TeacherClassesRoute
+  '/teacher/curriculum': typeof TeacherCurriculumRoute
   '/teacher/dashboard': typeof TeacherDashboardRoute
   '/teacher/exam-security': typeof TeacherExamSecurityRoute
   '/teacher/fees': typeof TeacherFeesRoute
@@ -437,6 +446,7 @@ export interface FileRouteTypes {
     | '/student/reading'
     | '/student/reading-practice'
     | '/teacher/classes'
+    | '/teacher/curriculum'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
     | '/teacher/fees'
@@ -483,6 +493,7 @@ export interface FileRouteTypes {
     | '/student/reading'
     | '/student/reading-practice'
     | '/teacher/classes'
+    | '/teacher/curriculum'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
     | '/teacher/fees'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/student/reading'
     | '/student/reading-practice'
     | '/teacher/classes'
+    | '/teacher/curriculum'
     | '/teacher/dashboard'
     | '/teacher/exam-security'
     | '/teacher/fees'
@@ -672,6 +684,13 @@ declare module '@tanstack/react-router' {
       path: '/classes'
       fullPath: '/teacher/classes'
       preLoaderRoute: typeof TeacherClassesRouteImport
+      parentRoute: typeof TeacherRoute
+    }
+    '/teacher/curriculum': {
+      id: '/teacher/curriculum'
+      path: '/curriculum'
+      fullPath: '/teacher/curriculum'
+      preLoaderRoute: typeof TeacherCurriculumRouteImport
       parentRoute: typeof TeacherRoute
     }
     '/teacher/dashboard': {
@@ -959,6 +978,7 @@ const TeacherVisualRouteWithChildren = TeacherVisualRoute._addFileChildren(
 
 interface TeacherRouteChildren {
   TeacherClassesRoute: typeof TeacherClassesRoute
+  TeacherCurriculumRoute: typeof TeacherCurriculumRoute
   TeacherDashboardRoute: typeof TeacherDashboardRoute
   TeacherExamSecurityRoute: typeof TeacherExamSecurityRoute
   TeacherFeesRoute: typeof TeacherFeesRoute
@@ -977,6 +997,7 @@ interface TeacherRouteChildren {
 
 const TeacherRouteChildren: TeacherRouteChildren = {
   TeacherClassesRoute: TeacherClassesRoute,
+  TeacherCurriculumRoute: TeacherCurriculumRoute,
   TeacherDashboardRoute: TeacherDashboardRoute,
   TeacherExamSecurityRoute: TeacherExamSecurityRoute,
   TeacherFeesRoute: TeacherFeesRoute,
