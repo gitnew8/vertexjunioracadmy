@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { QuickTestBuilder } from "@/components/quick-test-builder";
 import { VoiceTestAgent } from "@/components/voice-test-agent";
+import { ChatTestBot } from "@/components/chat-test-bot";
 
 export const Route = createFileRoute("/teacher/tests")({
   component: TestsPage,
@@ -90,6 +91,7 @@ function TestsPage() {
         </button>
       </div>
 
+      <ChatTestBot />
       <div className="mb-6">
         <QuickTestBuilder />
       </div>
