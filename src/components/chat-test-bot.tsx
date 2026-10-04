@@ -159,23 +159,24 @@ export function ChatTestBot() {
         <div ref={endRef} />
       </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          send();
-        }}
-        className="flex items-center gap-2 border-t border-border bg-card p-2"
-      >
+      <div className="flex items-center gap-2 border-t border-border bg-card p-2">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void send();
+            }
+          }}
+          enterKeyHint="send"
           placeholder="Class, subject, chapter, topic likhiye…"
           className="flex-1 rounded-full border border-input bg-background px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
         />
-        <button type="submit" disabled={thinking || !text.trim()} className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50" aria-label="Send">
+        <button type="button" onClick={() => void send()} disabled={thinking || !text.trim()} className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-50" aria-label="Send">
           <Send className="size-4" />
         </button>
-      </form>
+      </div>
     </div>
   );
 }
