@@ -5,7 +5,7 @@
 
 export const site = {
   name: "Vertex Junior Academy",
-  domain: "https://report-share-buddy.lovable.app",
+  domain: "https://vertexjunioracadmy.lovable.app",
   tagline: "India's Smart School & Coaching Management Platform",
   subtitle:
     "Online Tests, AI Study Materials, Student Progress Reports, Attendance, Rank Lists, Homework, Parent Portal and PDF Report Cards — all in one platform.",
