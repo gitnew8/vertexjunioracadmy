@@ -1,0 +1,2 @@
+- [ ] Preserve completed test outcomes after deleting their tests, including student history, rankings, and reward calculations.
+- [ ] Resolve the three outstanding public-write/read RLS findings after confirming an access design that does not break teacher workflows.
