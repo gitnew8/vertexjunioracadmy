@@ -4,4 +4,4 @@ Allow: /
 Disallow: /teacher
 Disallow: /report/
 
-Sitemap: https://report-share-buddy.lovable.app/sitemap.xml
+Sitemap: https://vertexjunioracadmy.lovable.app/sitemap.xml
