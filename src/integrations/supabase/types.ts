@@ -188,39 +188,6 @@ export type Database = {
         }
         Relationships: []
       }
-            system_curriculum: {
-        Row: {
-          chapter: string
-          created_at: string
-          id: string
-          is_active: boolean
-          subject: string
-          student_class: string
-          topics: string[]
-          updated_at: string
-        }
-        Insert: {
-          chapter: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          subject: string
-          student_class: string
-          topics?: string[]
-          updated_at?: string
-        }
-        Update: {
-          chapter?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          subject?: string
-          student_class?: string
-          topics?: string[]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       exam_security_events: {
         Row: {
           attempt_id: string | null
