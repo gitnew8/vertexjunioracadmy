@@ -927,6 +927,63 @@ export type Database = {
           },
         ]
       }
+      student_test_results: {
+        Row: {
+          attempt_id: string
+          created_at: string
+          id: string
+          result_status: string
+          risk_label: string
+          roll_number: string
+          score: number
+          student_class: string
+          student_id: string
+          student_name: string
+          subject: string
+          submitted_at: string
+          test_id: string
+          test_title: string
+          time_taken_sec: number
+          total: number
+        }
+        Insert: {
+          attempt_id: string
+          created_at?: string
+          id?: string
+          result_status?: string
+          risk_label?: string
+          roll_number: string
+          score?: number
+          student_class: string
+          student_id: string
+          student_name: string
+          subject: string
+          submitted_at: string
+          test_id: string
+          test_title: string
+          time_taken_sec?: number
+          total?: number
+        }
+        Update: {
+          attempt_id?: string
+          created_at?: string
+          id?: string
+          result_status?: string
+          risk_label?: string
+          roll_number?: string
+          score?: number
+          student_class?: string
+          student_id?: string
+          student_name?: string
+          subject?: string
+          submitted_at?: string
+          test_id?: string
+          test_title?: string
+          time_taken_sec?: number
+          total?: number
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           can_manage_curriculum: boolean
