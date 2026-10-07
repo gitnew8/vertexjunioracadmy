@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as StudentRouteImport } from './routes/student'
 import { Route as TeacherRouteImport } from './routes/teacher'
 import { Route as ReportCodeRouteImport } from './routes/report.$code'
 import { Route as StudentAiRouteImport } from './routes/student.ai'
@@ -71,11 +70,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StudentRoute = StudentRouteImport.update({
-  id: '/student',
-  path: '/student',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TeacherRoute = TeacherRouteImport.update({
   id: '/teacher',
   path: '/teacher',
@@ -87,24 +81,24 @@ const ReportCodeRoute = ReportCodeRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentAiRoute = StudentAiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
-  getParentRoute: () => StudentRoute,
+  id: '/student/ai',
+  path: '/student/ai',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const StudentImagineRoute = StudentImagineRouteImport.update({
-  id: '/imagine',
-  path: '/imagine',
-  getParentRoute: () => StudentRoute,
+  id: '/student/imagine',
+  path: '/student/imagine',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const StudentReadingRoute = StudentReadingRouteImport.update({
-  id: '/reading',
-  path: '/reading',
-  getParentRoute: () => StudentRoute,
+  id: '/student/reading',
+  path: '/student/reading',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const StudentReadingPracticeRoute = StudentReadingPracticeRouteImport.update({
-  id: '/reading-practice',
-  path: '/reading-practice',
-  getParentRoute: () => StudentRoute,
+  id: '/student/reading-practice',
+  path: '/student/reading-practice',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TeacherIndexRoute = TeacherIndexRouteImport.update({
   id: '/',
@@ -259,19 +253,19 @@ const ApiPublicWordMeaningRoute = ApiPublicWordMeaningRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentClassCodeRoute = StudentClassCodeRouteImport.update({
-  id: '/class/$code',
-  path: '/class/$code',
-  getParentRoute: () => StudentRoute,
+  id: '/student/class/$code',
+  path: '/student/class/$code',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const StudentTestIdRoute = StudentTestIdRouteImport.update({
-  id: '/test/$id',
-  path: '/test/$id',
-  getParentRoute: () => StudentRoute,
+  id: '/student/test/$id',
+  path: '/student/test/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const StudentVisualIdRoute = StudentVisualIdRouteImport.update({
-  id: '/visual/$id',
-  path: '/visual/$id',
-  getParentRoute: () => StudentRoute,
+  id: '/student/visual/$id',
+  path: '/student/visual/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TeacherTestsIdRoute = TeacherTestsIdRouteImport.update({
   id: '/$id',
@@ -293,7 +287,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/student': typeof StudentRouteWithChildren
   '/teacher': typeof TeacherRouteWithChildren
   '/report/$code': typeof ReportCodeRoute
   '/student/ai': typeof StudentAiRoute
@@ -341,7 +334,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/student': typeof StudentRouteWithChildren
   '/report/$code': typeof ReportCodeRoute
   '/student/ai': typeof StudentAiRoute
   '/student/imagine': typeof StudentImagineRoute
@@ -388,7 +380,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/student': typeof StudentRouteWithChildren
   '/teacher': typeof TeacherRouteWithChildren
   '/report/$code': typeof ReportCodeRoute
   '/student/ai': typeof StudentAiRoute
@@ -438,7 +429,6 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/sitemap.xml'
-    | '/student'
     | '/teacher'
     | '/report/$code'
     | '/student/ai'
@@ -486,7 +476,6 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/sitemap.xml'
-    | '/student'
     | '/report/$code'
     | '/student/ai'
     | '/student/imagine'
@@ -532,7 +521,6 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/sitemap.xml'
-    | '/student'
     | '/teacher'
     | '/report/$code'
     | '/student/ai'
@@ -581,9 +569,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LeaderboardRoute: typeof LeaderboardRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  StudentRoute: typeof StudentRouteWithChildren
   TeacherRoute: typeof TeacherRouteWithChildren
   ReportCodeRoute: typeof ReportCodeRoute
+  StudentAiRoute: typeof StudentAiRoute
+  StudentImagineRoute: typeof StudentImagineRoute
+  StudentReadingRoute: typeof StudentReadingRoute
+  StudentReadingPracticeRoute: typeof StudentReadingPracticeRoute
   ApiPublicAiEvaluateRoute: typeof ApiPublicAiEvaluateRoute
   ApiPublicAiStudyChatRoute: typeof ApiPublicAiStudyChatRoute
   ApiPublicAnalyzePaperRoute: typeof ApiPublicAnalyzePaperRoute
@@ -598,6 +589,9 @@ export interface RootRouteChildren {
   ApiPublicVoiceCommandRoute: typeof ApiPublicVoiceCommandRoute
   ApiPublicWatermarkMaterialRoute: typeof ApiPublicWatermarkMaterialRoute
   ApiPublicWordMeaningRoute: typeof ApiPublicWordMeaningRoute
+  StudentClassCodeRoute: typeof StudentClassCodeRoute
+  StudentTestIdRoute: typeof StudentTestIdRoute
+  StudentVisualIdRoute: typeof StudentVisualIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -623,13 +617,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/student': {
-      id: '/student'
-      path: '/student'
-      fullPath: '/student'
-      preLoaderRoute: typeof StudentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/teacher': {
       id: '/teacher'
       path: '/teacher'
@@ -646,31 +633,31 @@ declare module '@tanstack/react-router' {
     }
     '/student/ai': {
       id: '/student/ai'
-      path: '/ai'
+      path: '/student/ai'
       fullPath: '/student/ai'
       preLoaderRoute: typeof StudentAiRouteImport
-      parentRoute: typeof StudentRoute
+      parentRoute: typeof rootRouteImport
     }
     '/student/imagine': {
       id: '/student/imagine'
-      path: '/imagine'
+      path: '/student/imagine'
       fullPath: '/student/imagine'
       preLoaderRoute: typeof StudentImagineRouteImport
-      parentRoute: typeof StudentRoute
+      parentRoute: typeof rootRouteImport
     }
     '/student/reading': {
       id: '/student/reading'
-      path: '/reading'
+      path: '/student/reading'
       fullPath: '/student/reading'
       preLoaderRoute: typeof StudentReadingRouteImport
-      parentRoute: typeof StudentRoute
+      parentRoute: typeof rootRouteImport
     }
     '/student/reading-practice': {
       id: '/student/reading-practice'
-      path: '/reading-practice'
+      path: '/student/reading-practice'
       fullPath: '/student/reading-practice'
       preLoaderRoute: typeof StudentReadingPracticeRouteImport
-      parentRoute: typeof StudentRoute
+      parentRoute: typeof rootRouteImport
     }
     '/teacher/': {
       id: '/teacher/'
@@ -884,24 +871,24 @@ declare module '@tanstack/react-router' {
     }
     '/student/class/$code': {
       id: '/student/class/$code'
-      path: '/class/$code'
+      path: '/student/class/$code'
       fullPath: '/student/class/$code'
       preLoaderRoute: typeof StudentClassCodeRouteImport
-      parentRoute: typeof StudentRoute
+      parentRoute: typeof rootRouteImport
     }
     '/student/test/$id': {
       id: '/student/test/$id'
-      path: '/test/$id'
+      path: '/student/test/$id'
       fullPath: '/student/test/$id'
       preLoaderRoute: typeof StudentTestIdRouteImport
-      parentRoute: typeof StudentRoute
+      parentRoute: typeof rootRouteImport
     }
     '/student/visual/$id': {
       id: '/student/visual/$id'
-      path: '/visual/$id'
+      path: '/student/visual/$id'
       fullPath: '/student/visual/$id'
       preLoaderRoute: typeof StudentVisualIdRouteImport
-      parentRoute: typeof StudentRoute
+      parentRoute: typeof rootRouteImport
     }
     '/teacher/tests/$id': {
       id: '/teacher/tests/$id'
@@ -926,29 +913,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-interface StudentRouteChildren {
-  StudentAiRoute: typeof StudentAiRoute
-  StudentImagineRoute: typeof StudentImagineRoute
-  StudentReadingRoute: typeof StudentReadingRoute
-  StudentReadingPracticeRoute: typeof StudentReadingPracticeRoute
-  StudentClassCodeRoute: typeof StudentClassCodeRoute
-  StudentTestIdRoute: typeof StudentTestIdRoute
-  StudentVisualIdRoute: typeof StudentVisualIdRoute
-}
-
-const StudentRouteChildren: StudentRouteChildren = {
-  StudentAiRoute: StudentAiRoute,
-  StudentImagineRoute: StudentImagineRoute,
-  StudentReadingRoute: StudentReadingRoute,
-  StudentReadingPracticeRoute: StudentReadingPracticeRoute,
-  StudentClassCodeRoute: StudentClassCodeRoute,
-  StudentTestIdRoute: StudentTestIdRoute,
-  StudentVisualIdRoute: StudentVisualIdRoute,
-}
-
-const StudentRouteWithChildren =
-  StudentRoute._addFileChildren(StudentRouteChildren)
 
 interface TeacherTestsRouteChildren {
   TeacherTestsIdRoute: typeof TeacherTestsIdRoute
@@ -1021,9 +985,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LeaderboardRoute: LeaderboardRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  StudentRoute: StudentRouteWithChildren,
   TeacherRoute: TeacherRouteWithChildren,
   ReportCodeRoute: ReportCodeRoute,
+  StudentAiRoute: StudentAiRoute,
+  StudentImagineRoute: StudentImagineRoute,
+  StudentReadingRoute: StudentReadingRoute,
+  StudentReadingPracticeRoute: StudentReadingPracticeRoute,
   ApiPublicAiEvaluateRoute: ApiPublicAiEvaluateRoute,
   ApiPublicAiStudyChatRoute: ApiPublicAiStudyChatRoute,
   ApiPublicAnalyzePaperRoute: ApiPublicAnalyzePaperRoute,
@@ -1038,6 +1005,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicVoiceCommandRoute: ApiPublicVoiceCommandRoute,
   ApiPublicWatermarkMaterialRoute: ApiPublicWatermarkMaterialRoute,
   ApiPublicWordMeaningRoute: ApiPublicWordMeaningRoute,
+  StudentClassCodeRoute: StudentClassCodeRoute,
+  StudentTestIdRoute: StudentTestIdRoute,
+  StudentVisualIdRoute: StudentVisualIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
