@@ -468,21 +468,25 @@ function StudentPage() {
   return (
     <div className="min-h-screen">
       <Toaster richColors position="top-center" />
-      <header className="border-b border-border bg-background/90 backdrop-blur sticky top-0 z-10">
-        <div className="mx-auto max-w-3xl px-5 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-primary text-primary-foreground grid place-items-center">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/85 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+          <Link to="/" className="group flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/20 transition-transform group-hover:scale-105">
               <GraduationCap className="size-5" />
             </div>
-            <span className="font-display text-lg font-semibold">WeeklyReport</span>
-            <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
-              Student
-            </span>
+            <div>
+              <div className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
+                Vertex Junior Academy
+              </div>
+              <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-slate-400">
+                Student Portal
+              </div>
+            </div>
           </Link>
           {session && (
             <button
               onClick={() => persist(null)}
-              className="inline-flex items-center gap-1.5 text-sm rounded-lg border border-border px-3 py-1.5 hover:bg-secondary"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 sm:text-sm"
             >
               <LogOut className="size-4" /> Logout
             </button>
@@ -491,36 +495,94 @@ function StudentPage() {
       </header>
 
       {!hydrated ? (
-        <main className="mx-auto max-w-md px-5 py-16 text-sm text-muted-foreground">Loading…</main>
+        <main className="grid min-h-[calc(100vh-65px)] place-items-center bg-slate-950 px-5 text-sm text-slate-400">
+          Loading…
+        </main>
       ) : session ? (
         <StudentReports session={session} />
       ) : (
-        <main className="mx-auto max-w-md px-5 py-16">
-          <div className="rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-soft)]">
-            <div className="flex gap-2 mb-6">
-              <button
-                onClick={() => setMode("login")}
-                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  mode === "login" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
-                }`}
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setMode("register")}
-                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  mode === "register" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
-                }`}
-              >
-                Register
-              </button>
-            </div>
+        <main className="relative min-h-[calc(100vh-65px)] overflow-hidden bg-slate-950">
+          <div className="absolute -left-32 top-10 size-80 rounded-full bg-indigo-600/20 blur-3xl" />
+          <div className="absolute -right-32 bottom-0 size-96 rounded-full bg-violet-600/20 blur-3xl" />
 
-            {mode === "login" ? (
-              <LoginForm onSuccess={persist} />
-            ) : (
-              <RegisterForm onLoginAfter={persist} />
-            )}
+          <div className="relative mx-auto grid min-h-[calc(100vh-65px)] max-w-6xl items-center gap-10 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:py-12">
+            <section className="hidden lg:block">
+              <div className="max-w-xl">
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-3 py-1.5 text-xs font-semibold text-indigo-200">
+                  <span className="size-2 animate-pulse rounded-full bg-emerald-400" />
+                  Student Portal
+                </div>
+                <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-white">
+                  Learn. Practice.
+                  <span className="block bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
+                    Grow every day.
+                  </span>
+                </h1>
+                <p className="mt-5 max-w-lg text-base leading-7 text-slate-400">
+                  Access your reports, tests, study materials, live classes,
+                  fees and learning tools from one simple student dashboard.
+                </p>
+
+                <div className="mt-8 grid grid-cols-2 gap-3">
+                  {[
+                    ["📚", "Study Materials"],
+                    ["📝", "Online Tests"],
+                    ["🏆", "Rank & Rewards"],
+                    ["✨", "AI Study Tools"],
+                  ].map(([icon, label]) => (
+                    <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm">
+                      <div className="text-2xl">{icon}</div>
+                      <div className="mt-2 text-sm font-semibold text-slate-200">{label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <img
+                  src="/images/student-login.png"
+                  alt="Student learning"
+                  className="mt-8 h-48 w-full object-contain object-left drop-shadow-2xl"
+                />
+              </div>
+            </section>
+
+            <section className="mx-auto w-full max-w-md">
+              <div className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-2 shadow-2xl shadow-black/30 backdrop-blur-2xl">
+                <div className="rounded-[1.65rem] bg-white p-6 sm:p-8">
+                  <div className="mb-7 flex rounded-2xl bg-slate-100 p-1.5">
+                    <button
+                      onClick={() => setMode("login")}
+                      className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
+                        mode === "login"
+                          ? "bg-slate-950 text-white shadow-md"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Login
+                    </button>
+                    <button
+                      onClick={() => setMode("register")}
+                      className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
+                        mode === "register"
+                          ? "bg-slate-950 text-white shadow-md"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Register
+                    </button>
+                  </div>
+
+                  {mode === "login" ? (
+                    <LoginForm onSuccess={persist} />
+                  ) : (
+                    <RegisterForm onLoginAfter={persist} />
+                  )}
+
+                  <div className="mt-7 border-t border-slate-100 pt-5 text-center text-[11px] text-slate-400">
+                    Secure student access · Vertex Junior Academy
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </main>
       )}
@@ -550,30 +612,43 @@ function LoginForm({ onSuccess }: { onSuccess: (s: Session) => void }) {
 
   return (
     <>
-      <div className="size-12 rounded-xl bg-primary/10 text-primary grid place-items-center">
-        <Lock className="size-6" />
+      <div className="mb-6">
+        <div className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20">
+          <Lock className="size-6" />
+        </div>
+        <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-slate-950">
+          Welcome back
+        </h1>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          Enter your 6-digit student login number to continue.
+        </p>
       </div>
-      <h1 className="font-display text-2xl font-semibold mt-4">Student login</h1>
-      <p className="text-sm text-muted-foreground mt-1">
-        Enter the 6-digit login number you received when you registered.
-      </p>
-      <form onSubmit={submit} className="mt-6 space-y-4">
+
+      <form onSubmit={submit} className="space-y-5">
         <div>
-          <label className="text-sm font-medium">Login number</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
+            Login number
+          </label>
           <input
             inputMode="numeric"
             maxLength={6}
             value={loginNumber}
             onChange={(e) => setLoginNumber(e.target.value.replace(/\D/g, ""))}
             placeholder="123456"
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono tracking-widest text-center text-lg"
+            autoComplete="off"
+            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-center font-mono text-2xl font-bold tracking-[0.35em] text-slate-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
           />
+          <p className="mt-2 text-center text-[11px] text-slate-400">
+            Your unique student access number
+          </p>
         </div>
+
         <button
           disabled={loading}
-          className="w-full rounded-lg bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-60"
+          className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Checking…" : "Login"}
+          {loading ? "Checking…" : "Login to Student Portal"}
+          {!loading && <span className="transition-transform group-hover:translate-x-1">→</span>}
         </button>
       </form>
     </>
@@ -622,16 +697,16 @@ function RegisterForm({ onLoginAfter }: { onLoginAfter: (s: Session) => void }) 
   if (issued) {
     return (
       <div className="text-center">
-        <div className="size-12 rounded-xl bg-primary/10 text-primary grid place-items-center mx-auto">
-          <CheckCircle2 className="size-6" />
+        <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
+          <CheckCircle2 className="size-8" />
         </div>
-        <h1 className="font-display text-2xl font-semibold mt-4">You're registered!</h1>
+        <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-slate-950">You're registered!</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Save your login number. You'll need it every time you log in.
         </p>
-        <div className="mt-6 rounded-xl border border-border bg-secondary/50 p-5">
-          <div className="text-xs text-muted-foreground">Your login number</div>
-          <div className="font-mono text-3xl font-semibold tracking-widest mt-1">
+        <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5">
+          <div className="text-xs font-bold uppercase tracking-wider text-indigo-500">Your login number</div>
+          <div className="mt-2 font-mono text-4xl font-black tracking-[0.28em] text-slate-950">
             {issued.login_number}
           </div>
           <button
@@ -639,14 +714,14 @@ function RegisterForm({ onLoginAfter }: { onLoginAfter: (s: Session) => void }) 
               navigator.clipboard.writeText(issued.login_number);
               toast.success("Copied");
             }}
-            className="mt-3 inline-flex items-center gap-1.5 text-xs rounded-lg border border-border px-3 py-1.5 hover:bg-background"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-50"
           >
             <Copy className="size-3.5" /> Copy
           </button>
         </div>
         <button
           onClick={() => onLoginAfter(issued)}
-          className="mt-6 w-full rounded-lg bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:opacity-90"
+          className="mt-6 w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:shadow-xl"
         >
           Continue to my reports
         </button>
@@ -656,49 +731,49 @@ function RegisterForm({ onLoginAfter }: { onLoginAfter: (s: Session) => void }) 
 
   return (
     <>
-      <div className="size-12 rounded-xl bg-primary/10 text-primary grid place-items-center">
+      <div className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20">
         <UserPlus className="size-6" />
       </div>
-      <h1 className="font-display text-2xl font-semibold mt-4">Create your account</h1>
+      <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-slate-950">Create your account</h1>
       <p className="text-sm text-muted-foreground mt-1">
         Register once and get a unique login number.
       </p>
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div>
-          <label className="text-sm font-medium">Full name</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Full name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Aarav Sharma"
             maxLength={100}
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium">Class</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Class</label>
             <input
               value={studentClass}
               onChange={(e) => setStudentClass(e.target.value)}
               placeholder="VIII-B"
               maxLength={20}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Roll number</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Roll number</label>
             <input
               value={rollNumber}
               onChange={(e) => setRollNumber(e.target.value)}
               placeholder="14"
               maxLength={20}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
             />
           </div>
         </div>
         <button
           disabled={loading}
-          className="w-full rounded-lg bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-60"
+          className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Registering…" : "Register"}
         </button>
