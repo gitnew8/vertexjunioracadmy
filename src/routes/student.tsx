@@ -4,7 +4,7 @@ import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-rout
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ReportRow } from "@/lib/types";
-import { GraduationCap, LogOut, Calendar, ExternalLink, Lock, UserPlus, Copy, CheckCircle2, Download, Receipt, BookOpen, Eye, FileText, Image as ImageIcon, File as FileIcon } from "lucide-react";
+import { GraduationCap, LogOut, Calendar, ExternalLink, Copy, Download, Receipt, BookOpen, Eye, FileText, Image as ImageIcon, File as FileIcon } from "lucide-react";
 import { generateReceiptPdf } from "@/lib/receipt";
 import { toast, Toaster } from "sonner";
 import { RewardProgressCard } from "@/components/reward-progress-card";
@@ -441,6 +441,64 @@ function MyClasses({ session }: { session: Session }) {
   );
 }
 
+const authCss = `
+.vja-auth-page { background: linear-gradient(135deg, #eceef5 0%, #f8f9fc 100%); }
+.vja-stage { position: relative; width: min(92vw, 480px); aspect-ratio: 1; display: grid; place-items: center; }
+
+/* घूमते, आकार बदलते घेरे */
+.vja-orbits { position: absolute; inset: 0; animation: vja-rot 12s linear infinite; pointer-events: none; }
+.vja-orbits i { position: absolute; inset: 0; border-radius: 50%; border: 5px solid; opacity: .88; animation: vja-morphA 2.2s ease-in-out infinite alternate; }
+.vja-orbits i:nth-child(1) { border-color: #4f46e5; }
+.vja-orbits i:nth-child(2) { border-color: #f5b301; animation-name: vja-morphB; animation-delay: -.7s; }
+.vja-orbits i:nth-child(3) { border-color: #06b6d4; animation-delay: -1.4s; }
+.vja-orbits i:nth-child(4) { border-color: #84cc16; animation-name: vja-morphB; animation-delay: -2.1s; }
+@keyframes vja-rot { to { transform: rotate(360deg); } }
+@keyframes vja-morphA {
+  0%   { transform: scale(.95) rotate(0);     border-radius: 45% 55% 48% 52% / 42% 48% 52% 58%; }
+  50%  { transform: scale(1.04) rotate(8deg); border-radius: 58% 42% 55% 45% / 48% 62% 38% 52%; }
+  100% { transform: scale(.97) rotate(-4deg); border-radius: 38% 62% 45% 55% / 58% 52% 48% 42%; }
+}
+@keyframes vja-morphB {
+  0%   { transform: scale(1.05) rotate(10deg); border-radius: 55% 45% 58% 42% / 52% 48% 52% 48%; }
+  50%  { transform: scale(.94) rotate(-8deg);  border-radius: 42% 58% 45% 55% / 48% 60% 40% 52%; }
+  100% { transform: scale(1.02) rotate(5deg);  border-radius: 60% 40% 52% 48% / 42% 58% 42% 58%; }
+}
+
+.vja-box { position: relative; z-index: 2; width: min(320px, 68%); text-align: center; animation: vja-fade .35s ease both; }
+@keyframes vja-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.vja-title { font-size: 26px; font-weight: 600; color: #25235a; margin-bottom: 6px; }
+.vja-sub { font-size: 12.5px; color: #6c6f93; margin-bottom: 18px; }
+.vja-g { margin-bottom: 12px; }
+.vja-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.vja-input {
+  width: 100%; padding: 12px 20px; border: 2px solid #4f46e5; border-radius: 25px; background: #fff; color: #25235a;
+  font-size: 14px; outline: none; transition: box-shadow .25s;
+}
+.vja-input::placeholder { color: #9a9dc4; }
+.vja-input:focus { box-shadow: 0 0 0 4px rgba(79,70,229,.15); }
+.vja-num { text-align: center; font: 700 20px ui-monospace, Menlo, monospace; letter-spacing: .35em; padding-left: 26px; }
+.vja-shake .vja-input { border-color: #e11d48; animation: vja-shake .4s; }
+@keyframes vja-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
+
+.vja-btn {
+  width: 100%; padding: 12px; margin-top: 6px; border: 0; border-radius: 25px; color: #fff; cursor: pointer;
+  font-size: 16px; font-weight: 600; background: linear-gradient(to right, #4f46e5, #06b6d4);
+  display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .2s, box-shadow .2s;
+}
+.vja-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,.3); }
+.vja-btn:disabled { cursor: wait; opacity: .9; }
+.vja-sp { width: 16px; height: 16px; border: 3px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: vja-spin .6s linear infinite; }
+@keyframes vja-spin { to { transform: rotate(360deg); } }
+
+.vja-links { margin-top: 16px; font-size: 13px; color: #6c6f93; }
+.vja-link { background: none; border: 0; padding: 0; color: #4f46e5; font-weight: 600; cursor: pointer; font-size: inherit; }
+.vja-link:hover { color: #06b6d4; text-decoration: underline; }
+
+.vja-numshow { margin: 8px 0 14px; font: 700 30px ui-monospace, Menlo, monospace; letter-spacing: .28em; padding-left: .28em; color: #25235a; }
+`;
+
 function StudentPage() {
   const location = useLocation();
   const [session, setSession] = useState<Session | null>(null);
@@ -502,53 +560,18 @@ function StudentPage() {
         <StudentReports session={session} />
       ) : (
         <main className="vja-auth-page relative flex min-h-[calc(100vh-65px)] items-center justify-center overflow-hidden px-4 py-10">
-          <style>{`
-            .vja-auth-page { background: linear-gradient(135deg, #eeeeef 0%, #fbfbfc 52%, #e8edf2 100%); }
-            .vja-auth-stage { position: relative; width: min(100%, 520px); min-height: 520px; display:flex; align-items:center; justify-content:center; isolation:isolate; }
-            .vja-orbits { position:absolute; inset:50% auto auto 50%; width:min(88vw, 490px); aspect-ratio:1; transform:translate(-50%,-50%); animation:vja-rotate 20s linear infinite; z-index:-1; pointer-events:none; }
-            .vja-orbit { position:absolute; inset:0; border:5px solid; border-radius:50%; opacity:.9; }
-            .vja-orbit:nth-child(1) { border-color:#e91e63; animation:vja-pulse1 3.2s ease-in-out infinite; }
-            .vja-orbit:nth-child(2) { border-color:#f3c623; animation:vja-pulse2 3.2s ease-in-out infinite .4s; }
-            .vja-orbit:nth-child(3) { border-color:#00bcd4; animation:vja-pulse3 3.2s ease-in-out infinite .8s; }
-            .vja-orbit:nth-child(4) { border-color:#8bc34a; animation:vja-pulse4 3.2s ease-in-out infinite 1.2s; }
-            .vja-auth-card { width:min(100%, 390px); position:relative; z-index:2; padding:26px; border:1px solid rgba(255,255,255,.85); border-radius:28px; background:rgba(255,255,255,.92); box-shadow:0 24px 70px rgba(34,40,60,.14); backdrop-filter:blur(14px); }
-            .vja-auth-card input { border-radius:25px !important; border-color:#8b1538 !important; background:#fff !important; }
-            .vja-auth-card input:focus { border-color:#00aebf !important; box-shadow:0 0 0 3px rgba(0,188,212,.12) !important; }
-            .vja-auth-card button:not([data-auth-tab]) { transition:transform .25s ease, box-shadow .25s ease; }
-            .vja-auth-card button:not([data-auth-tab]):hover { transform:translateY(-2px); }
-            @keyframes vja-rotate { to { transform:translate(-50%,-50%) rotate(360deg); } }
-            @keyframes vja-pulse1 { 0%,100%{transform:scale(.95);border-radius:45% 55% 48% 52% / 42% 48% 52% 58%;opacity:.78} 50%{transform:scale(1.04);border-radius:52% 48% 62% 38% / 53% 45% 55% 47%;opacity:1} }
-            @keyframes vja-pulse2 { 0%,100%{transform:scale(.92) rotate(10deg);border-radius:55% 45% 58% 42% / 52% 48% 52% 48%;opacity:.8} 50%{transform:scale(1.07) rotate(10deg);border-radius:48% 52% 40% 60% / 55% 45% 55% 45%;opacity:1} }
-            @keyframes vja-pulse3 { 0%,100%{transform:scale(.98) rotate(-10deg);border-radius:40% 60% 52% 48% / 45% 55% 45% 55%;opacity:.8} 50%{transform:scale(1.04) rotate(-10deg);border-radius:60% 40% 58% 42% / 52% 48% 52% 48%;opacity:1} }
-            @keyframes vja-pulse4 { 0%,100%{transform:scale(1) rotate(5deg);border-radius:48% 52% 55% 45% / 50% 50% 50% 50%;opacity:.8} 50%{transform:scale(1.08) rotate(5deg);border-radius:50% 50% 38% 62% / 58% 42% 58% 42%;opacity:1} }
-            @media(max-width:520px) { .vja-auth-stage{min-height:490px}.vja-orbits{width:94vw;max-width:430px}.vja-auth-card{padding:22px 18px}.vja-auth-page{padding-left:12px;padding-right:12px} }
-            @media(prefers-reduced-motion:reduce) { .vja-orbits,.vja-orbit{animation:none !important} }
-          `}</style>
-          <div className="vja-auth-stage">
+          <style>{authCss}</style>
+          <div className="vja-stage">
             <div className="vja-orbits" aria-hidden="true">
-              <div className="vja-orbit" /><div className="vja-orbit" /><div className="vja-orbit" /><div className="vja-orbit" />
+              <i /><i /><i /><i />
             </div>
-            <section className="vja-auth-card">
-              <div className="mb-6 text-center">
-                <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-rose-700 via-fuchsia-600 to-cyan-500 text-white shadow-lg">
-                  <GraduationCap className="size-7" />
-                </div>
-                <div className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-rose-800">Vertex Junior Academy</div>
-                <p className="mt-1 text-xs text-slate-500">Student Portal</p>
-              </div>
-              <div className="mb-6 flex rounded-full border border-slate-200 bg-slate-100 p-1.5">
-                <button data-auth-tab onClick={() => setMode("login")} className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all ${mode === "login" ? "bg-gradient-to-r from-rose-800 to-cyan-500 text-white shadow-md" : "text-slate-500 hover:text-slate-900"}`}>
-                  Login
-                </button>
-                <button data-auth-tab onClick={() => setMode("register")} className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all ${mode === "register" ? "bg-gradient-to-r from-rose-800 to-cyan-500 text-white shadow-md" : "text-slate-500 hover:text-slate-900"}`}>
-                  Register
-                </button>
-              </div>
-              {mode === "login" ? <LoginForm onSuccess={persist} /> : <RegisterForm onLoginAfter={persist} />}
-              <div className="mt-6 border-t border-slate-100 pt-4 text-center text-[11px] text-slate-400">
-                Secure student access · Vertex Junior Academy
-              </div>
-            </section>
+            <div className="vja-box" key={mode}>
+              {mode === "login" ? (
+                <LoginForm onSuccess={persist} onSwitch={() => setMode("register")} />
+              ) : (
+                <RegisterForm onLoginAfter={persist} onSwitch={() => setMode("login")} />
+              )}
+            </div>
           </div>
         </main>
       )}
@@ -556,14 +579,21 @@ function StudentPage() {
   );
 }
 
-function LoginForm({ onSuccess }: { onSuccess: (s: Session) => void }) {
+function LoginForm({ onSuccess, onSwitch }: { onSuccess: (s: Session) => void; onSwitch: () => void }) {
   const [loginNumber, setLoginNumber] = useState("");
   const [loading, setLoading] = useState(false);
+  const [shake, setShake] = useState(false);
+
+  function fail(msg: string) {
+    toast.error(msg);
+    setShake(true);
+    setTimeout(() => setShake(false), 450);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const code = loginNumber.trim();
-    if (!/^\d{6}$/.test(code)) return toast.error("Enter your 6-digit login number");
+    if (!/^\d{6}$/.test(code)) return fail("Enter your 6-digit login number");
     setLoading(true);
     const { data, error } = await supabase
       .from("students")
@@ -572,70 +602,66 @@ function LoginForm({ onSuccess }: { onSuccess: (s: Session) => void }) {
       .maybeSingle();
     setLoading(false);
     if (error) return toast.error(error.message);
-    if (!data) return toast.error("Invalid login number");
+    if (!data) return fail("Invalid login number");
     onSuccess(data as Session);
   }
 
   return (
     <>
-      <div className="mb-6">
-        <div className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20">
-          <Lock className="size-6" />
-        </div>
-        <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-slate-950">
-          Welcome back
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-slate-500">
-          Enter your 6-digit student login number to continue.
-        </p>
-      </div>
+      <h1 className="vja-title">Student Login</h1>
+      <p className="vja-sub">अपना 6-digit login number डालें</p>
 
-      <form onSubmit={submit} className="space-y-5">
-        <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
-            Login number
-          </label>
+      <form onSubmit={submit}>
+        <div className={`vja-g ${shake ? "vja-shake" : ""}`}>
           <input
+            className="vja-input vja-num"
             inputMode="numeric"
             maxLength={6}
             value={loginNumber}
             onChange={(e) => setLoginNumber(e.target.value.replace(/\D/g, ""))}
-            placeholder="123456"
+            placeholder="••••••"
             autoComplete="off"
-            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-center font-mono text-2xl font-bold tracking-[0.35em] text-slate-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+            aria-label="Login number"
           />
-          <p className="mt-2 text-center text-[11px] text-slate-400">
-            Your unique student access number
-          </p>
         </div>
-
-        <button
-          disabled={loading}
-          className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? "Checking…" : "Login to Student Portal"}
-          {!loading && <span className="transition-transform group-hover:translate-x-1">→</span>}
+        <button className="vja-btn" disabled={loading}>
+          {loading && <span className="vja-sp" />}
+          {loading ? "जाँच हो रही है" : "Login"}
         </button>
       </form>
+
+      <div className="vja-links">
+        नए छात्र?{" "}
+        <button type="button" className="vja-link" onClick={onSwitch}>
+          Register
+        </button>
+      </div>
     </>
   );
 }
 
-function RegisterForm({ onLoginAfter }: { onLoginAfter: (s: Session) => void }) {
+function RegisterForm({ onLoginAfter, onSwitch }: { onLoginAfter: (s: Session) => void; onSwitch: () => void }) {
   const [name, setName] = useState("");
   const [studentClass, setStudentClass] = useState("");
   const [rollNumber, setRollNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [issued, setIssued] = useState<Session | null>(null);
+  const [shakeKey, setShakeKey] = useState<"" | "name" | "cls" | "roll">("");
+
+  function fail(which: "name" | "cls" | "roll", msg: string) {
+    toast.error(msg);
+    setShakeKey(which);
+    setTimeout(() => setShakeKey(""), 450);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     const n = name.trim();
     const c = studentClass.trim();
     const r = rollNumber.trim();
-    if (n.length < 2) return toast.error("Enter your full name");
-    if (!c) return toast.error("Enter your class");
-    if (!r) return toast.error("Enter your roll number");
+    if (n.length < 2) return fail("name", "Enter your full name");
+    if (!c) return fail("cls", "Enter your class");
+    if (!r) return fail("roll", "Enter your roll number");
 
     setLoading(true);
     // Try a few times in case of unique collision
@@ -662,88 +688,82 @@ function RegisterForm({ onLoginAfter }: { onLoginAfter: (s: Session) => void }) 
 
   if (issued) {
     return (
-      <div className="text-center">
-        <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
-          <CheckCircle2 className="size-8" />
-        </div>
-        <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-slate-950">You're registered!</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Save your login number. You'll need it every time you log in.
-        </p>
-        <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5">
-          <div className="text-xs font-bold uppercase tracking-wider text-indigo-500">Your login number</div>
-          <div className="mt-2 font-mono text-4xl font-black tracking-[0.28em] text-slate-950">
-            {issued.login_number}
-          </div>
+      <>
+        <h1 className="vja-title">Registered</h1>
+        <p className="vja-sub">यह नंबर सुरक्षित रखें, हर बार login में चाहिए</p>
+        <div className="vja-numshow">{issued.login_number}</div>
+        <button className="vja-btn" onClick={() => onLoginAfter(issued)}>
+          Continue to my reports
+        </button>
+        <div className="vja-links">
           <button
+            type="button"
+            className="vja-link"
             onClick={() => {
               navigator.clipboard.writeText(issued.login_number);
               toast.success("Copied");
             }}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-white px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-50"
           >
-            <Copy className="size-3.5" /> Copy
+            <Copy className="mr-1 inline size-3.5" /> Copy number
           </button>
         </div>
-        <button
-          onClick={() => onLoginAfter(issued)}
-          className="mt-6 w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:shadow-xl"
-        >
-          Continue to my reports
-        </button>
-      </div>
+      </>
     );
   }
 
   return (
     <>
-      <div className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/20">
-        <UserPlus className="size-6" />
-      </div>
-      <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-slate-950">Create your account</h1>
-      <p className="text-sm text-muted-foreground mt-1">
-        Register once and get a unique login number.
-      </p>
-      <form onSubmit={submit} className="mt-6 space-y-4">
-        <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Full name</label>
+      <h1 className="vja-title">Register</h1>
+      <p className="vja-sub">अपना login number पाएँ</p>
+
+      <form onSubmit={submit}>
+        <div className={`vja-g ${shakeKey === "name" ? "vja-shake" : ""}`}>
           <input
+            className="vja-input"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Aarav Sharma"
+            placeholder="पूरा नाम"
             maxLength={100}
-            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+            autoComplete="off"
+            aria-label="Full name"
           />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Class</label>
+        <div className="vja-two">
+          <div className={`vja-g ${shakeKey === "cls" ? "vja-shake" : ""}`}>
             <input
+              className="vja-input"
               value={studentClass}
               onChange={(e) => setStudentClass(e.target.value)}
-              placeholder="VIII-B"
+              placeholder="Class"
               maxLength={20}
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+              autoComplete="off"
+              aria-label="Class"
             />
           </div>
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-600">Roll number</label>
+          <div className={`vja-g ${shakeKey === "roll" ? "vja-shake" : ""}`}>
             <input
+              className="vja-input"
               value={rollNumber}
               onChange={(e) => setRollNumber(e.target.value)}
-              placeholder="14"
+              placeholder="Roll no."
               maxLength={20}
-              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm text-slate-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10"
+              autoComplete="off"
+              aria-label="Roll number"
             />
           </div>
         </div>
-        <button
-          disabled={loading}
-          className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? "Registering…" : "Register"}
+        <button className="vja-btn" disabled={loading}>
+          {loading && <span className="vja-sp" />}
+          {loading ? "बन रहा है" : "Register"}
         </button>
       </form>
+
+      <div className="vja-links">
+        पहले से account है?{" "}
+        <button type="button" className="vja-link" onClick={onSwitch}>
+          Login
+        </button>
+      </div>
     </>
   );
 }
@@ -1174,5 +1194,3 @@ function PaymentHistory({ session }: { session: Session }) {
     </section>
   );
 }
-
-
