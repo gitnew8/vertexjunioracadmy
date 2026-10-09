@@ -13,7 +13,7 @@ import { checkAndAwardRewards } from "@/lib/rewards";
 
 export const Route = createFileRoute("/student")({
   component: StudentPage,
-  head: () => ({ meta: [{ title: "Student login — WeeklyReport" }] }),
+  head: () => ({ meta: [{ title: "Student Login — Vertex Junior Academy" }] }),
 });
 
 const SESSION_KEY = "student_session_v2";
@@ -501,86 +501,52 @@ function StudentPage() {
       ) : session ? (
         <StudentReports session={session} />
       ) : (
-        <main className="relative min-h-[calc(100vh-65px)] overflow-hidden bg-slate-950">
-          <div className="absolute -left-32 top-10 size-80 rounded-full bg-indigo-600/20 blur-3xl" />
-          <div className="absolute -right-32 bottom-0 size-96 rounded-full bg-violet-600/20 blur-3xl" />
-
-          <div className="relative mx-auto grid min-h-[calc(100vh-65px)] max-w-6xl items-center gap-10 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:py-12">
-            <section className="hidden lg:block">
-              <div className="max-w-xl">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-400/10 px-3 py-1.5 text-xs font-semibold text-indigo-200">
-                  <span className="size-2 animate-pulse rounded-full bg-emerald-400" />
-                  Student Portal
+        <main className="vja-auth-page relative flex min-h-[calc(100vh-65px)] items-center justify-center overflow-hidden px-4 py-10">
+          <style>{`
+            .vja-auth-page { background: linear-gradient(135deg, #eeeeef 0%, #fbfbfc 52%, #e8edf2 100%); }
+            .vja-auth-stage { position: relative; width: min(100%, 520px); min-height: 520px; display:flex; align-items:center; justify-content:center; isolation:isolate; }
+            .vja-orbits { position:absolute; inset:50% auto auto 50%; width:min(88vw, 490px); aspect-ratio:1; transform:translate(-50%,-50%); animation:vja-rotate 20s linear infinite; z-index:-1; pointer-events:none; }
+            .vja-orbit { position:absolute; inset:0; border:5px solid; border-radius:50%; opacity:.9; }
+            .vja-orbit:nth-child(1) { border-color:#e91e63; animation:vja-pulse1 3.2s ease-in-out infinite; }
+            .vja-orbit:nth-child(2) { border-color:#f3c623; animation:vja-pulse2 3.2s ease-in-out infinite .4s; }
+            .vja-orbit:nth-child(3) { border-color:#00bcd4; animation:vja-pulse3 3.2s ease-in-out infinite .8s; }
+            .vja-orbit:nth-child(4) { border-color:#8bc34a; animation:vja-pulse4 3.2s ease-in-out infinite 1.2s; }
+            .vja-auth-card { width:min(100%, 390px); position:relative; z-index:2; padding:26px; border:1px solid rgba(255,255,255,.85); border-radius:28px; background:rgba(255,255,255,.92); box-shadow:0 24px 70px rgba(34,40,60,.14); backdrop-filter:blur(14px); }
+            .vja-auth-card input { border-radius:25px !important; border-color:#8b1538 !important; background:#fff !important; }
+            .vja-auth-card input:focus { border-color:#00aebf !important; box-shadow:0 0 0 3px rgba(0,188,212,.12) !important; }
+            .vja-auth-card button:not([data-auth-tab]) { transition:transform .25s ease, box-shadow .25s ease; }
+            .vja-auth-card button:not([data-auth-tab]):hover { transform:translateY(-2px); }
+            @keyframes vja-rotate { to { transform:translate(-50%,-50%) rotate(360deg); } }
+            @keyframes vja-pulse1 { 0%,100%{transform:scale(.95);border-radius:45% 55% 48% 52% / 42% 48% 52% 58%;opacity:.78} 50%{transform:scale(1.04);border-radius:52% 48% 62% 38% / 53% 45% 55% 47%;opacity:1} }
+            @keyframes vja-pulse2 { 0%,100%{transform:scale(.92) rotate(10deg);border-radius:55% 45% 58% 42% / 52% 48% 52% 48%;opacity:.8} 50%{transform:scale(1.07) rotate(10deg);border-radius:48% 52% 40% 60% / 55% 45% 55% 45%;opacity:1} }
+            @keyframes vja-pulse3 { 0%,100%{transform:scale(.98) rotate(-10deg);border-radius:40% 60% 52% 48% / 45% 55% 45% 55%;opacity:.8} 50%{transform:scale(1.04) rotate(-10deg);border-radius:60% 40% 58% 42% / 52% 48% 52% 48%;opacity:1} }
+            @keyframes vja-pulse4 { 0%,100%{transform:scale(1) rotate(5deg);border-radius:48% 52% 55% 45% / 50% 50% 50% 50%;opacity:.8} 50%{transform:scale(1.08) rotate(5deg);border-radius:50% 50% 38% 62% / 58% 42% 58% 42%;opacity:1} }
+            @media(max-width:520px) { .vja-auth-stage{min-height:490px}.vja-orbits{width:94vw;max-width:430px}.vja-auth-card{padding:22px 18px}.vja-auth-page{padding-left:12px;padding-right:12px} }
+            @media(prefers-reduced-motion:reduce) { .vja-orbits,.vja-orbit{animation:none !important} }
+          `}</style>
+          <div className="vja-auth-stage">
+            <div className="vja-orbits" aria-hidden="true">
+              <div className="vja-orbit" /><div className="vja-orbit" /><div className="vja-orbit" /><div className="vja-orbit" />
+            </div>
+            <section className="vja-auth-card">
+              <div className="mb-6 text-center">
+                <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-rose-700 via-fuchsia-600 to-cyan-500 text-white shadow-lg">
+                  <GraduationCap className="size-7" />
                 </div>
-                <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-white">
-                  Learn. Practice.
-                  <span className="block bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
-                    Grow every day.
-                  </span>
-                </h1>
-                <p className="mt-5 max-w-lg text-base leading-7 text-slate-400">
-                  Access your reports, tests, study materials, live classes,
-                  fees and learning tools from one simple student dashboard.
-                </p>
-
-                <div className="mt-8 grid grid-cols-2 gap-3">
-                  {[
-                    ["📚", "Study Materials"],
-                    ["📝", "Online Tests"],
-                    ["🏆", "Rank & Rewards"],
-                    ["✨", "AI Study Tools"],
-                  ].map(([icon, label]) => (
-                    <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm">
-                      <div className="text-2xl">{icon}</div>
-                      <div className="mt-2 text-sm font-semibold text-slate-200">{label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <img
-                  src="/images/student-login.png"
-                  alt="Student learning"
-                  className="mt-8 h-48 w-full object-contain object-left drop-shadow-2xl"
-                />
+                <div className="mt-4 text-xs font-bold uppercase tracking-[0.2em] text-rose-800">Vertex Junior Academy</div>
+                <p className="mt-1 text-xs text-slate-500">Student Portal</p>
               </div>
-            </section>
-
-            <section className="mx-auto w-full max-w-md">
-              <div className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-2 shadow-2xl shadow-black/30 backdrop-blur-2xl">
-                <div className="rounded-[1.65rem] bg-white p-6 sm:p-8">
-                  <div className="mb-7 flex rounded-2xl bg-slate-100 p-1.5">
-                    <button
-                      onClick={() => setMode("login")}
-                      className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
-                        mode === "login"
-                          ? "bg-slate-950 text-white shadow-md"
-                          : "text-slate-500 hover:text-slate-900"
-                      }`}
-                    >
-                      Login
-                    </button>
-                    <button
-                      onClick={() => setMode("register")}
-                      className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${
-                        mode === "register"
-                          ? "bg-slate-950 text-white shadow-md"
-                          : "text-slate-500 hover:text-slate-900"
-                      }`}
-                    >
-                      Register
-                    </button>
-                  </div>
-
-                  {mode === "login" ? (
-                    <LoginForm onSuccess={persist} />
-                  ) : (
-                    <RegisterForm onLoginAfter={persist} />
-                  )}
-
-                  <div className="mt-7 border-t border-slate-100 pt-5 text-center text-[11px] text-slate-400">
-                    Secure student access · Vertex Junior Academy
-                  </div>
-                </div>
+              <div className="mb-6 flex rounded-full border border-slate-200 bg-slate-100 p-1.5">
+                <button data-auth-tab onClick={() => setMode("login")} className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all ${mode === "login" ? "bg-gradient-to-r from-rose-800 to-cyan-500 text-white shadow-md" : "text-slate-500 hover:text-slate-900"}`}>
+                  Login
+                </button>
+                <button data-auth-tab onClick={() => setMode("register")} className={`flex-1 rounded-full px-4 py-2.5 text-sm font-bold transition-all ${mode === "register" ? "bg-gradient-to-r from-rose-800 to-cyan-500 text-white shadow-md" : "text-slate-500 hover:text-slate-900"}`}>
+                  Register
+                </button>
+              </div>
+              {mode === "login" ? <LoginForm onSuccess={persist} /> : <RegisterForm onLoginAfter={persist} />}
+              <div className="mt-6 border-t border-slate-100 pt-4 text-center text-[11px] text-slate-400">
+                Secure student access · Vertex Junior Academy
               </div>
             </section>
           </div>
